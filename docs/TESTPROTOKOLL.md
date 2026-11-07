@@ -10,6 +10,10 @@ Der zusätzliche echte Stripe-Sandbox-Test bestand: jeweils zwei Hüllenarten al
 
 Auch die geschützte Vorschau `archenlicht-5sa2thqr5-jonas-4eb6.vercel.app` bestand den Gast- und Kontokauf über die echte Stripe-API. Ungeprüfte lokale Zahlungsbestätigung ist dort gesperrt (403); nicht bezahlte Käufe speichern keine Lieferadresse. Eine im JSON eingeschleuste fremde Rückkehradresse wird ignoriert. `Stripekey.txt` ist im Deployment nicht erreichbar (404). [Plan und tatsächliche Prüfgrenzen](STRIPE.md).
 
+Die veröffentlichten Domains `archenlicht.de`, `www.archenlicht.de` und `archenlicht.vercel.app` liefern den Stripe-Sandboxmodus. Ein echtes, von Stripe zugestelltes Ablaufereignis änderte eine eigene unbezahlte Bestellung auf `expired`, ohne Fulfillmentauftrag.
+
+**Der anschließende vollständige Stripe-Sandbox-Zahlungstest bestand.** Jonas bestätigte die Testkartenzahlung im Browser. Stripe und Neon zeigten unabhängig voneinander: 29,90 EUR bezahlt, null Steuer, dauerhafte Steuerbehandlung `small_business_de`, verifizierter Zahlungsbeleg, genau ein Fulfillmentauftrag und genau ein simulierter Anbieterauftrag, schließlich simulierter Versandstatus. Das gespeicherte `checkout.session.completed`-Webhook-Ereignis wurde zusätzlich bei Stripe abgerufen und mit der konkreten Test-Checkout-Session abgeglichen. Keine echte Abbuchung, kein physischer Druck oder Versand. Der manuelle Abschluss ersetzt keine automatische visuelle Mobilabnahme; die Windows-Browsersteuerung war technisch nicht erreichbar.
+
 ## Vercel-Backend und dauerhafte Cloud-Daten
 
 **43 automatisierte Prüfungen bestanden, 0 fehlgeschlagen; ein Neon-Test ist in der normalen Suite absichtlich übersprungen.** Dieser zusätzliche Test wurde separat mit echter Neon-Verbindung erfolgreich ausgeführt. 30 JavaScript-Dateien sind syntaktisch geprüft. Die lokale Suite umfasst zusätzlich asynchrone Transaktionen mit Rollback und konkurrierenden Verbindungen sowie den nativen Vercel-Einstieg mit Routing, CSRF und geschütztem Jobzugriff.
