@@ -1,5 +1,6 @@
 import { modelTrigger, createModelPicker } from './model-picker.js';
 import { recipientFields, accountSettings, localCardOptions } from './account-ui.js';
+import { readJsonResponse, SHOP_UNAVAILABLE } from './api-client.js';
 
 const $ = (s, p = document) => p.querySelector(s);
 const $$ = (s, p = document) => [...p.querySelectorAll(s)];
@@ -27,9 +28,10 @@ function berlinDay(value, next = false) {
 
 async function api(path, options = {}) {
   const { body, ...rest } = options;
-  const response = await fetch(path, { ...rest, headers: { ...(body !== undefined ? { 'Content-Type': 'application/json', 'X-CSRF-Token': state?.csrf || '' } : {}), ...rest.headers }, ...(body !== undefined ? { body: JSON.stringify(body) } : {}) });
-  const data = await response.json();
-  if (!response.ok) throw new Error(data.error || 'Das hat gerade nicht geklappt. Bitte versuche es erneut.');
+  let response;
+  try { response = await fetch(path, { ...rest, headers: { ...(body !== undefined ? { 'Content-Type': 'application/json', 'X-CSRF-Token': state?.csrf || '' } : {}), ...rest.headers }, ...(body !== undefined ? { body: JSON.stringify(body) } : {}) }); }
+  catch (error) { throw new Error(SHOP_UNAVAILABLE, { cause: error }); }
+  const data = await readJsonResponse(response);
   armExpiry(data);
   return data;
 }
@@ -160,6 +162,7 @@ function faqPage() {
   return `<section class="section-wrap prose-page faq-page"><span class="eyebrow">GUT ZU WISSEN</span><h1>Ein paar Antworten für deinen Weg.</h1>${questions.map(([q, a]) => `<details><summary>${q}${icon('chevron')}</summary><p>${a}</p></details>`).join('')}</section>`;
 }
 function notFound(message = 'Diese Seite ist gerade nicht zu finden.') { return `<section class="empty-state section-wrap"><span class="eyebrow">EIN KLEINER UMWEG</span><h1>${esc(message)}</h1><a href="/" class="button primary">Zur Startseite ${icon('right')}</a></section>`; }
+function startupError() { return `<section class="empty-state section-wrap"><span class="eyebrow">EIN KLEINER UMWEG</span><h1>Der Shop ist gerade nicht erreichbar.</h1><p>Bitte lade die Seite erneut oder versuche es später noch einmal.</p><a href="/" class="button primary" data-reload>Erneut versuchen ${icon('right')}</a></section>`; }
 function captureCapability() { const match = /^#token=([A-Za-z0-9_-]{43})$/.exec(location.hash); if (match) { caps.set(location.pathname.split('/').pop(), match[1]); history.replaceState(null, '', location.pathname + location.search); } }
 const orderHeaders = id => caps.has(id) ? { Authorization: `Bearer ${caps.get(id)}` } : {};
 async function refreshState() { const data = await api('/api/bootstrap'); state = data; header(); return data; }
@@ -214,6 +217,7 @@ function rerenderWizard() {
 document.addEventListener('click', async event => {
   const link = event.target.closest('a');
   if (link && !event.ctrlKey && !event.metaKey && !event.shiftKey && !link.target && !link.hasAttribute('download')) {
+    if (!state || link.hasAttribute('data-reload')) return;
     const url = new URL(link.href, location.origin);
     if (url.origin === location.origin && !url.pathname.startsWith('/prints/') && !url.pathname.startsWith('/fonts/')) { event.preventDefault(); if (url.hash && url.pathname === location.pathname) { $(url.hash)?.scrollIntoView({ behavior: 'smooth' }); return; } return navigate(url.pathname + url.search + url.hash); }
   }
@@ -307,6 +311,6 @@ async function start() {
     state = await api(`/api/bootstrap?source=${source}&campaign=${encodeURIComponent(campaign)}`);
     modelPicker = createModelPicker({ getState: () => state, getConfiguration: () => config, onSelect: async id => { config.modelId = id; modelPicker.sync(); await updatePreview(); }, onError: error => toast(error.message) });
     await render();
-  } catch (e) { $('#inhalt').innerHTML = notFound(e.message); }
+  } catch { $('#inhalt').innerHTML = startupError(); }
 }
 start();

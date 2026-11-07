@@ -1,4 +1,10 @@
-# Testprotokoll · aktualisiert am 5. November 2026
+# Testprotokoll · aktualisiert am 7. November 2026
+
+## Vercel-Diagnose und Startfehler
+
+**40 automatisierte Tests bestanden, 0 fehlgeschlagen.** 24 JavaScript-Dateien syntaktisch geprüft. Die drei neuen Prüfungen reproduzieren eine nicht-JSON-Hosting-Antwort und den fehlgeschlagenen Bootstrap. Die Oberfläche zeigt einen verständlichen Fehler und lässt eine vollständige Neuladung zu; reguläre JSON-Antworten und verständliche API-Fehler bleiben erhalten.
+
+Öffentliches Deployment per HTTP geprüft: `/` 200, `/api/bootstrap`, `/api/health` und `/kollektion` 404. Fehlende Serverrouten sind die bestätigte Ursache; kein funktionierender veröffentlichter Shop behauptet. [Diagnose und verbleibende Hosting-Arbeit](VERCEL.md). Der Korrekturstand wird lokal vorbereitet; keine Deploymentfreigabe oder erfolgreiche Backend-Migration aus den Frontend-Tests abgeleitet.
 
 ## Erweiterung: Designpaket v2 Farbe und vollständige Hüllenansichten
 
