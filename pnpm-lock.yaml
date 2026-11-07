@@ -17,6 +17,9 @@ importers:
       sharp:
         specifier: 0.34.5
         version: 0.34.5
+      stripe:
+        specifier: 23.1.0
+        version: 23.1.0
 
 packages:
 
@@ -201,6 +204,15 @@ packages:
   string.prototype.codepointat@0.2.1:
     resolution: {integrity: sha512-2cBVCj6I4IOvEnjgO/hWqXjqBGsY+zwPmHl12Srk9IXSZ56Jwwmy+66XO5Iut/oQVR7t5ihYdLB0GMa4alEUcg==}
 
+  stripe@23.1.0:
+    resolution: {integrity: sha512-fVUfMSfTPoukfoV//MUKAx2+YxyKmYaYtnAL9VkfnHfaPNQylFdWZMD+zgUFerI8rjbaiER8Vzj2XEUQ2AhAsQ==}
+    engines: {node: '>=20'}
+    peerDependencies:
+      '@types/node': '>=20'
+    peerDependenciesMeta:
+      '@types/node':
+        optional: true
+
   tiny-inflate@1.0.3:
     resolution: {integrity: sha512-pkY1fj1cKHb2seWDy0B16HeWyczlJA9/WW3u3c4z/NiWDsO3DOU5D7nhTLE9CF0yXv/QZFY7sEJmj24dK+Rrqw==}
 
@@ -353,6 +365,8 @@ snapshots:
       '@img/sharp-win32-x64': 0.34.5
 
   string.prototype.codepointat@0.2.1: {}
+
+  stripe@23.1.0: {}
 
   tiny-inflate@1.0.3: {}
 

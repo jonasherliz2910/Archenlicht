@@ -1,5 +1,15 @@
 # Testprotokoll · aktualisiert am 7. November 2026
 
+## Stripe-Sandbox und Kleinunternehmerregelung
+
+Die CLI 1.55.8 und das offizielle Stripe-Agent-Plugin sind installiert. Der Stripe-MCP-Integrationsplaner wurde mit Archenlichts Geschäftsmodell und Bestand aufgerufen und der gehostete Web-Checkout ausgewählt. Jonas bestätigte anschließend die Kleinunternehmerregelung. SDK 23.1.0, API 2026-10-28.endive; keine automatische Umsatzsteuererhebung.
+
+Die Gesamtsuite nach dem SDK-Wechsel bestand **45 Prüfungen**; Neon und die echte Stripe-Sandbox sind darin absichtlich übersprungen. Der danach ergänzte UI-Test bestand separat. Alle acht gezielten Stripe-/UI-Prüfungen bestanden nach der Ergänzung großer signierter Webhook-Bodies, dauerhafter Zahlungsbelege und verspäteter Ablaufereignisse. 33 JavaScript-Dateien syntaktisch geprüft.
+
+Der zusätzliche echte Stripe-Sandbox-Test bestand: jeweils zwei Hüllenarten als Gast und mit Konto, 64,80 EUR, null Steuer, gespeicherte Customer-Zuordnung, freiwillige Stripe-Kartenspeicheroption, korrekter Rücksprung und keine Fulfillmentfreigabe bei ausstehender Zahlung. Eigene Test-Sessions wurden anschließend beendet und eigene Test-Customer entfernt. Echte Testkarten wurden dabei noch nicht im Browser bestätigt.
+
+Auch die geschützte Vorschau `archenlicht-5sa2thqr5-jonas-4eb6.vercel.app` bestand den Gast- und Kontokauf über die echte Stripe-API. Ungeprüfte lokale Zahlungsbestätigung ist dort gesperrt (403); nicht bezahlte Käufe speichern keine Lieferadresse. Eine im JSON eingeschleuste fremde Rückkehradresse wird ignoriert. `Stripekey.txt` ist im Deployment nicht erreichbar (404). [Plan und tatsächliche Prüfgrenzen](STRIPE.md).
+
 ## Vercel-Backend und dauerhafte Cloud-Daten
 
 **43 automatisierte Prüfungen bestanden, 0 fehlgeschlagen; ein Neon-Test ist in der normalen Suite absichtlich übersprungen.** Dieser zusätzliche Test wurde separat mit echter Neon-Verbindung erfolgreich ausgeführt. 30 JavaScript-Dateien sind syntaktisch geprüft. Die lokale Suite umfasst zusätzlich asynchrone Transaktionen mit Rollback und konkurrierenden Verbindungen sowie den nativen Vercel-Einstieg mit Routing, CSRF und geschütztem Jobzugriff.

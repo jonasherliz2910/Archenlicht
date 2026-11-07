@@ -1,6 +1,6 @@
 # Archenlicht
 
-Deutschsprachiger Webshop für christliche Handyhüllen. **Lokal startbarer Entwicklungsstand im Testbetrieb**, umgesetzt nach `CODEX-BAUAUFTRAG-ARCHENLICHT.md`. Nach Jonas’ Ergänzung werden **Kartenzahlung und PayPal über Stripe Checkout** vorbereitet. Eine separate direkte PayPal-Integration wird nicht benötigt.
+Deutschsprachiger Webshop für christliche Handyhüllen. **Lokal startbarer Entwicklungsstand im Testbetrieb**, umgesetzt nach `CODEX-BAUAUFTRAG-ARCHENLICHT.md`. Der **gehostete Stripe-Testcheckout** nutzt die im Stripe-Konto verfügbaren Zahlungsarten. Jonas hat die Kleinunternehmerregelung bestätigt. Eine separate direkte PayPal-Integration wird nicht benötigt.
 
 ## Direkt auf diesem Rechner starten
 
@@ -39,7 +39,7 @@ Das hinzugekommene [CI-Book](Archenlicht-CI-Book.pdf) wurde berücksichtigt: Ori
 - Sechs unveränderte Blankomotive aus dem gelieferten Designpaket. Versstelle, Originalauszug und optionale Widmung werden separat mit der mitgelieferten Caveat-Schrift gemessen, zentriert und gerade eingesetzt. Überlauf verhindert den Warenkorbzugang.
 - Vorschau und unveränderlicher PNG-Testexport aus demselben Layout; aktuell 1.200 × 2.400 px / 300 dpi auf **simulierten** Geräteschablonen. Schrift ist in Pfade umgewandelt. Die neuen farbigen Ausgangsmotive messen je nach Motiv 962 × 1.634 oder 1.635 px; Hochskalieren ergänzt keine Bilddetails. Hüllen ohne Markenaufdruck, `productionApproved: false`.
 - Serverseitiger Warenkorb, Bearbeiten derselben Position, Mengen, Gastkauf, freiwilliges Kundenkonto, geschützte Bestellhistorie und Gaststatuslinks.
-- Lokaler PayPal-/Karten-Zahlungssimulator; vorbereitete **Stripe-Checkout-Testintegration für beide Zahlungsarten**, signierter Webhook und unabhängiger Zahlungsabgleich.
+- Lokaler PayPal-/Karten-Zahlungssimulator; **Stripe-Checkout-Testintegration mit dynamischen Zahlungsarten**, signierter Webhook und unabhängiger Zahlungsabgleich.
 - Persistente Fulfillment-Warteschlange, einmalige Übergabe aller Positionen, Abgleich bei unklarer Antwort, Wiederaufnahme nach Neustart, Fehlerfall und Adminnachricht.
 - Simulierte Produktion, Tracking und einmalige Versandnachricht. Testpostfach sowie Herkunfts-, Motiv-, Produktart- und Anlassauswertung nur für Jonas.
 - Vorbereitete Informationsseiten einschließlich Impressum, Datenschutz, AGB und Widerruf, ausdrücklich als Arbeitsentwürfe markiert.
@@ -54,7 +54,7 @@ Unter `/konto` können Kunden die Lieferdaten bearbeiten, entfernen oder aus ihr
 
 Für Kartenzahlungen legt der Stripe-Testadapter eine beständige, serverseitig an die Konto-ID gebundene Customer-Zuordnung an. Stripe Checkout bietet eine **freiwillige Speichercheckbox** und zeigt zuvor freigegebene Karten erneut an. Ohne Auswahl wird keine neue Karte zur Wiederanzeige gespeichert. Es wird kein automatisches `setup_future_usage` gesetzt. Der Shop erhält keine vollständige Kartennummer oder Prüfnummer. Im Konto zeigt er Marke, letzte vier Ziffern und Ablaufdatum und bietet Entfernen an.
 
-Im aktuellen lokalen Betrieb ist dieser Ablauf mit einer ausdrücklich markierten **Demo-Visa ···· 4242** umgesetzt. Die Checkbox dafür erscheint im lokalen Zahlungssimulator. Echte Karten werden erst nach Einrichtung der Stripe-Testzugänge getestet. Karte und Adresse sind zwei voneinander unabhängige freiwillige Entscheidungen. Gäste erhalten keine kontogebundene Speicherfunktion.
+Im aktuellen lokalen Betrieb ist dieser Ablauf mit einer ausdrücklich markierten **Demo-Visa ···· 4242** umgesetzt. Die Checkbox dafür erscheint im lokalen Zahlungssimulator. Auf Vercel steht außerdem der gehostete Stripe-Testcheckout mit freiwilliger Kartenspeicherung bereit. Dort ausschließlich Stripe-Testkarten verwenden. Karte und Adresse sind zwei voneinander unabhängige freiwillige Entscheidungen. Gäste erhalten keine kontogebundene Speicherfunktion.
 
 Zusatztests für Zustimmung, Abbruch, neue Sitzung, Serverneustart, Aktualisierung/Löschung, verspätete Ereignisse, fremde Konten, native Stripe-Checkbox, Customer-Bindung und sicheres Entfernen. Mit den v2-Prüfungen für Originalmaße, schmale/breite Flächen, SVG-/PNG-Identität, Randfortsetzung und größere Schrift vom 5. November 2026: **Gesamt 37 Tests bestanden.**
 
@@ -77,22 +77,22 @@ Ein Gemeinde-QR-Code kann den zweiten Link enthalten. Die Gemeinde-Kennung ist e
 
 Ohne `.env` startet ausschließlich der lokale Testbetrieb. `.env.example` enthält keine Geheimnisse. Eine lokale `.env` wird ignoriert und niemals ausgeliefert.
 
-Für den späteren **Stripe-Testmodus**:
+Für den **Stripe-Testmodus** (nur in einer privaten, ignorierten `.env`):
 
 ```dotenv
 SHOP_MODE=test
 PAYMENT_MODE=sandbox
-STRIPE_SECRET_KEY=sk_test_HIER_DEIN_TESTSCHLUESSEL
-STRIPE_WEBHOOK_SECRET=whsec_HIER_DEIN_TEST_WEBHOOK_SECRET
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
 PODBASE_MODE=local
 MAIL_MODE=local
 ```
 
-Karte und PayPal werden im Stripe-Konto als Zahlungsmethoden eingerichtet. PayPal-Verfügbarkeit und Aktivierung müssen für Jonas’ Konto geprüft werden. Gehostete Checkoutflächen erfassen die Zahlungsdaten; der Shop selbst hat keine Kartenfelder.
+Die verfügbaren Zahlungsarten werden im Stripe-Dashboard verwaltet. Aktuell sind Karte und Link verfügbar; PayPal ist in Jonas’ Konto noch nicht verfügbar. Gehostete Checkoutflächen erfassen die Zahlungsdaten; der Shop selbst hat keine Kartenfelder.
 
-Webhookziel: `POST /api/webhooks/stripe`, Ereignisse `checkout.session.completed` und `checkout.session.async_payment_succeeded`. Bei lokalem Stripe-CLI-Forwarding das **CLI-Webhooksecret** verwenden. Kein Secret hier eintragen oder committen. Bestellbezug, Checkout-ID, bestätigter Status, Testmodus, Betrag und Währung werden serverseitig geprüft. Der Rücksprung allein gilt nie als Zahlungsnachweis.
+Webhookziel: `POST /api/webhooks/stripe`, Ereignisse `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `checkout.session.async_payment_failed` und `checkout.session.expired`. Bei lokalem Stripe-CLI-Forwarding das **CLI-Webhooksecret** verwenden. Kein Secret hier eintragen oder committen. Bestellbezug, Checkout-ID, bestätigter Status, Testmodus, Betrag und Währung werden serverseitig geprüft. Der Rücksprung allein gilt nie als Zahlungsnachweis.
 
-**Noch keine echten Stripe-Sandboxzahlungen durchgeführt:** Händler-Testzugänge fehlen. Die Schnittstelle ist mit kontrollierten HTTP-Fixtures automatisiert geprüft. Im aktuellen Betrieb sind sämtliche Zahlungen lokal simuliert. Podbase und Mail bleiben auch bei Stripe-Testzahlungen lokal.
+**Stripe-Sandbox eingerichtet:** CLI, Agent-Plugin und MCP-Integrationsplaner wurden verwendet. Gast- und Konto-Checkouts mit echten Test-API-Schlüsseln sind lokal und auf Vercel geprüft. Eine abgeschlossene Browserzahlung wird getrennt von API- und Webhook-Fixturetests nachgewiesen. Wegen der bestätigten Kleinunternehmerregelung bleibt automatische Steuererhebung deaktiviert. [Plan, Umsetzung, Schlüssel und Prüfgrenzen](docs/STRIPE.md). Podbase und Mail bleiben simuliert.
 
 ## Modellauswahl
 

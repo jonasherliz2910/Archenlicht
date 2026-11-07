@@ -7,7 +7,7 @@ import { token, digest, passwordHash, passwordMatches } from './store.js';
 import { createStore } from './async-store.js';
 import { designAsset } from './design-assets.js';
 import { LocalPodbase, podbasePayload } from './podbase.js';
-import { Payments } from './payments.js';
+import { Payments, TAX_TREATMENT, TAX_NOTICE } from './payments.js';
 
 export class Shop {
   static async create(config) {
@@ -56,7 +56,7 @@ export class Shop {
   }
   async publicState(session) {
     const variants = (await this.s.all('SELECT * FROM variants'));
-    return { brand: BRAND, designs: DESIGNS, models: MODELS, verses: VERSES, variants, mode: 'test', paymentMode: this.config.paymentMode, csrf: session.csrf, user: (await this.user(session)), account: (await this.accountDetails(session)), cart: (await this.cart(session)), sessionExpires: session.expires, sessionHours: this.config.sessionHours };
+    return { brand: BRAND, designs: DESIGNS, models: MODELS, verses: VERSES, variants, mode: 'test', paymentMode: this.config.paymentMode, taxNotice: TAX_NOTICE, csrf: session.csrf, user: (await this.user(session)), account: (await this.accountDetails(session)), cart: (await this.cart(session)), sessionExpires: session.expires, sessionHours: this.config.sessionHours };
   }
   async track(session, type, kind, designId) {
     if (!['view', 'cart'].includes(type) || !['fixed', 'custom'].includes(kind) || !findDesign(designId)) throw new ShopError('Ungültiges Ereignis.');
@@ -164,7 +164,7 @@ export class Shop {
     if (r.country !== 'DE' || !/^\d{5}$/.test(r.postalCode)) throw new ShopError('Wir versenden ausschließlich innerhalb Deutschlands. Bitte prüfe Land und Postleitzahl.');
     return r;
   }
-  async checkout(session, input) {
+  async checkout(session, input, { returnOrigin = this.config.baseUrl } = {}) {
     const items = (await this.cart(session)); if (!items.length) throw new ShopError('Dein Warenkorb ist noch leer.');
     for (const i of items) (await this.assertAvailable(i.configuration));
     const providerCatalog = await this.podbase.catalog();
@@ -174,11 +174,12 @@ export class Shop {
       i.productId = product.id; i.variantId = variant.id;
     }
     const recipient = this.validateRecipient(input.recipient || {});
-    if (!['paypal', 'card'].includes(input.method)) throw new ShopError('Bitte wähle PayPal oder Kartenzahlung.');
+    if (!(this.config.paymentMode === 'sandbox' ? ['stripe', 'paypal', 'card'] : ['paypal', 'card']).includes(input.method)) throw new ShopError('Bitte wähle eine verfügbare Zahlungsart.');
+    const method = this.config.paymentMode === 'sandbox' ? 'stripe' : input.method;
     if (input.saveAddress !== undefined && typeof input.saveAddress !== 'boolean') throw new ShopError('Bitte entscheide, ob du die Lieferdaten speichern möchtest.');
     const user = (await this.user(session)), saveAddress = input.saveAddress === true;
     if (saveAddress && !user) throw new ShopError('Zum Speichern der Lieferdaten ist ein Kundenkonto erforderlich.', 401);
-    const customerId = user && input.method === 'card' ? await this.payments.customerFor(user) : null;
+    const customerId = user && ['card', 'stripe'].includes(method) ? await this.payments.customerFor(user) : null;
     if (user) (await this.s.run('INSERT OR IGNORE INTO account_profiles VALUES(?,NULL,0,?)', user.id, Date.now()));
     const addressVersion = (await this.accountDetails(session))?.addressVersion || 0;
     const id = randomUUID(), guestToken = token(), amount = items.reduce((sum, i) => sum + i.unitPrice * i.quantity, 0), now = Date.now();
@@ -186,15 +187,19 @@ export class Shop {
     const visit = (await this.s.get('SELECT source FROM visits WHERE id=?', session.visit_id));
     const snapshot = items.map(({ id, configuration, hash, title, model, quantity, unitPrice, printText, productId, variantId }) => ({ id, configuration, hash, title, model, quantity, unitPrice, printText, productId, variantId }));
     (await this.s.tx(async () => {
-      (await this.s.run('INSERT INTO orders(id,number,session_id,user_id,guest_hash,recipient,items,amount,currency,status,payment_method,source,visit_id,mode,created) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)', id, number, session.id, session.user_id, digest(guestToken), JSON.stringify(recipient), JSON.stringify(snapshot), amount, 'EUR', 'awaiting_payment', input.method, visit.source, session.visit_id, 'test', now));
+      (await this.s.run('INSERT INTO orders(id,number,session_id,user_id,guest_hash,recipient,items,amount,currency,status,payment_method,source,visit_id,mode,created) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)', id, number, session.id, session.user_id, digest(guestToken), JSON.stringify(recipient), JSON.stringify(snapshot), amount, 'EUR', 'awaiting_payment', method, visit.source, session.visit_id, 'test', now));
+      if (method === 'stripe') await this.s.run('INSERT INTO stripe_payments VALUES(?,NULL,NULL,?,NULL,NULL)', id, TAX_TREATMENT);
       (await this.s.run('INSERT INTO checkout_preferences VALUES(?,?,?,?,?)', id, user?.id || null, saveAddress ? 1 : 0, addressVersion, customerId));
       (await this.mail(id, 'confirmation', recipient.email, `Testbestellung ${number} bestätigt`, `SIMULIERTE E-MAIL · kein echter Versand.\nDeine Testbestellung ${number} ist bezahlt.\nPersönlicher Statuslink: ${this.config.baseUrl}/bestellung/${id}#token=${guestToken}\nGeschenkkarte 10 × 15 cm zum Selbstbeschriften inklusive.`, 'pending-payment'));
     }));
     const order = (await this.s.get('SELECT * FROM orders WHERE id=?', id));
     try {
-      const payment = await this.payments.create(order, { customerId });
+      const payment = await this.payments.create(order, { customerId, returnOrigin });
       if (!payment.url) throw new ShopError('Die Testzahlung konnte nicht eingerichtet werden.', 502);
-      (await this.s.run('UPDATE orders SET payment_id=? WHERE id=?', payment.id, id));
+      await this.s.tx(async () => {
+        await this.s.run('UPDATE orders SET payment_id=? WHERE id=?', payment.id, id);
+        if (method === 'stripe') await this.s.run('UPDATE stripe_payments SET session_id=? WHERE order_id=?', payment.id, id);
+      });
       return { orderId: id, number, url: payment.url, simulated: payment.simulated };
     } catch (e) { (await this.s.run("UPDATE orders SET status='payment_setup_failed' WHERE id=?", id)); throw e; }
   }
@@ -204,12 +209,17 @@ export class Shop {
       if (!order || !event.id || typeof event.paymentId !== 'string' || !event.completed || event.amount !== order.amount || event.currency !== 'EUR' || event.paymentId !== order.payment_id) throw new ShopError('Zahlungsstatus, Betrag, Währung oder Bestellbezug stimmen nicht überein.', 409);
       const preferences = (await this.s.get('SELECT * FROM checkout_preferences WHERE order_id=?', order.id));
       if (this.config.paymentMode === 'sandbox' && preferences?.customer_id && event.customerId !== preferences.customer_id) throw new ShopError('Die Zahlung gehört nicht zum vorgesehenen Stripe-Kundenkonto.', 409);
+      if (this.config.paymentMode === 'sandbox') {
+        const payment = await this.s.get('SELECT tax_treatment FROM stripe_payments WHERE order_id=?', order.id);
+        if (!payment || payment.tax_treatment !== event.taxTreatment || event.taxAmount !== 0) throw new ShopError('Die steuerliche Behandlung der Zahlung stimmt nicht mit der Bestellung überein.', 409);
+      }
       if ((await this.s.get('SELECT id FROM payment_events WHERE id=?', event.id))) return { duplicate: true };
       (await this.s.run('INSERT INTO payment_events VALUES(?,?,?,?,?)', event.id, order.id, event.paymentId, 'COMPLETED', Date.now()));
       if (order.paid_at) return { duplicate: true };
       // A deactivated variant after provider handoff is held for manual handling, never sent to production.
       const available = (await Promise.all(JSON.parse(order.items).map(async i => { const v = (await this.s.get('SELECT * FROM variants WHERE model_id=? AND design_id=?', i.configuration.modelId, i.configuration.designId)); return v?.available && v.print_approved && v.approval_mode === 'test'; }))).every(Boolean);
       (await this.s.run("UPDATE orders SET status='paid',paid_at=? WHERE id=?", Date.now(), order.id));
+      if (this.config.paymentMode === 'sandbox') await this.s.run('UPDATE stripe_payments SET payment_intent_id=?,tax_amount=?,verified_at=? WHERE order_id=?', event.paymentIntentId || null, event.taxAmount, Date.now(), order.id);
       if (preferences?.save_address && preferences.user_id === order.user_id) (await this.s.run('UPDATE account_profiles SET address=?,address_version=address_version+1,updated=? WHERE user_id=? AND address_version=?', order.recipient, Date.now(), order.user_id, preferences.address_version));
       if (this.config.paymentMode === 'local' && event.saveCard === true && order.user_id && order.payment_method === 'card') (await this.s.run('INSERT OR IGNORE INTO local_payment_methods VALUES(?,?,?,?,?,?,?)', `SIM-CARD-${digest(order.user_id).slice(0, 24)}`, order.user_id, 'visa', '4242', 12, new Date().getUTCFullYear() + 4, Date.now()));
       (await this.s.run('INSERT INTO fulfillment(order_id,state,error,updated) VALUES(?,?,?,?)', order.id, available ? 'ready' : 'rejected', available ? null : 'Variante nach Zahlungsbeginn weggefallen. Bitte Erstattung oder Ersatz klären.', Date.now()));

@@ -8,10 +8,10 @@ import { DESIGNS, MODELS } from './catalog.js';
 import { digest } from './store.js';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-export const defaultConfig = () => ({ shopMode: process.env.SHOP_MODE || 'test', podbaseMode: process.env.PODBASE_MODE || 'local', mailMode: process.env.MAIL_MODE || 'local', paymentMode: process.env.PAYMENT_MODE || 'local', dataDir: resolve(process.env.DATA_DIR || 'data/test'), adminEmail: process.env.ADMIN_EMAIL || 'jonas@archenlicht.test', adminPassword: process.env.ADMIN_PASSWORD || undefined, sessionHours: Math.min(24, Math.max(1, Number(process.env.SESSION_HOURS) || 2)), baseUrl: process.env.BASE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : `http://localhost:${process.env.PORT || 3000}`), printBaseUrl: process.env.PRINT_BASE_URL || '', stripeKey: process.env.STRIPE_SECRET_KEY, stripeWebhook: process.env.STRIPE_WEBHOOK_SECRET, autoShip: true, storageMode: process.env.STORAGE_MODE || (process.env.VERCEL === '1' ? 'postgres' : 'sqlite'), databaseUrl: process.env.DATABASE_URL, databaseSchema: process.env.DATABASE_SCHEMA || 'public', serverless: process.env.VERCEL === '1', workerSecret: process.env.CRON_SECRET, platformOrigins: [process.env.VERCEL_URL, process.env.VERCEL_BRANCH_URL, process.env.VERCEL_PROJECT_PRODUCTION_URL].filter(Boolean).map(host => `https://${host}`) });
+export const defaultConfig = () => ({ shopMode: process.env.SHOP_MODE || 'test', podbaseMode: process.env.PODBASE_MODE || 'local', mailMode: process.env.MAIL_MODE || 'local', paymentMode: process.env.PAYMENT_MODE || 'local', dataDir: resolve(process.env.DATA_DIR || 'data/test'), adminEmail: process.env.ADMIN_EMAIL || 'jonas@archenlicht.test', adminPassword: process.env.ADMIN_PASSWORD || undefined, sessionHours: Math.min(24, Math.max(1, Number(process.env.SESSION_HOURS) || 2)), baseUrl: process.env.BASE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : `http://localhost:${process.env.PORT || 3000}`), printBaseUrl: process.env.PRINT_BASE_URL || '', stripeKey: process.env.STRIPE_SECRET_KEY, stripeWebhook: process.env.STRIPE_WEBHOOK_SECRET, stripePaymentConfiguration: process.env.STRIPE_PAYMENT_CONFIGURATION, autoShip: true, storageMode: process.env.STORAGE_MODE || (process.env.VERCEL === '1' ? 'postgres' : 'sqlite'), databaseUrl: process.env.DATABASE_URL, databaseSchema: process.env.DATABASE_SCHEMA || 'public', serverless: process.env.VERCEL === '1', workerSecret: process.env.CRON_SECRET, platformOrigins: [process.env.VERCEL_URL, process.env.VERCEL_BRANCH_URL, process.env.VERCEL_PROJECT_PRODUCTION_URL].filter(Boolean).map(host => `https://${host}`).concat((process.env.SHOP_ALLOWED_ORIGINS || '').split(',').map(value => value.trim()).filter(value => /^https:\/\/[^/]+$/.test(value))) });
 const mime = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.ttf': 'font/ttf', '.txt': 'text/plain; charset=utf-8' };
 function send(res, status, data, type = 'application/json; charset=utf-8') { res.writeHead(status, { 'Content-Type': type }); res.end(type.startsWith('application/json') ? JSON.stringify(data) : data); }
-async function rawBody(req) { const chunks = []; let length = 0; for await (const chunk of req) { length += chunk.length; if (length > 20000) throw new ShopError('Die Eingabe ist zu groß.', 413); chunks.push(chunk); } return Buffer.concat(chunks).toString('utf8'); }
+async function rawBody(req, limit = 20000) { const chunks = []; let length = 0; for await (const chunk of req) { length += chunk.length; if (length > limit) throw new ShopError('Die Eingabe ist zu groß.', 413); chunks.push(chunk); } return Buffer.concat(chunks).toString('utf8'); }
 function readCookie(req, name) { return (req.headers.cookie || '').split(';').map(x => x.trim()).find(x => x.startsWith(`${name}=`))?.slice(name.length + 1); }
 const capability = req => /^Bearer ([A-Za-z0-9_-]{43})$/.exec(req.headers.authorization || '')?.[1];
 export async function createApp(config = defaultConfig()) {
@@ -29,17 +29,21 @@ export async function createApp(config = defaultConfig()) {
       }
       if (path.startsWith('/api/webhooks/') && method === 'POST') {
         if (config.paymentMode !== 'sandbox') throw new ShopError('Anbieter-Webhooks sind im lokalen Zahlungsmodus gesperrt.', 403);
-        const raw = await rawBody(req); let event; try { event = JSON.parse(raw); } catch { throw new ShopError('Ungültiges Ereignis.'); }
+        const raw = await rawBody(req, 256000); let event; try { event = JSON.parse(raw); } catch { throw new ShopError('Ungültiges Ereignis.'); }
         let order;
         if (path === '/api/webhooks/stripe') {
           if (!shop.payments.verifyStripeSignature(raw, req.headers['stripe-signature'])) throw new ShopError('Ungültige Webhook-Signatur.', 401);
-          if (!['checkout.session.completed', 'checkout.session.async_payment_succeeded'].includes(event.type)) return send(res, 200, { ignored: true });
+          if (!['checkout.session.completed', 'checkout.session.async_payment_succeeded', 'checkout.session.async_payment_failed', 'checkout.session.expired'].includes(event.type)) return send(res, 200, { ignored: true });
           if (!event.id || event.livemode !== false) throw new ShopError('Nur gültige Stripe-Testereignisse sind zulässig.', 400);
           order = (await shop.s.get('SELECT * FROM orders WHERE payment_id=?', event.data?.object?.id || ''));
         }
-        if (!order) throw new ShopError('Zahlungsbezug nicht gefunden.', 404);
+        if (!order) return send(res, 200, { ignored: true });
         const verified = await shop.payments.verify(order);
-        if (!verified.completed) return send(res, 200, { pending: true });
+        if (!verified.completed) {
+          if (event.type === 'checkout.session.expired' && verified.status === 'expired') await shop.s.run("UPDATE orders SET status='expired' WHERE id=? AND paid_at IS NULL", order.id);
+          if (event.type === 'checkout.session.async_payment_failed' && verified.status === 'complete') await shop.s.run("UPDATE orders SET status='payment_failed' WHERE id=? AND paid_at IS NULL", order.id);
+          return send(res, 200, { pending: true });
+        }
         (await shop.acceptPayment({ ...verified, id: `${path}:${event.id}` }));
         return send(res, 200, { received: true });
       }
@@ -79,7 +83,7 @@ export async function createApp(config = defaultConfig()) {
           const current = (await shop.authenticate(session, body, path.endsWith('/register'))); setSession(current.secret); return send(res, 200, (await shop.publicState(current.session)));
         }
         if (path === '/api/auth/logout' && method === 'POST') { shop.situations.delete(session.id); (await shop.s.run('DELETE FROM sessions WHERE id=?', session.id)); const current = (await shop.createSession()); setSession(current.secret); return send(res, 200, (await shop.publicState(current.session))); }
-        if (path === '/api/checkout' && method === 'POST') return send(res, 201, await shop.checkout(session, body));
+        if (path === '/api/checkout' && method === 'POST') return send(res, 201, await shop.checkout(session, body, { returnOrigin: req.headers.origin || new URL(config.baseUrl).origin }));
         if (path === '/api/account/address') {
           (await shop.requireUser(session));
           if (method === 'GET') return send(res, 200, (await shop.accountDetails(session)));

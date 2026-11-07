@@ -1,6 +1,6 @@
 # Hosting auf Vercel
 
-Der Shop unterstützt zwei Betriebsarten mit derselben Geschäftslogik: lokal Node.js 24 mit SQLite und auf Vercel eine Node.js-24-Function mit Neon PostgreSQL. Zahlungen, Podbase und E-Mails bleiben simuliert. Die Hosting-Anpassung ist keine Freigabe für echte Verkäufe.
+Der Shop unterstützt zwei Betriebsarten mit derselben Geschäftslogik: lokal Node.js 24 mit SQLite und auf Vercel eine Node.js-24-Function mit Neon PostgreSQL. Auf Vercel ist der Stripe-Testcheckout eingerichtet; der lokale Simulator bleibt verfügbar. Podbase und E-Mails bleiben simuliert. Die Hosting-Anpassung ist keine Freigabe für echte Verkäufe.
 
 ## Projekt und Routing
 
@@ -24,11 +24,14 @@ Die Neon-Integration stellt `DATABASE_URL` bereit. In Vercels serverseitiger Umg
 |---|---|
 | `STORAGE_MODE` | `postgres` |
 | `SHOP_MODE` | `test` |
-| `PAYMENT_MODE`, `PODBASE_MODE`, `MAIL_MODE` | `local` |
+| `PAYMENT_MODE` | `sandbox` für den Stripe-Testcheckout |
+| `PODBASE_MODE`, `MAIL_MODE` | `local` |
 | `BASE_URL` | `https://archenlicht.vercel.app` |
 | `DATABASE_SCHEMA` | je Umgebung wie oben; ohne Angabe `public` |
 | `ADMIN_EMAIL` | eigenes Test-Adminkonto |
 | `ADMIN_PASSWORD`, `CRON_SECRET` | zufällige Geheimnisse; keine öffentlichen Werte |
+| `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` | geschützte Testschlüssel; [Stripe-Einrichtung](STRIPE.md) |
+| `SHOP_ALLOWED_ORIGINS` | eigene HTTPS-Shopdomains für geschützte Anfragen und Zahlungsrückkehr |
 
 Der private Cloud-Adminzugang liegt ausschließlich auf Jonas’ Rechner in `data/test/cloud-admin-access.txt`. `.env*`, `.vercel`, `.tools`, lokale Daten und Testausgaben sind vom Git-Upload und vom Deployment ausgeschlossen. Geheimnisse werden weder in Browsercode eingebaut noch in Prüfberichten ausgegeben.
 

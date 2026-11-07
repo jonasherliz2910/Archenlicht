@@ -1,6 +1,7 @@
 .git
 .tools
 .env*
+Stripekey.txt
 data
 test-results
 tmp

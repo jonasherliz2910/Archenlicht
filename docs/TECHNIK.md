@@ -67,18 +67,18 @@ Zusätzliche Tabellen werden beim Start additiv angelegt; bestehende Nutzer und 
 
 Neue eigene Kontorouten: `GET/PUT/DELETE /api/account/address`, `GET /api/account/payment-methods`, `DELETE /api/account/payment-methods/:id`. Sie verlangen Anmeldung und bei Änderungen CSRF. Eine fremde Nutzer-ID kann nicht als Ziel übergeben werden. Das Bootstrap liefert ausschließlich die Adresse des aktuell angemeldeten Kontos; bei Gästen `account: null`.
 
-Beim gehosteten Stripe-Checkout für angemeldete Kartenzahler werden `customer` und `saved_payment_method_options[payment_method_save]=enabled` gesetzt. Die freiwillige Auswahl findet in Stripe statt; `allow_redisplay=always` stammt aus dieser Zustimmung. Die Wiederanzeige ist auf `always` begrenzt. Kein automatisches `setup_future_usage`, keine spätere unbeaufsichtigte Belastung durch den Shop. Karte und PayPal bleiben reguläre bestätigungspflichtige Käufe.
+Beim gehosteten Stripe-Checkout für angemeldete Kunden werden `customer` und `saved_payment_method_options[payment_method_save]=enabled` gesetzt. Die freiwillige Auswahl findet in Stripe statt; `allow_redisplay=always` stammt aus dieser Zustimmung. Die Wiederanzeige ist auf `always` begrenzt. Kein automatisches `setup_future_usage`, keine spätere unbeaufsichtigte Belastung durch den Shop. Karte und PayPal bleiben reguläre bestätigungspflichtige Käufe.
 
 Karten im Konto werden direkt bei Stripe abgefragt und auf diesen Customer, Testmodus, Kartentyp und erteilte Wiederanzeigefreigabe gefiltert. Zum Entfernen wird die Eigentümerschaft erneut per Stripe-API geprüft, bevor `detach` aufgerufen wird. Nur sichere Anzeigemetadaten gelangen in die Antwort. Kartennummern und Prüfnummern werden weder abgefragt noch gespeichert. Zahlungen mit zugeordnetem Customer müssen zusätzlich beim unabhängigen Statusabgleich exakt diese Customer-ID zurückgeben.
 
 1. Der Server prüft Warenkorb, gespeicherte Druckfreigabe je Modell/Motiv und aktuellen Adapterkatalog. Weggefallene Varianten blockieren die Zahlung.
 2. Eine Bestellung samt Snapshot wird vor Zahlung gespeichert. Preise und Mengen kommen aus serverseitigen Daten.
-3. Im lokalen Modus folgt ein klar gekennzeichneter Simulator ohne echte Zahlungsdaten. Im Stripe-Testmodus entsteht eine gehostete Checkout Session mit `card` oder `paypal` und bestellbezogenem Idempotency-Key.
+3. Im lokalen Modus folgt ein klar gekennzeichneter Simulator ohne echte Zahlungsdaten. Im Stripe-Testmodus entsteht eine gehostete Checkout Session mit den im Stripe-Dashboard verfügbaren dynamischen Zahlungsarten und bestellbezogenem Idempotency-Key.
 4. Ein Stripe-Webhook benötigt eine HMAC-Signatur auf dem unveränderten Body und einen Zeitstempel innerhalb von fünf Minuten. Nur Testereignisse werden akzeptiert.
 5. Zusätzlich wird die Checkout Session über die Stripe-API unabhängig geladen. Erst `paid` + `complete` + `livemode=false` mit exakt passender Checkout-ID, Bestellreferenz, EUR und Gesamtbetrag darf `acceptPayment` aufrufen.
 6. Event-ID und Bestell-ID sichern gegen erneute Verarbeitung. Zahlungsmarkierung und Queueeintrag entstehen gemeinsam in einer Transaktion. Die Erfolgsseite kann ohne bestätigte Zahlung keinen Auftrag anlegen.
 
-PayPal wird später **über Stripe** abgewickelt; keine direkte PayPal-API, keine separaten PayPal-API-Schlüssel und kein zweiter Zahlungswebhook. Vor echtem Stripe-Test sind Zugangsdaten und die Zahlungsmethoden im Stripe-Konto einzurichten. Live-Schlüssel sind gesperrt.
+PayPal wird später **über Stripe** abgewickelt; keine direkte PayPal-API, keine separaten PayPal-API-Schlüssel und kein zweiter Zahlungswebhook. Testzugänge und Webhook sind eingerichtet; Karte und Link sind im Testkonto verfügbar, PayPal noch nicht. Das SDK ist auf Version 23.1.0 und die API auf 2026-10-28.endive festgelegt. Die bestätigte Kleinunternehmerregelung deaktiviert automatische Steuererhebung ausdrücklich; ein Steuerbetrag ungleich null sperrt die Zahlungsübernahme. `stripe_payments` dokumentiert den bestätigten Zahlungsbeleg dauerhaft. [Stripe-Plan und Prüfnachweise](STRIPE.md). Live-Schlüssel bleiben gesperrt.
 
 ## Fulfillment und Neustarts
 
