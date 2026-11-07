@@ -10,6 +10,7 @@ bisherigen Regeln bleiben erhalten.
 - Produktansicht, Gestaltungsbereich und Kasse untereinander statt in zu engen Spalten.
 - Umbrechende Texte und Bedienelemente; gleichmäßig aufgeteilte Gestaltungsschritte.
 - Eigene Bereiche für Hüllen und begleitende Beschriftungen auf der Startseite.
+- Leerzeichen zwischen den Einleitungssätzen, wenn der mobile Umbruch entfällt.
 - Warenkorbpreise unter den Produktinformationen, großzügigere Kontoformulare.
 - Modellauswahl mit lesbaren Namen, scrollbarer Liste und erreichbarem Schließen-Knopf,
   auch bei geringer Bildschirmhöhe; auf sehr schmalen Geräten eine Modellspalte.
@@ -36,6 +37,8 @@ lokalen Zahlungs-, Mail- und Drucksimulationen.
 - 14 vollständige Desktop-Bildvergleiche bei 1024 und 1440 Pixeln: Startseite,
   Kollektion, Produktdetails, Gestaltung, Warenkorb, Kasse und Konto sind mit dem
   bisherigen Stylesheet pixelgleich.
+- Die ergänzte Satztrennung auf der Startseite separat mobil und mit zwei weiteren
+  pixelgleichen Desktop-Vergleichen bei 1024 und 1440 Pixeln geprüft.
 - Keine JavaScript-Fehler oder fehlgeschlagenen HTTP-Antworten im Browserlauf.
 - CSS-Parser und Eigenschaftsprüfung ohne Fehler; `pnpm check` erfolgreich.
 
