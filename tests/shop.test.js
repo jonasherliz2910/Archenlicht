@@ -280,7 +280,7 @@ test('Aktuelle Apple-, Samsung- und Google-Modelle funktionieren gemeinsam bis z
     const preview = await c.call('/api/preview', 'POST', choice); assert.equal(preview.status, 200);
     previews.push(preview.data); await putCart(c, choice);
   }
-  assert.equal(previews[3].configuration.templateVersion, 'test-flip-template-v2');
+  assert.equal(previews[3].configuration.templateVersion, 'test-flip-template-v3');
   for (const unsupported of ['iphone-18', 'google-pixel-11a', 'samsung-galaxy-s27', 'samsung-galaxy-z-fold8']) {
     assert.equal((await c.call('/api/cart', 'POST', { ...fixed, modelId: unsupported })).status, 400);
   }

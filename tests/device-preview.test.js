@@ -7,7 +7,7 @@ import { DESIGNS } from '../server/catalog.js';
 import { renderLayout } from '../server/layout.js';
 
 const model = id => MODELS.find(m=>m.id===id);
-test('Flip-Motiv und Drucktext bleiben vollständig unter dem Außendisplay',()=>{
+test('Flip-Motiv und Drucktext bleiben vollständig unter dem Außendisplay, ohne Motivkopien in den Rändern',async()=>{
   const m=model('samsung-galaxy-z-flip8');
   for(const d of DESIGNS)for(const kind of ['fixed','custom']){
     const l=renderLayout({kind,modelId:m.id,designId:d.id,verseId:'ps23-1',dedication:'Anna'});
@@ -16,6 +16,12 @@ test('Flip-Motiv und Drucktext bleiben vollständig unter dem Außendisplay',()=
     assert.ok(Math.abs(l.imagePlacement.width/l.sourcePixels.width-l.imagePlacement.height/l.sourcePixels.height)<1e-9);
     for(const block of l.typography)assert.ok(block.box.y>m.template.camera.height);
     assert.equal(l.productionApproved,false);
+    const {data,info}=await sharp(Buffer.from(l.svg)).resize(300,600).removeAlpha().raw().toBuffer({resolveWithObject:true});
+    const left=l.imagePlacement.x/4,right=(l.imagePlacement.x+l.imagePlacement.width)/4,top=l.imagePlacement.y/4,bottom=(l.imagePlacement.y+l.imagePlacement.height)/4;
+    for(let y=0;y<info.height;y++)for(let x=0;x<info.width;x++){
+      if(x>left-2&&x<right+2&&y>top-2&&y<bottom+2)continue;
+      const i=(y*info.width+x)*3;assert.ok(Math.min(data[i],data[i+1],data[i+2])>220,`${d.id}: Rand darf nur Papier enthalten`);
+    }
   }
 });
 test('Jedes Katalogmodell hat begrenzte Geometrie; markante Kamerafamilien bleiben unterscheidbar',()=>{

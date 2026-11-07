@@ -44,7 +44,7 @@ Geprüfte öffentliche Referenzen:
 - Modell-, Motiv- und Textänderungen aktualisieren beide Bilder gemeinsam und
   lassen die gewählte Ansicht bestehen.
 - Das Z Flip8 benötigt wegen des großen Außendisplays eine gesonderte freie
-  Motivfläche. `test-flip-template-v2` setzt das vollständige Design proportional
+  Motivfläche. `test-flip-template-v3` setzt das vollständige Design proportional
   darunter, mit passenden Papierflächen außen. Diese Änderung gilt auch für die
   erzeugte SVG/PNG-Druckdatei. Bereits gespeicherte Druckdateien werden nicht geändert.
   Die Vorlage bleibt simuliert und `productionApproved: false`.

@@ -85,9 +85,9 @@ export function renderLayout(configuration) {
     { id: 'bottom', x: 0, y: bottom, width, height: height - bottom, transform: `translate(0 ${bottom * 2}) scale(1 -1)` },
     { id: 'left', x: 0, y: 0, width: image.x, height, transform: `translate(${image.x * 2} 0) scale(-1 1)` },
     { id: 'right', x: right, y: 0, width: width - right, height, transform: `translate(${right * 2} 0) scale(-1 1)` }
-  ].filter(edge => edge.width > 0.001 && edge.height > 0.001 && !(model.template.artArea && edge.id === 'top'));
-  // A large reserved display area uses the matching base paper. Reflecting an
-  // entire half-device here would duplicate the illustration above its safe area.
+  ].filter(edge => edge.width > 0.001 && edge.height > 0.001 && !model.template.artArea);
+  // Large margins around a reserved display area use the matching base paper.
+  // Reflecting these wider regions would duplicate parts of the illustration.
   const clips = edges.map(edge => `<clipPath id="paper-${edge.id}"><rect x="${edge.x}" y="${edge.y}" width="${edge.width}" height="${edge.height}"/></clipPath>`).join('');
   const paper = `<g data-background="extended-paper">${edges.map(edge => `<g clip-path="url(#paper-${edge.id})"><use href="#blank-motif" transform="${edge.transform}"/></g>`).join('')}</g>`;
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}"><defs><image id="blank-motif" data-artwork="${asset.hash}" x="${image.x}" y="${image.y}" width="${image.width}" height="${image.height}" preserveAspectRatio="xMidYMid meet" href="${asset.dataUrl}"/>${clips}</defs><rect width="${width}" height="${height}" fill="${DESIGN_PACKAGE.targetBackground}"/>${paper}<use href="#blank-motif"/><g fill="${DESIGN_PACKAGE.ink}">${textPaths}</g></svg>`;

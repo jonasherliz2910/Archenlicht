@@ -26,7 +26,7 @@ const currentModelGroups = [
 ];
 export const MODELS = [...modelGroups, ...currentModelGroups].flatMap(({ brand, names }) => names.map(name => ({ name, brand }))).map(({ name, brand }, i) => ({
   id: name.toLowerCase().replaceAll(' ', '-'), name, brand,
-  productId: 'SIM-TOUGH', variantId: `SIM-VARIANT-${i + 1}`, templateVersion: brand === 'Google' ? 'test-pixel-template-v1' : name.includes('Z Flip') ? 'test-flip-template-v2' : 'test-template-v1',
+  productId: 'SIM-TOUGH', variantId: `SIM-VARIANT-${i + 1}`, templateVersion: brand === 'Google' ? 'test-pixel-template-v1' : name.includes('Z Flip') ? 'test-flip-template-v3' : 'test-template-v1',
   template: { width: 1200, height: 2400, bleed: 60, safe: 125, ...(name.includes('Z Flip') ? { artArea: { x: 0, y: 1020, width: 1200, height: 1255 } } : {}), camera: brand === 'Google' ? { x: 80, y: 170, width: 1040, height: 300 } : name.includes('Z Flip') ? { x: 40, y: 0, width: 1120, height: 970 } : { x: 80, y: 80, width: name.includes('Ultra') ? 380 : 460, height: name.includes('Ultra') ? 600 : 510 } },
   simulated: true
 }));
