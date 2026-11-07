@@ -14,20 +14,20 @@ export function podbasePayload(order, baseUrl) {
 export class LocalPodbase {
   constructor(store) { this.s = store; this.scenario = 'ok'; }
   async catalog() { return [{ id: 'SIM-TOUGH', title: 'Tough standard · SIMULIERT', variants: MODELS.map(m => ({ id: m.variantId, name: m.name, inStock: true })) }]; }
-  async find(externalId) { const row = this.s.get('SELECT * FROM provider_orders WHERE external_id=?', externalId); return row && { orderId: row.id, externalOrderId: row.external_id, status: row.status, trackingNumber: row.tracking, trackingUrl: null }; }
+  async find(externalId) { const row = (await this.s.get('SELECT * FROM provider_orders WHERE external_id=?', externalId)); return row && { orderId: row.id, externalOrderId: row.external_id, status: row.status, trackingNumber: row.tracking, trackingUrl: null }; }
   async create(payload) {
     const existing = await this.find(payload.externalOrderId);
     if (existing) return existing;
     if (this.scenario === 'reject') { const e = new Error('Testablehnung: Die gewählte Variante ist beim Druckpartner nicht verfügbar.'); e.rejected = true; throw e; }
     const id = `SIM-PB-${token().slice(0, 12)}`;
-    this.s.run('INSERT INTO provider_orders VALUES(?,?,?,?,?,?)', id, payload.externalOrderId, JSON.stringify(payload), 'APPROVED', null, Date.now());
+    (await this.s.run('INSERT INTO provider_orders VALUES(?,?,?,?,?,?)', id, payload.externalOrderId, JSON.stringify(payload), 'APPROVED', null, Date.now()));
     if (this.scenario === 'timeout') { this.scenario = 'ok'; throw new Error('Simulierter Verbindungsabbruch nach Annahme. Abgleich erforderlich.'); }
     return { orderId: id, externalOrderId: payload.externalOrderId, status: 'APPROVED' };
   }
-  async get(id) { const row = this.s.get('SELECT external_id FROM provider_orders WHERE id=?', id); return row ? this.find(row.external_id) : null; }
-  advance(orderId) {
+  async get(id) { const row = (await this.s.get('SELECT external_id FROM provider_orders WHERE id=?', id)); return row ? this.find(row.external_id) : null; }
+  async advance(orderId) {
     const tracking = `SIM-DE-${orderId.slice(0, 10)}`;
-    this.s.run("UPDATE provider_orders SET status='FULFILLED',tracking=? WHERE external_id=?", tracking, orderId);
+    (await this.s.run("UPDATE provider_orders SET status='FULFILLED',tracking=? WHERE external_id=?", tracking, orderId));
   }
 }
 // Official schema snapshot: docs/podbase-openapi-2026-11-03.json.

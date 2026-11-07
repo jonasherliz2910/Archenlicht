@@ -1,0 +1,20 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "regions": ["fra1"],
+  "functions": {
+    "api/shop.js": {
+      "maxDuration": 60,
+      "includeFiles": "{server/**,public/**}"
+    }
+  },
+  "rewrites": [
+    { "source": "/api/:path*", "destination": "/api/shop?__shop_path=api/:path*" },
+    { "source": "/prints/:path*", "destination": "/api/shop?__shop_path=prints/:path*" },
+    { "source": "/assets/design-:design.svg", "destination": "/api/shop?__shop_path=assets/design-:design.svg" },
+    { "source": "/:path*", "destination": "/api/shop?__shop_path=:path*" }
+  ],
+  "crons": [
+    { "path": "/api/jobs", "schedule": "0 0 * * *" }
+  ]
+}

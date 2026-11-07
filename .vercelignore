@@ -1,0 +1,15 @@
+.git
+.tools
+.env*
+data
+test-results
+tmp
+.pnpm-store
+node_modules
+docs
+tests
+Archenlicht-Designpaket
+Archenlicht-Designpaket-v2-Farbe
+*.zip
+*.pdf
+Logoentwürfe

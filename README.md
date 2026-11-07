@@ -100,9 +100,9 @@ Die Modellfläche öffnet eine Auswahl mit Apple, Samsung und Google, einer Such
 
 ## Technik und Übergabe
 
-Repository: [jonasherliz2910/Archenlicht](https://github.com/jonasherliz2910/Archenlicht). Vor einem Deployment über Vercel bitte [die Hosting-Hinweise](docs/VERCEL.md) beachten: Die aktuelle lokale SQLite-Datenhaltung und der dauerhafte Hintergrundprozess benötigen eine Hosting-Anpassung. Der GitHub-Upload ist keine solche Umstellung.
+Repository: [jonasherliz2910/Archenlicht](https://github.com/jonasherliz2910/Archenlicht). Für Vercel sind ein nativer Function-Einstieg, dauerhafte Neon-Datenhaltung und geschützte Testjobs eingerichtet. [Konfiguration und Hosting-Hinweise](docs/VERCEL.md).
 
-Der leere Projektordner wurde mit **Node.js 24, nativem HTTP-Server, SQLite und HTML/CSS/JavaScript** aufgebaut. Das hält Start und Wartung überschaubar, während Bestellungen, Konten, Zahlungsereignisse und Jobs dauerhaft serverseitig liegen. `sharp` rastert Druckdateien; `opentype.js` erzeugt identische Schriftpfade für Vorschau und Druck. Für ein verteiltes Livehosting muss die Datenhaltung samt Queue angepasst oder eine einzelne Instanz mit dauerhaftem Datenträger gewählt werden.
+Der Shop verwendet **Node.js 24, natives HTTP und HTML/CSS/JavaScript**. Lokal speichert er in SQLite, auf Vercel in Neon PostgreSQL. Konten, Bestellungen, Zahlungsereignisse, Druckdateien und Queue bleiben serverseitig erhalten. `sharp` rastert Druckdateien; `opentype.js` erzeugt identische Schriftpfade für Vorschau und Druck. Die Cloud-Anpassung bleibt ein Testbetrieb; echte Stripe- und Podbase-Produktionsabläufe benötigen weiterhin die dokumentierten Freigaben.
 
 - [Technik, Datenschutz und Betrieb](docs/TECHNIK.md)
 - [Testanleitung und Fehlerfälle](docs/TESTANLEITUNG.md)

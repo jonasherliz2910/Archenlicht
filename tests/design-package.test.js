@@ -140,14 +140,14 @@ test('Lange Referenzen werden einzeilig angepasst; dreizeilige Texte passen oder
 });
 
 test('Überlauf verhindert Warenkorbzugang; bereits gespeicherte Druckdateien bleiben nach Layoutänderung unverändert', async () => {
-  const shop = new Shop({ ...defaultConfig(), dataDir: resolve('test-results', randomUUID()), adminPassword: 'Nur-Test-Admin-2026!', autoShip: false });
-  const { session } = shop.createSession(), asset = designAsset(fixed.designId), oldY = asset.boxes.reference.y;
+  const shop = (await Shop.create({ ...defaultConfig(), dataDir: resolve('test-results', randomUUID()), adminPassword: 'Nur-Test-Admin-2026!', autoShip: false }));
+  const { session } = (await shop.createSession()), asset = designAsset(fixed.designId), oldY = asset.boxes.reference.y;
   try {
-    const before = shop.preview(custom), savedSvg = await shop.printFile(before.hash, 'svg');
+    const before = (await shop.preview(custom)), savedSvg = await shop.printFile(before.hash, 'svg');
     VERSES.push({ ...VERSES[0], id: 'overflow-package-test', quote: 'W'.repeat(180) });
-    try { assert.throws(() => shop.saveCart(session, { ...custom, verseId: 'overflow-package-test' }), /passt nicht lesbar/); assert.equal(shop.cart(session).length, 0); } finally { VERSES.pop(); }
+    try { (await assert.rejects(async () => (await shop.saveCart(session, { ...custom, verseId: 'overflow-package-test' })), /passt nicht lesbar/)); assert.equal((await shop.cart(session)).length, 0); } finally { VERSES.pop(); }
     asset.boxes.reference.y += 0.005;
-    const after = shop.preview(custom); assert.notEqual(after.hash, before.hash);
+    const after = (await shop.preview(custom)); assert.notEqual(after.hash, before.hash);
     assert.equal(await shop.printFile(before.hash, 'svg'), savedSvg);
-  } finally { asset.boxes.reference.y = oldY; shop.close(); }
+  } finally { asset.boxes.reference.y = oldY; (await shop.close()); }
 });

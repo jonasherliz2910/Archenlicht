@@ -9,9 +9,9 @@ const delivery = { name: 'Anna Mustermann', email: 'anna@example.test', phone: '
 const product = { kind: 'fixed', designId: 'unter-seinen-fluegeln', modelId: 'iphone-15' };
 const configForTest = () => ({ ...defaultConfig(), dataDir: resolve('test-results', randomUUID()), paymentMode: 'local', adminPassword: 'Nur-Test-Admin-2026!', autoShip: false });
 async function fixture(t) {
-  const config = configForTest(), app = createApp(config);
+  const config = configForTest(), app = (await createApp(config));
   await new Promise(r => app.server.listen(0, '127.0.0.1', r));
-  t.after(async () => { await new Promise(r => app.server.close(r)); });
+  t.after(async () => { await new Promise(async r => (await app.server.close(r))); });
   const base = `http://127.0.0.1:${app.server.address().port}`;
   function client() {
     let cookie = '', csrf = '';
@@ -69,7 +69,7 @@ test('Keine Speicherung bei Abbruch; geänderte oder entfernte Kontoadresse wird
   assert.equal((await c.call('/api/account/address', 'DELETE', {})).status, 200);
   assert.equal((await confirm(c, another)).status, 200);
   assert.equal((await c.call('/api/account/address')).data.address, null);
-  assert.equal(JSON.parse(shop.s.get('SELECT recipient FROM orders WHERE id=?', pending).recipient).street, delivery.street); // Order snapshot remains correct.
+  assert.equal(JSON.parse((await shop.s.get('SELECT recipient FROM orders WHERE id=?', pending)).recipient).street, delivery.street); // Order snapshot remains correct.
   assert.equal((await c.call('/api/account/address', 'PUT', { recipient: { ...delivery, country: 'AT' } })).status, 400);
 });
 
@@ -89,9 +89,9 @@ test('Demo-Karte wird nur ausdrücklich gespeichert, wiederverwendet und entfern
   assert.equal((await c.call('/api/account/payment-methods')).data.length, 0);
   await confirm(c, second, { saveCard: true }); // Replaying an old payment must not restore a deleted card.
   assert.equal((await c.call('/api/account/payment-methods')).data.length, 0);
-  const localData = JSON.stringify(shop.s.all('SELECT * FROM local_payment_methods'));
+  const localData = JSON.stringify((await shop.s.all('SELECT * FROM local_payment_methods')));
   assert.equal(localData.includes('4242424242424242'), false);
-  assert.equal(shop.s.all('PRAGMA table_info(local_payment_methods)').some(c => /cvc|cvv|number|pan/i.test(c.name)), false);
+  assert.equal((await shop.s.all('PRAGMA table_info(local_payment_methods)')).some(c => /cvc|cvv|number|pan/i.test(c.name)), false);
 });
 
 test('Gespeicherte Adressen und Karten sind kontogebunden; Gäste können sie nicht hinterlegen', async t => {
@@ -114,10 +114,10 @@ test('Gespeicherte Adressen und Karten sind kontogebunden; Gäste können sie ni
   assert.equal((await confirm(a.c, paypalOrder, { saveCard: true })).status, 403);
 });
 
-test('Gespeicherte Kontodaten überstehen Neustarts ohne bestehende Nutzer oder Bestellungen zu verändern', () => {
-  const config = configForTest(); let shop = new Shop(config);
-  const first = shop.createSession(), authenticated = shop.authenticate(first.session, { email: 'persist@example.test', password: 'Nur-Test-Persistenz-2026!' }, true);
-  shop.saveAddress(authenticated.session, delivery); const userId = authenticated.session.user_id; shop.close();
-  shop = new Shop(config);
-  try { const created = shop.createSession(), loggedIn = shop.authenticate(created.session, { email: 'persist@example.test', password: 'Nur-Test-Persistenz-2026!' }); assert.equal(loggedIn.session.user_id, userId); assert.deepEqual(shop.accountDetails(loggedIn.session).address, delivery); } finally { shop.close(); }
+test('Gespeicherte Kontodaten überstehen Neustarts ohne bestehende Nutzer oder Bestellungen zu verändern', async () => {
+  const config = configForTest(); let shop = (await Shop.create(config));
+  const first = (await shop.createSession()), authenticated = (await shop.authenticate(first.session, { email: 'persist@example.test', password: 'Nur-Test-Persistenz-2026!' }, true));
+  (await shop.saveAddress(authenticated.session, delivery)); const userId = authenticated.session.user_id; (await shop.close());
+  shop = (await Shop.create(config));
+  try { const created = (await shop.createSession()), loggedIn = (await shop.authenticate(created.session, { email: 'persist@example.test', password: 'Nur-Test-Persistenz-2026!' })); assert.equal(loggedIn.session.user_id, userId); assert.deepEqual((await shop.accountDetails(loggedIn.session)).address, delivery); } finally { (await shop.close()); }
 });

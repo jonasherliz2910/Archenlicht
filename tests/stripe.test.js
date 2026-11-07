@@ -72,27 +72,27 @@ test('Stripe-Kundenbindung, sichere Kartenanzeige und Entfernen prüfen Eigentü
     if (path === '/v1/payment_methods/pm_owner/detach') return Response.json({ ...method, customer: null });
     throw new Error(`Unerwartete Stripe-Fixture: ${path}`);
   };
-  const shop = new Shop({ ...defaultConfig(), paymentMode: 'sandbox', stripeKey: 'sk_test_fixture', dataDir: resolve('test-results', randomUUID()), adminPassword: 'Nur-Test-Admin-2026!', autoShip: false });
-  t.after(() => { shop.close(); globalThis.fetch = original; });
-  const created = shop.createSession(), { session } = shop.authenticate(created.session, { email: 'owner@example.test', password: 'Nur-Test-Owner-2026!' }, true), user = shop.user(session);
+  const shop = (await Shop.create({ ...defaultConfig(), paymentMode: 'sandbox', stripeKey: 'sk_test_fixture', dataDir: resolve('test-results', randomUUID()), adminPassword: 'Nur-Test-Admin-2026!', autoShip: false }));
+  t.after(async () => { (await shop.close()); globalThis.fetch = original; });
+  const created = (await shop.createSession()), { session } = (await shop.authenticate(created.session, { email: 'owner@example.test', password: 'Nur-Test-Owner-2026!' }, true)), user = (await shop.user(session));
   const ids = await Promise.all([shop.payments.customerFor(user), shop.payments.customerFor(user)]);
   assert.equal(new Set(ids).size, 1); assert.equal(customers.size, 1);
   assert.equal(requests[0].options.body.get('email'), 'owner@example.test'); assert.equal(requests[0].options.body.get('metadata[shop_user_id]'), user.id);
-  assert.equal(shop.s.get('SELECT COUNT(*) AS n FROM payment_customers').n, 1);
+  assert.equal((await shop.s.get('SELECT COUNT(*) AS n FROM payment_customers')).n, 1);
   const cards = await shop.payments.cardsFor(user);
   assert.equal(cards.length, 1); assert.equal(cards[0].id, 'pm_owner');
   assert.equal(JSON.stringify(cards).includes('fingerprint'), false); assert.equal(JSON.stringify(cards).includes('4242424242424242'), false); assert.equal(JSON.stringify(cards).includes('must-not-leak'), false);
   await assert.rejects(shop.payments.removeCard(user, 'pm_foreign'), /nicht gefunden/);
   assert.equal(requests.some(r => r.path === '/v1/payment_methods/pm_foreign/detach'), false);
   await shop.payments.removeCard(user, 'pm_owner'); assert.equal(requests.at(-1).path, '/v1/payment_methods/pm_owner/detach');
-  shop.saveCart(session, { kind: 'fixed', designId: 'unter-seinen-fluegeln', modelId: 'iphone-15' });
+  (await shop.saveCart(session, { kind: 'fixed', designId: 'unter-seinen-fluegeln', modelId: 'iphone-15' }));
   const result = await shop.checkout(session, { method: 'card', customerId: 'cus_someone_else', recipient: { name: 'Empfänger', email: 'recipient@example.test', phone: '+4915112345678', street: 'Weg 12', postalCode: '10115', city: 'Berlin', country: 'DE' } });
   assert.equal(checkoutSession.customer, ids[0]);
-  const order = shop.s.get('SELECT * FROM orders WHERE id=?', result.orderId);
-  checkoutSession.customer = 'cus_someone_else'; assert.throws(() => shop.acceptPayment({ id: 'evt_wrong_customer', orderId: order.id, paymentId: order.payment_id, amount: 2990, currency: 'EUR', customerId: checkoutSession.customer, completed: true }), /Stripe-Kundenkonto/);
-  assert.equal(shop.s.get('SELECT COUNT(*) AS n FROM fulfillment').n, 0);
-  checkoutSession.customer = ids[0]; shop.acceptPayment(await shop.payments.verify(order));
-  assert.equal(shop.s.get('SELECT COUNT(*) AS n FROM fulfillment').n, 1);
+  const order = (await shop.s.get('SELECT * FROM orders WHERE id=?', result.orderId));
+  checkoutSession.customer = 'cus_someone_else'; (await assert.rejects(async () => (await shop.acceptPayment({ id: 'evt_wrong_customer', orderId: order.id, paymentId: order.payment_id, amount: 2990, currency: 'EUR', customerId: checkoutSession.customer, completed: true })), /Stripe-Kundenkonto/));
+  assert.equal((await shop.s.get('SELECT COUNT(*) AS n FROM fulfillment')).n, 0);
+  checkoutSession.customer = ids[0]; (await shop.acceptPayment(await shop.payments.verify(order)));
+  assert.equal((await shop.s.get('SELECT COUNT(*) AS n FROM fulfillment')).n, 1);
 });
 
 test('Stripe-Webhook: Signatur + unabhängiger API-Abgleich für PayPal; Replay erzeugt einen Druckauftrag', async t => {
@@ -105,8 +105,8 @@ test('Stripe-Webhook: Signatur + unabhängiger API-Abgleich für PayPal; Replay 
     }
     return original(url, options);
   };
-  const app = createApp(config); await new Promise(r => app.server.listen(0, '127.0.0.1', r));
-  t.after(async () => { globalThis.fetch = original; await new Promise(r => app.server.close(r)); });
+  const app = (await createApp(config)); await new Promise(r => app.server.listen(0, '127.0.0.1', r));
+  t.after(async () => { globalThis.fetch = original; await new Promise(async r => (await app.server.close(r))); });
   const base = `http://127.0.0.1:${app.server.address().port}`; let cookie, csrf;
   const call = async (path, body) => { const r = await original(base + path, { method: body ? 'POST' : 'GET', headers: { Cookie: cookie || '', 'Content-Type': 'application/json', 'X-CSRF-Token': csrf || '' }, body: body ? JSON.stringify(body) : undefined }); if (r.headers.get('set-cookie')) cookie = r.headers.get('set-cookie').split(';')[0]; const data = await r.json(); if (data.csrf) csrf = data.csrf; return { status: r.status, data }; };
   await call('/api/bootstrap'); await call('/api/cart', { kind: 'fixed', modelId: 'iphone-15', designId: 'unter-seinen-fluegeln' });
@@ -117,9 +117,9 @@ test('Stripe-Webhook: Signatur + unabhängiger API-Abgleich für PayPal; Replay 
   const webhook = signature => original(`${base}/api/webhooks/stripe`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Stripe-Signature': signature }, body: raw });
   assert.equal((await webhook(`t=${timestamp},v1=invalid`)).status, 401);
   const sig = `t=${timestamp},v1=${createHmac('sha256', secret).update(`${timestamp}.${raw}`).digest('hex')}`;
-  assert.equal((await webhook(sig)).status, 200); assert.equal(app.shop.s.get('SELECT COUNT(*) AS n FROM fulfillment').n, 0); // Remote still unpaid.
+  assert.equal((await webhook(sig)).status, 200); assert.equal((await app.shop.s.get('SELECT COUNT(*) AS n FROM fulfillment')).n, 0); // Remote still unpaid.
   remote.payment_status = 'paid'; remote.status = 'complete';
   assert.equal((await webhook(sig)).status, 200); assert.equal((await webhook(sig)).status, 200);
-  await app.shop.tick(); assert.equal(app.shop.s.get('SELECT COUNT(*) AS n FROM provider_orders').n, 1); assert.equal(app.shop.s.get('SELECT COUNT(*) AS n FROM payment_events').n, 1);
-  assert.equal(app.shop.s.get('SELECT amount FROM orders').amount, 2990); // Amount comes from Stripe API, never forged webhook fields.
+  await app.shop.tick(); assert.equal((await app.shop.s.get('SELECT COUNT(*) AS n FROM provider_orders')).n, 1); assert.equal((await app.shop.s.get('SELECT COUNT(*) AS n FROM payment_events')).n, 1);
+  assert.equal((await app.shop.s.get('SELECT amount FROM orders')).amount, 2990); // Amount comes from Stripe API, never forged webhook fields.
 });

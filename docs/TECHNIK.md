@@ -9,6 +9,8 @@
 | `server/artwork.js` | Alte SVG-Skizzen; vom aktuellen Renderer nicht mehr verwendet |
 | `server/layout.js` | Validierung, versioniertes Layout, Schriftpfade, Inhalts-Hash und PNG-Erzeugung |
 | `server/store.js` | SQLite-Schema, Transaktionen, Passworthashes, lokales Adminkonto |
+| `server/async-store.js`, `server/schema.js` | Gemeinsame asynchrone Schnittstelle, lokale Serialisierung und dauerhafter Neon-PostgreSQL-Speicher |
+| `api/shop.js`, `vercel.json` | Vercel-HTTP-Einstieg, Routing und geschützter täglicher Testjob |
 | `server/shop.js` | Warenkorb, Konten, Bestellungen, Beratung, Fulfillment, Mail-Outbox und Kennzahlen |
 | `server/payments.js` | Lokaler Testadapter und Stripe Checkout für Karte und PayPal |
 | `server/podbase.js` | Lokaler Podbase-Testadapter sowie gesperrter API-Client nach offizieller Spezifikation |
@@ -22,6 +24,8 @@ Keine Händler- oder Zahlungsgeheimnisse gelangen in Browsercode. Der Server lie
 ## Daten und Sitzungen
 
 `data/test/shop.sqlite` nutzt WAL, Foreign Keys und `BEGIN IMMEDIATE` für kritische Übergänge. Bestellungen enthalten feste Snapshots der Positionen und Drucktexte. Änderungen am späteren Projektkatalog verändern bereits bestellte Druckdateien nicht.
+
+Auf Vercel ersetzt Neon PostgreSQL die lokale Datei. Kritische Transaktionen verwenden eine eigene Verbindung und einen gemeinsamen Advisory Lock. Sitzungen, Bestellungen und unveränderliche Druckdateien liegen dauerhaft in der Datenbank. Vorschau und öffentlicher Testshop nutzen getrennte Schemata. Es werden keine bestehenden lokalen Kundendaten automatisch übertragen. [Betrieb, Cloud-Druckspeicher und Testjobs](VERCEL.md).
 
 Die technisch notwendige Sitzung hat ein zufälliges 256-Bit-Token im HttpOnly-/SameSite-Lax-Cookie; die Datenbank speichert dessen Hash. Standardlaufzeit: zwei Stunden. HTTPS aktiviert zusätzlich `Secure`. Anmeldung rotiert Cookie und CSRF-Token. Passwörter: scrypt, individueller Salt und konstanter Hashvergleich. Kein Konto wird anhand einer ungeprüften Übereinstimmung der Gast-E-Mail nachträglich mit Bestellungen verknüpft.
 

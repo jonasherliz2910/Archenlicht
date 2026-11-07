@@ -1,10 +1,20 @@
 # Testprotokoll · aktualisiert am 7. November 2026
 
-## Vercel-Diagnose und Startfehler
+## Vercel-Backend und dauerhafte Cloud-Daten
+
+**43 automatisierte Prüfungen bestanden, 0 fehlgeschlagen; ein Neon-Test ist in der normalen Suite absichtlich übersprungen.** Dieser zusätzliche Test wurde separat mit echter Neon-Verbindung erfolgreich ausgeführt. 30 JavaScript-Dateien sind syntaktisch geprüft. Die lokale Suite umfasst zusätzlich asynchrone Transaktionen mit Rollback und konkurrierenden Verbindungen sowie den nativen Vercel-Einstieg mit Routing, CSRF und geschütztem Jobzugriff.
+
+Der echte Neon-Test nutzt ausschließlich ein zufälliges eigenes Schema: zwei Hüllenarten in einem Gastkauf, wiederholte Zahlungsbestätigung ohne zweiten Anbieterauftrag, simuliertes Tracking, Kontokauf mit freiwillig gespeicherter Adresse und Demo-Karte. Mehrere neue Serverinstanzen erhalten Sitzung, Warenkorb, Kontodaten und bytegleiche PNGs. Gespeicherte SVGs referenzieren deduplizierte Originalmotive; bei Auslieferung entsprechen sie exakt dem kanonischen Renderer. Die private Beratungssituation erscheint in keinem gespeicherten Asset. Das isolierte Testschema wird anschließend entfernt.
+
+Die geschützte Vercel-Vorschau `archenlicht-g29osmqdt-jonas-4eb6.vercel.app` wurde erfolgreich gebaut und über den angemeldeten Vercel-CLI-Zugriff in **34 HTTP-Schritten** geprüft: Startseite, Kollektion, Produktseite, Gestalter, JavaScript, CSS und Font erreichbar; Bootstrap mit sechs Motiven und 74 Testmodellen; sichere Sitzungscookies; Vorschau und SVG/PNG; Gastkauf mit beiden Hüllenarten und PayPal-Simulator; Kontokauf mit Karten-Simulator und freiwilliger Datenübernahme; Kontobestellungen; Entfernen der gespeicherten Adresse und Demo-Karte; identisches PNG beim erneuten Abruf. Fremde Bestellungen antworten mit 404, unautorisierte Jobs mit 403, Serverquellen und `.env.local` mit 404. Vorschauen verwenden `archenlicht_preview`, getrennt vom öffentlichen Schema.
+
+Keine echten Zahlungen, E-Mails oder Podbase-Aufträge. Die Windows-Browseranbindung ist weiterhin nicht erreichbar (`Computer Use native pipe is unavailable`, Betriebssystemfehler 2). Deshalb sind die Abläufe per HTTP/API und Datenbank geprüft; eine visuelle Browser- und Mobilabnahme wird nicht behauptet. [Hosting und Betriebsgrenzen](VERCEL.md).
+
+## Ursprüngliche Vercel-Diagnose und Startfehler
 
 **40 automatisierte Tests bestanden, 0 fehlgeschlagen.** 24 JavaScript-Dateien syntaktisch geprüft. Die drei neuen Prüfungen reproduzieren eine nicht-JSON-Hosting-Antwort und den fehlgeschlagenen Bootstrap. Die Oberfläche zeigt einen verständlichen Fehler und lässt eine vollständige Neuladung zu; reguläre JSON-Antworten und verständliche API-Fehler bleiben erhalten.
 
-Öffentliches Deployment per HTTP geprüft: `/` 200, `/api/bootstrap`, `/api/health` und `/kollektion` 404. Fehlende Serverrouten sind die bestätigte Ursache; kein funktionierender veröffentlichter Shop behauptet. [Diagnose und verbleibende Hosting-Arbeit](VERCEL.md). Der Korrekturstand wird lokal vorbereitet; keine Deploymentfreigabe oder erfolgreiche Backend-Migration aus den Frontend-Tests abgeleitet.
+Das ursprüngliche öffentliche Deployment wurde per HTTP geprüft: `/` 200, `/api/bootstrap`, `/api/health` und `/kollektion` 404. Fehlende Serverrouten waren die bestätigte Ursache. Erst nach der Frontend-Korrektur wurde die oben dokumentierte Backend-/Hosting-Anpassung umgesetzt; die früheren Frontend-Tests allein belegen keine Cloud-Migration.
 
 ## Erweiterung: Designpaket v2 Farbe und vollständige Hüllenansichten
 

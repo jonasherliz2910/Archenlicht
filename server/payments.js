@@ -6,22 +6,22 @@ import { digest } from './store.js';
 export class Payments {
   constructor(config, store = null) { this.config = config; this.store = store; }
   get provider() { return this.config.paymentMode === 'local' ? 'local' : 'stripe_test'; }
-  storedCustomer(user) { return user && this.store?.get('SELECT customer_id FROM payment_customers WHERE user_id=? AND provider=?', user.id, this.provider)?.customer_id; }
+  async storedCustomer(user) { return user && (await this.store?.get('SELECT customer_id FROM payment_customers WHERE user_id=? AND provider=?', user.id, this.provider))?.customer_id; }
   async customerFor(user) {
     if (!user) return null;
-    const existing = this.storedCustomer(user);
+    const existing = (await this.storedCustomer(user));
     if (existing) return existing;
     const customer = this.config.paymentMode === 'local'
       ? { id: `SIM-CUSTOMER-${digest(user.id).slice(0, 24)}` }
       : await this.stripe('customers', 'POST', { email: user.email, 'metadata[shop_user_id]': user.id }, `customer-${digest(user.id)}`);
     if (!customer.id || (this.config.paymentMode !== 'local' && customer.livemode !== false)) throw new ShopError('Das Stripe-Testkundenkonto konnte nicht eingerichtet werden.', 502);
-    this.store.run('INSERT OR IGNORE INTO payment_customers VALUES(?,?,?)', user.id, this.provider, customer.id);
-    return this.storedCustomer(user);
+    (await this.store.run('INSERT OR IGNORE INTO payment_customers VALUES(?,?,?)', user.id, this.provider, customer.id));
+    return (await this.storedCustomer(user));
   }
   async cardsFor(user) {
-    const customerId = this.storedCustomer(user);
+    const customerId = (await this.storedCustomer(user));
     if (!customerId) return [];
-    if (this.config.paymentMode === 'local') return this.store.all('SELECT id,brand,last4,exp_month AS expMonth,exp_year AS expYear FROM local_payment_methods WHERE user_id=? ORDER BY created DESC', user.id).map(c => ({ ...c, simulated: true }));
+    if (this.config.paymentMode === 'local') return (await this.store.all('SELECT id,brand,last4,exp_month AS expMonth,exp_year AS expYear FROM local_payment_methods WHERE user_id=? ORDER BY created DESC', user.id)).map(c => ({ ...c, simulated: true }));
     const cards = []; let cursor = '';
     for (let page = 0; page < 10; page++) {
       const query = new URLSearchParams({ customer: customerId, type: 'card', allow_redisplay: 'always', limit: '100', ...(cursor ? { starting_after: cursor } : {}) });
@@ -34,12 +34,12 @@ export class Payments {
     throw new ShopError('Deine gespeicherten Karten konnten gerade nicht vollständig geladen werden.', 502);
   }
   async removeCard(user, id) {
-    const customerId = this.storedCustomer(user);
+    const customerId = (await this.storedCustomer(user));
     if (!customerId) throw new ShopError('Karte nicht gefunden.', 404);
     if (this.config.paymentMode === 'local') {
-      const row = this.store.get('SELECT id FROM local_payment_methods WHERE id=? AND user_id=?', id, user.id);
+      const row = (await this.store.get('SELECT id FROM local_payment_methods WHERE id=? AND user_id=?', id, user.id));
       if (!row) throw new ShopError('Karte nicht gefunden.', 404);
-      this.store.run('DELETE FROM local_payment_methods WHERE id=? AND user_id=?', id, user.id);
+      (await this.store.run('DELETE FROM local_payment_methods WHERE id=? AND user_id=?', id, user.id));
     } else {
       if (!/^pm_[A-Za-z0-9_]{1,120}$/.test(id)) throw new ShopError('Karte nicht gefunden.', 404);
       const method = await this.stripe(`payment_methods/${encodeURIComponent(id)}`);

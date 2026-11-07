@@ -1,7 +1,7 @@
 import { readdirSync, readFileSync, existsSync } from 'node:fs';
 import { resolve, join } from 'node:path';
 import { spawnSync } from 'node:child_process';
-const dirs = ['server', 'public', 'scripts', 'tests'];
+const dirs = ['server', 'public', 'scripts', 'tests', 'api'];
 let files = 0;
 for (const dir of dirs) for (const name of readdirSync(dir)) {
   if (!/\.(m?js)$/.test(name)) continue;

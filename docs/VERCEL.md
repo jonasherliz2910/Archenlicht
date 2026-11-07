@@ -1,21 +1,45 @@
 # Hosting auf Vercel
 
-Der aktuelle GitHub-Stand ist der vollständige lokale Node.js-24-Testshop. Ein Import dieses Repositories in Vercel allein stellt noch keinen funktionsfähigen Shop bereit.
+Der Shop unterstützt zwei Betriebsarten mit derselben Geschäftslogik: lokal Node.js 24 mit SQLite und auf Vercel eine Node.js-24-Function mit Neon PostgreSQL. Zahlungen, Podbase und E-Mails bleiben simuliert. Die Hosting-Anpassung ist keine Freigabe für echte Verkäufe.
 
-Der Server schreibt Konten, Sitzungen, Warenkörbe und Bestellungen in eine lokale SQLite-Datei unter `data/test`, legt dort unveränderliche Druckdateien ab und verarbeitet die Fulfillment-Warteschlange über einen dauerhaften Timer. Diese Dateien sind absichtlich nicht im Repository enthalten. Vercel Functions stellen keinen gemeinsamen dauerhaft beschreibbaren lokalen Datenträger für SQLite bereit. Siehe [Vercels Erklärung zu SQLite](https://vercel.com/kb/guide/is-sqlite-supported-in-vercel).
+## Projekt und Routing
 
-Vor einem Vercel-Deployment müssen die HTTP-Einstiegspunkte für das Zielhosting eingerichtet, Daten und Sitzungen in einen dauerhaften externen Datenspeicher verlagert, Druckdateien in dauerhaftem Objektspeicher abgelegt und die Hintergrundverarbeitung als dauerhafte Jobs ausgeführt werden. Der vorhandene Schutz vor doppelten Zahlungen und Druckaufträgen muss dabei erhalten bleiben.
+Ziel ist `jonas-4eb6/archenlicht`, Repository `jonasherliz2910/Archenlicht`, öffentliche Adresse `https://archenlicht.vercel.app`. Das Framework bleibt „Other“. `api/shop.js` ist der native HTTP-Einstieg; `vercel.json` leitet API-, Druckdatei- und Shoprouten dorthin. Die Funktion läuft in Frankfurt. Node 24 wird über `package.json` festgelegt. Vercel installiert die Abhängigkeiten einschließlich `sharp` aus der Lockdatei.
 
-Nur `public/` als statische Website auszuliefern genügt ebenfalls nicht: Die Oberfläche benötigt `/api/bootstrap`, Vorschau-, Warenkorb-, Konto- und Zahlungsrouten aus `server/index.js`.
+Das frühere Deployment lieferte nur statische Dateien aus: `/` war erreichbar, aber `/api/bootstrap`, `/api/health` und `/kollektion` antworteten mit 404. Deshalb versuchte der Browser, Vercels Textfehler als JSON zu lesen. Die API wird nun als Function bereitgestellt. Zusätzlich verarbeitet die Oberfläche nicht-JSON-Antworten verständlich und bietet bei einem fehlgeschlagenen Start eine funktionierende vollständige Neuladung an.
 
-Alternativ kann der bestehende Node-Server auf einem Hosting mit dauerhaftem Datenträger und Hintergrundprozess laufen; für eine Trennung von Frontend und Backend wären Routing und Betriebskonfiguration entsprechend einzurichten. Eine solche Umstellung wurde beim GitHub-Upload noch nicht vorgenommen.
+## Dauerhafte Daten
 
-Zugangsdaten gehören in die serverseitige Umgebungsverwaltung des späteren Hostings, nicht nach GitHub. `.env.example` ist die leere Konfigurationsvorlage. Lokale Konten, Testbestellungen, Adminzugang und Backups bleiben auf Jonas’ Rechner. Zahlungen, Podbase und Mail laufen weiterhin ausschließlich im dokumentierten Testbetrieb.
+Die eingebundene Neon-Datenbank `archenlicht-testdb` wurde im Tarif **Free**, Region Frankfurt, angelegt. Konten, Sitzungen, Warenkörbe, Bestellungen, Zahlungsereignisse, Mail-Outbox und Queue liegen dort. PostgreSQL-Transaktionen verwenden pro Transaktion eine eigene Verbindung, die abschließend geschlossen wird. Kritische Zustandsübergänge sind durch Transaktionen und einen gemeinsamen Advisory Lock geschützt; Claims und eindeutige Schlüssel verhindern doppelte Verarbeitung.
 
-## Diagnose vom 7. November 2026
+Cloud-Druckdateien liegen ebenfalls dauerhaft in PostgreSQL: Originalmotive werden anhand ihrer Prüfsumme einmalig gespeichert. Unveränderliche SVG-Snapshots referenzieren diese Kopie intern; bei der Auslieferung wird die Originaldatei wieder eingebettet. Gerasterte PNGs werden unveränderlich zum Inhalts-Hash abgelegt. Spätere Änderungen an Motiven, Schrift oder Layout verändern bereits gespeicherte Druckdateien nicht. Für einen größeren Livekatalog sind Speicherbedarf und Tarif gesondert zu planen.
 
-Bei der Prüfung von `https://archenlicht.vercel.app` lieferte `/` HTTP 200, aber `/api/bootstrap`, `/api/health` und `/kollektion` jeweils HTTP 404. Die API-Antwort begann mit `The page could not be found`, nicht mit JSON. Damit ist die erste unterbrochene Verbindung die vom Browser zur Shop-API; das bestehende Deployment stellt diese Serverrouten nicht bereit. Die Projekteinstellungen und Laufzeitlogs konnten über die aktuell verbundene Vercel-Anbindung nicht eingesehen werden, weil das Zielprojekt dort nicht verfügbar ist.
+`DATABASE_SCHEMA` trennt den öffentlichen Testshop (`public`), Vorschauen (`archenlicht_preview`) und Cloud-Entwicklung (`archenlicht_development`). Lokale SQLite-Daten werden nicht hochgeladen oder automatisch migriert. Der lokale Start verwendet weiterhin `data/test/shop.sqlite`; `.env.local` wird vom lokalen Startskript nicht automatisch geladen. [Warum SQLite-Dateien nicht als dauerhafter Vercel-Speicher dienen](https://vercel.com/kb/guide/is-sqlite-supported-in-vercel).
 
-Zusätzlich fing die Browsernavigation den Startseiten-Link nach fehlgeschlagenem Bootstrap ab, obwohl noch kein Shopzustand vorhanden war. Im vorbereiteten Code werden nicht-JSON-Antworten verständlich behandelt und beim Startfehler eine vollständige Neuladung angeboten. Drei Regressionstests prüfen reguläre API-Antworten, Hosting-Fehlerseiten und den klickbaren Wiederholungslink. Gesamtsuite: 40 Tests bestanden, 24 JavaScript-Dateien syntaktisch geprüft.
+## Serverkonfiguration
 
-Diese Frontend-Korrektur stellt die fehlenden API-Routen und die dauerhafte Datenhaltung nicht bereit. Das öffentliche Deployment bleibt bis zur eigentlichen Backend-/Hosting-Anpassung fehlerhaft. Für diese Anpassung wird Zugriff auf das Vercel-Konto beziehungsweise Team benötigt, dem das Zielprojekt gehört.
+Die Neon-Integration stellt `DATABASE_URL` bereit. In Vercels serverseitiger Umgebungsverwaltung sind zusätzlich gesetzt:
+
+| Variable | Einstellung |
+|---|---|
+| `STORAGE_MODE` | `postgres` |
+| `SHOP_MODE` | `test` |
+| `PAYMENT_MODE`, `PODBASE_MODE`, `MAIL_MODE` | `local` |
+| `BASE_URL` | `https://archenlicht.vercel.app` |
+| `DATABASE_SCHEMA` | je Umgebung wie oben; ohne Angabe `public` |
+| `ADMIN_EMAIL` | eigenes Test-Adminkonto |
+| `ADMIN_PASSWORD`, `CRON_SECRET` | zufällige Geheimnisse; keine öffentlichen Werte |
+
+Der private Cloud-Adminzugang liegt ausschließlich auf Jonas’ Rechner in `data/test/cloud-admin-access.txt`. `.env*`, `.vercel`, `.tools`, lokale Daten und Testausgaben sind vom Git-Upload und vom Deployment ausgeschlossen. Geheimnisse werden weder in Browsercode eingebaut noch in Prüfberichten ausgegeben.
+
+## Testjobs
+
+Es gibt keinen dauerhaft laufenden Timer in der Function. Nach Zahlungsbestätigung und beim autorisierten Abruf einer Bestellung wird die dauerhafte Testqueue abgearbeitet. Zusätzlich ruft ein täglicher Vercel Cron Job `/api/jobs` auf; der Endpunkt verlangt `Authorization: Bearer <CRON_SECRET>`. Der tägliche Zeitplan passt zum Hobby-Tarif. Bei offener Bestellansicht aktualisiert deren bestehende Statusabfrage den simulierten Versand zeitnah; ohne Seitenaufrufe erfolgt der nächste Abgleich erst durch einen späteren Aufruf oder den täglichen Job.
+
+Die Situationsbeschreibung der Beratung bleibt flüchtig im Browser beziehungsweise im Speicher einer Function-Instanz. Sie wird nicht in die Datenbank oder in Logs geschrieben und kann nach einem Instanzwechsel serverseitig nicht wiederhergestellt werden. Der verteilte Anmeldeschutz, E-Mail-Verifikation, Passwortwiederherstellung, echte Stripe-Zahlungen und Podbase-Produktionsfreigaben bleiben Live-Voraussetzungen.
+
+## Prüfen und veröffentlichen
+
+Vor einer Veröffentlichung Team, Projekt und Umgebung prüfen. Zuerst eine Vorschau erstellen und über `vercel curl` mit dem vorhandenen Vercel-Zugang prüfen; Deployment Protection bleibt aktiv. Anschließend den geprüften Code nach `main` pushen und das daraus entstandene Production-Deployment sowie die öffentliche Domain kontrollieren. [Prüfnachweise und Grenzen](TESTPROTOKOLL.md).
+
+Die normale Suite prüft die lokale Datenhaltung und den nativen Function-Einstieg. Der zusätzliche Neon-Test wird nur ausdrücklich mit `RUN_POSTGRES_TESTS=1` und geschützter `DATABASE_URL` ausgeführt. Er verwendet ein zufälliges eigenes Schema und entfernt ausschließlich dieses Schema nach dem Test. Nie das öffentliche Schema für automatische Kaufprüfungen verwenden.
