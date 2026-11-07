@@ -1,0 +1,1946 @@
+[
+  {
+    "geometryFixture": "schmal",
+    "realPodbaseTemplate": false,
+    "designId": "unter-seinen-fluegeln",
+    "kind": "fixed",
+    "canvas": {
+      "width": 1000,
+      "height": 2400
+    },
+    "sourcePixels": {
+      "width": 962,
+      "height": 1634
+    },
+    "imagePlacement": {
+      "x": 0,
+      "y": 350.7276507276507,
+      "width": 1000,
+      "height": 1698.5446985446986,
+      "scale": 1.0395010395010396
+    },
+    "typography": [
+      {
+        "key": "reference",
+        "box": {
+          "x": 360,
+          "y": 1573.6798336798338,
+          "width": 280,
+          "height": 110.40540540540542
+        },
+        "sourceSize": 48,
+        "fontSize": 49.8960498960499,
+        "lineHeight": 64.86486486486487,
+        "lines": [
+          "Psalm 91,4"
+        ],
+        "positions": [
+          {
+            "x": 402.6113135070166,
+            "baseline": 1643.452182952183,
+            "bounds": {
+              "x": 406.71592142021825,
+              "y": 1610.371101871102,
+              "width": 186.56815715956347,
+              "height": 37.02286902286903
+            }
+          }
+        ],
+        "rotation": 0
+      }
+    ],
+    "hash": "c0f929be3cc0d13dff03aebf6c63632d61533f7dfeda9921b2cfeef60c8ca7c4",
+    "productionApproved": false
+  },
+  {
+    "geometryFixture": "schmal",
+    "realPodbaseTemplate": false,
+    "designId": "unter-seinen-fluegeln",
+    "kind": "custom",
+    "canvas": {
+      "width": 1000,
+      "height": 2400
+    },
+    "sourcePixels": {
+      "width": 962,
+      "height": 1634
+    },
+    "imagePlacement": {
+      "x": 0,
+      "y": 350.7276507276507,
+      "width": 1000,
+      "height": 1698.5446985446986,
+      "scale": 1.0395010395010396
+    },
+    "typography": [
+      {
+        "key": "reference",
+        "box": {
+          "x": 360,
+          "y": 1573.6798336798338,
+          "width": 280,
+          "height": 110.40540540540542
+        },
+        "sourceSize": 42,
+        "fontSize": 43.65904365904366,
+        "lineHeight": 56.75675675675676,
+        "lines": [
+          "1. Korinther 13,13"
+        ],
+        "positions": [
+          {
+            "x": 355.44880452812333,
+            "baseline": 1641.595256087686,
+            "bounds": {
+              "x": 362.63383580451693,
+              "y": 1612.7207522283227,
+              "width": 274.7323283909661,
+              "height": 32.32356830842778
+            }
+          }
+        ],
+        "rotation": 0
+      },
+      {
+        "key": "excerpt",
+        "box": {
+          "x": 190,
+          "y": 1701.070686070686,
+          "width": 620,
+          "height": 161.36174636174633
+        },
+        "sourceSize": 36,
+        "fontSize": 37.42203742203743,
+        "lineHeight": 48.64864864864866,
+        "lines": [
+          "aber die Liebe ist die größte unter ihnen."
+        ],
+        "positions": [
+          {
+            "x": 242.9181778079011,
+            "baseline": 1790.5814509084466,
+            "bounds": {
+              "x": 246.0515059978699,
+              "y": 1764.945016397012,
+              "width": 507.8969880042602,
+              "height": 33.613085709094015
+            }
+          }
+        ],
+        "rotation": 0
+      },
+      {
+        "key": "dedication",
+        "box": {
+          "x": 200,
+          "y": 1870.925155925156,
+          "width": 600,
+          "height": 59.44906444906451
+        },
+        "sourceSize": 30,
+        "fontSize": 31.185031185031185,
+        "lineHeight": 40.54054054054054,
+        "lines": [
+          "Für Anna · 2026"
+        ],
+        "positions": [
+          {
+            "x": 409.0589297009853,
+            "baseline": 1910.5213918309205,
+            "bounds": {
+              "x": 411.62347215810587,
+              "y": 1889.37465806513,
+              "width": 176.7530556837883,
+              "height": 22.550060169116872
+            }
+          }
+        ],
+        "rotation": 0
+      }
+    ],
+    "hash": "f66be3fdaa74bd295c674123dfbdab734b48bbbcdc058adf11f512ca29374841",
+    "productionApproved": false
+  },
+  {
+    "geometryFixture": "schmal",
+    "realPodbaseTemplate": false,
+    "designId": "nach-dem-sturm",
+    "kind": "fixed",
+    "canvas": {
+      "width": 1000,
+      "height": 2400
+    },
+    "sourcePixels": {
+      "width": 962,
+      "height": 1635
+    },
+    "imagePlacement": {
+      "x": 0,
+      "y": 350.20790020790014,
+      "width": 1000,
+      "height": 1699.5841995841997,
+      "scale": 1.0395010395010396
+    },
+    "typography": [
+      {
+        "key": "reference",
+        "box": {
+          "x": 360,
+          "y": 1522.920997920998,
+          "width": 280,
+          "height": 110.47297297297291
+        },
+        "sourceSize": 48,
+        "fontSize": 49.8960498960499,
+        "lineHeight": 64.86486486486487,
+        "lines": [
+          "Markus 4,39"
+        ],
+        "positions": [
+          {
+            "x": 387.9273159467823,
+            "baseline": 1592.801975051975,
+            "bounds": {
+              "x": 389.64516566463203,
+              "y": 1559.5712058212057,
+              "width": 220.70966867073588,
+              "height": 37.172557172557184
+            }
+          }
+        ],
+        "rotation": 0
+      }
+    ],
+    "hash": "2489f454ea205630b0290c307d99a9f699c952fe4ef24b0dd869c68ffed280a9",
+    "productionApproved": false
+  },
+  {
+    "geometryFixture": "schmal",
+    "realPodbaseTemplate": false,
+    "designId": "nach-dem-sturm",
+    "kind": "custom",
+    "canvas": {
+      "width": 1000,
+      "height": 2400
+    },
+    "sourcePixels": {
+      "width": 962,
+      "height": 1635
+    },
+    "imagePlacement": {
+      "x": 0,
+      "y": 350.20790020790014,
+      "width": 1000,
+      "height": 1699.5841995841997,
+      "scale": 1.0395010395010396
+    },
+    "typography": [
+      {
+        "key": "reference",
+        "box": {
+          "x": 360,
+          "y": 1522.920997920998,
+          "width": 280,
+          "height": 110.47297297297291
+        },
+        "sourceSize": 42,
+        "fontSize": 43.65904365904366,
+        "lineHeight": 56.75675675675676,
+        "lines": [
+          "1. Korinther 13,13"
+        ],
+        "positions": [
+          {
+            "x": 355.44880452812333,
+            "baseline": 1590.870204112634,
+            "bounds": {
+              "x": 362.63383580451693,
+              "y": 1561.9957002532706,
+              "width": 274.7323283909661,
+              "height": 32.32356830842778
+            }
+          }
+        ],
+        "rotation": 0
+      },
+      {
+        "key": "excerpt",
+        "box": {
+          "x": 190,
+          "y": 1650.3898128898127,
+          "width": 620,
+          "height": 161.46049896049908
+        },
+        "sourceSize": 36,
+        "fontSize": 37.42203742203743,
+        "lineHeight": 48.64864864864866,
+        "lines": [
+          "aber die Liebe ist die größte unter ihnen."
+        ],
+        "positions": [
+          {
+            "x": 242.9181778079011,
+            "baseline": 1739.9499540269499,
+            "bounds": {
+              "x": 246.0515059978699,
+              "y": 1714.3135195155153,
+              "width": 507.8969880042602,
+              "height": 33.613085709094015
+            }
+          }
+        ],
+        "rotation": 0
+      },
+      {
+        "key": "dedication",
+        "box": {
+          "x": 200,
+          "y": 1820.3482328482328,
+          "width": 600,
+          "height": 59.48544698544697
+        },
+        "sourceSize": 30,
+        "fontSize": 31.185031185031185,
+        "lineHeight": 40.54054054054054,
+        "lines": [
+          "Für Anna · 2026"
+        ],
+        "positions": [
+          {
+            "x": 409.0589297009853,
+            "baseline": 1859.9626600221884,
+            "bounds": {
+              "x": 411.62347215810587,
+              "y": 1838.815926256398,
+              "width": 176.7530556837883,
+              "height": 22.550060169116872
+            }
+          }
+        ],
+        "rotation": 0
+      }
+    ],
+    "hash": "05e814449c051e474dba0645adbd61852da38131644092dd0bc16d2ec27fe15e",
+    "productionApproved": false
+  },
+  {
+    "geometryFixture": "schmal",
+    "realPodbaseTemplate": false,
+    "designId": "absetzen",
+    "kind": "fixed",
+    "canvas": {
+      "width": 1000,
+      "height": 2400
+    },
+    "sourcePixels": {
+      "width": 962,
+      "height": 1635
+    },
+    "imagePlacement": {
+      "x": 0,
+      "y": 350.20790020790014,
+      "width": 1000,
+      "height": 1699.5841995841997,
+      "scale": 1.0395010395010396
+    },
+    "typography": [
+      {
+        "key": "reference",
+        "box": {
+          "x": 360,
+          "y": 1624.8960498960498,
+          "width": 280,
+          "height": 110.47297297297291
+        },
+        "sourceSize": 47,
+        "fontSize": 48.85654885654886,
+        "lineHeight": 63.51351351351352,
+        "lines": [
+          "Matthäus 11,28"
+        ],
+        "positions": [
+          {
+            "x": 358.6824320064371,
+            "baseline": 1694.4393624393622,
+            "bounds": {
+              "x": 360.3644940404889,
+              "y": 1661.9660429660428,
+              "width": 279.2710119190222,
+              "height": 36.33298683298684
+            }
+          }
+        ],
+        "rotation": 0
+      }
+    ],
+    "hash": "79fe4d7695243ad02d6546d69d47b34c8a9fa1586840979759dc4522f1502cea",
+    "productionApproved": false
+  },
+  {
+    "geometryFixture": "schmal",
+    "realPodbaseTemplate": false,
+    "designId": "absetzen",
+    "kind": "custom",
+    "canvas": {
+      "width": 1000,
+      "height": 2400
+    },
+    "sourcePixels": {
+      "width": 962,
+      "height": 1635
+    },
+    "imagePlacement": {
+      "x": 0,
+      "y": 350.20790020790014,
+      "width": 1000,
+      "height": 1699.5841995841997,
+      "scale": 1.0395010395010396
+    },
+    "typography": [
+      {
+        "key": "reference",
+        "box": {
+          "x": 360,
+          "y": 1624.8960498960498,
+          "width": 280,
+          "height": 110.47297297297291
+        },
+        "sourceSize": 42,
+        "fontSize": 43.65904365904366,
+        "lineHeight": 56.75675675675676,
+        "lines": [
+          "1. Korinther 13,13"
+        ],
+        "positions": [
+          {
+            "x": 355.44880452812333,
+            "baseline": 1692.8452560876858,
+            "bounds": {
+              "x": 362.63383580451693,
+              "y": 1663.9707522283225,
+              "width": 274.7323283909661,
+              "height": 32.32356830842778
+            }
+          }
+        ],
+        "rotation": 0
+      },
+      {
+        "key": "excerpt",
+        "box": {
+          "x": 190,
+          "y": 1752.3648648648648,
+          "width": 620,
+          "height": 161.46049896049885
+        },
+        "sourceSize": 36,
+        "fontSize": 37.42203742203743,
+        "lineHeight": 48.64864864864866,
+        "lines": [
+          "aber die Liebe ist die größte unter ihnen."
+        ],
+        "positions": [
+          {
+            "x": 242.9181778079011,
+            "baseline": 1841.9250060020017,
+            "bounds": {
+              "x": 246.0515059978699,
+              "y": 1816.2885714905672,
+              "width": 507.8969880042602,
+              "height": 33.613085709094015
+            }
+          }
+        ],
+        "rotation": 0
+      },
+      {
+        "key": "dedication",
+        "box": {
+          "x": 200,
+          "y": 1922.323284823285,
+          "width": 600,
+          "height": 59.48544698544697
+        },
+        "sourceSize": 30,
+        "fontSize": 31.185031185031185,
+        "lineHeight": 40.54054054054054,
+        "lines": [
+          "Für Anna · 2026"
+        ],
+        "positions": [
+          {
+            "x": 409.0589297009853,
+            "baseline": 1961.9377119972405,
+            "bounds": {
+              "x": 411.62347215810587,
+              "y": 1940.79097823145,
+              "width": 176.7530556837883,
+              "height": 22.550060169116872
+            }
+          }
+        ],
+        "rotation": 0
+      }
+    ],
+    "hash": "e079882cf9a57fa6f5e9bd42c73acbffe413692114dae713404feb30b5071477",
+    "productionApproved": false
+  },
+  {
+    "geometryFixture": "schmal",
+    "realPodbaseTemplate": false,
+    "designId": "ganz-nah",
+    "kind": "fixed",
+    "canvas": {
+      "width": 1000,
+      "height": 2400
+    },
+    "sourcePixels": {
+      "width": 962,
+      "height": 1635
+    },
+    "imagePlacement": {
+      "x": 0,
+      "y": 350.20790020790014,
+      "width": 1000,
+      "height": 1699.5841995841997,
+      "scale": 1.0395010395010396
+    },
+    "typography": [
+      {
+        "key": "reference",
+        "box": {
+          "x": 360,
+          "y": 1599.402286902287,
+          "width": 280,
+          "height": 110.47297297297291
+        },
+        "sourceSize": 48,
+        "fontSize": 49.8960498960499,
+        "lineHeight": 64.86486486486487,
+        "lines": [
+          "Psalm 131,2"
+        ],
+        "positions": [
+          {
+            "x": 391.86512997442867,
+            "baseline": 1669.2084199584199,
+            "bounds": {
+              "x": 395.96973788763034,
+              "y": 1636.1273388773388,
+              "width": 208.0605242247393,
+              "height": 37.02286902286903
+            }
+          }
+        ],
+        "rotation": 0
+      }
+    ],
+    "hash": "55d33f22ac73d5d92d70a5c5400ff535f224cbcf48b56315471c956e8188e935",
+    "productionApproved": false
+  },
+  {
+    "geometryFixture": "schmal",
+    "realPodbaseTemplate": false,
+    "designId": "ganz-nah",
+    "kind": "custom",
+    "canvas": {
+      "width": 1000,
+      "height": 2400
+    },
+    "sourcePixels": {
+      "width": 962,
+      "height": 1635
+    },
+    "imagePlacement": {
+      "x": 0,
+      "y": 350.20790020790014,
+      "width": 1000,
+      "height": 1699.5841995841997,
+      "scale": 1.0395010395010396
+    },
+    "typography": [
+      {
+        "key": "reference",
+        "box": {
+          "x": 360,
+          "y": 1599.402286902287,
+          "width": 280,
+          "height": 110.47297297297291
+        },
+        "sourceSize": 42,
+        "fontSize": 43.65904365904366,
+        "lineHeight": 56.75675675675676,
+        "lines": [
+          "1. Korinther 13,13"
+        ],
+        "positions": [
+          {
+            "x": 355.44880452812333,
+            "baseline": 1667.351493093923,
+            "bounds": {
+              "x": 362.63383580451693,
+              "y": 1638.4769892345596,
+              "width": 274.7323283909661,
+              "height": 32.32356830842778
+            }
+          }
+        ],
+        "rotation": 0
+      },
+      {
+        "key": "excerpt",
+        "box": {
+          "x": 190,
+          "y": 1726.871101871102,
+          "width": 620,
+          "height": 161.46049896049908
+        },
+        "sourceSize": 36,
+        "fontSize": 37.42203742203743,
+        "lineHeight": 48.64864864864866,
+        "lines": [
+          "aber die Liebe ist die größte unter ihnen."
+        ],
+        "positions": [
+          {
+            "x": 242.9181778079011,
+            "baseline": 1816.431243008239,
+            "bounds": {
+              "x": 246.0515059978699,
+              "y": 1790.7948084968045,
+              "width": 507.8969880042602,
+              "height": 33.613085709094015
+            }
+          }
+        ],
+        "rotation": 0
+      },
+      {
+        "key": "dedication",
+        "box": {
+          "x": 200,
+          "y": 1896.8295218295218,
+          "width": 600,
+          "height": 59.48544698544697
+        },
+        "sourceSize": 30,
+        "fontSize": 31.185031185031185,
+        "lineHeight": 40.54054054054054,
+        "lines": [
+          "Für Anna · 2026"
+        ],
+        "positions": [
+          {
+            "x": 409.0589297009853,
+            "baseline": 1936.4439490034774,
+            "bounds": {
+              "x": 411.62347215810587,
+              "y": 1915.297215237687,
+              "width": 176.7530556837883,
+              "height": 22.550060169116872
+            }
+          }
+        ],
+        "rotation": 0
+      }
+    ],
+    "hash": "1aa8b8eb8c46ee8f60ce43d40671389481183c5880923755ab0958d68ae48bfc",
+    "productionApproved": false
+  },
+  {
+    "geometryFixture": "schmal",
+    "realPodbaseTemplate": false,
+    "designId": "im-schatten",
+    "kind": "fixed",
+    "canvas": {
+      "width": 1000,
+      "height": 2400
+    },
+    "sourcePixels": {
+      "width": 962,
+      "height": 1635
+    },
+    "imagePlacement": {
+      "x": 0,
+      "y": 350.20790020790014,
+      "width": 1000,
+      "height": 1699.5841995841997,
+      "scale": 1.0395010395010396
+    },
+    "typography": [
+      {
+        "key": "reference",
+        "box": {
+          "x": 370,
+          "y": 1616.398128898129,
+          "width": 260,
+          "height": 110.47297297297291
+        },
+        "sourceSize": 48,
+        "fontSize": 49.8960498960499,
+        "lineHeight": 64.86486486486487,
+        "lines": [
+          "Psalm 121,5"
+        ],
+        "positions": [
+          {
+            "x": 392.4147785104816,
+            "baseline": 1686.204261954262,
+            "bounds": {
+              "x": 396.5193864236833,
+              "y": 1653.123180873181,
+              "width": 206.9612271526334,
+              "height": 37.02286902286903
+            }
+          }
+        ],
+        "rotation": 0
+      }
+    ],
+    "hash": "0b30900517a6303701390f4825f89b2e38ff9a19728a15afe2ca3552216c2c4e",
+    "productionApproved": false
+  },
+  {
+    "geometryFixture": "schmal",
+    "realPodbaseTemplate": false,
+    "designId": "im-schatten",
+    "kind": "custom",
+    "canvas": {
+      "width": 1000,
+      "height": 2400
+    },
+    "sourcePixels": {
+      "width": 962,
+      "height": 1635
+    },
+    "imagePlacement": {
+      "x": 0,
+      "y": 350.20790020790014,
+      "width": 1000,
+      "height": 1699.5841995841997,
+      "scale": 1.0395010395010396
+    },
+    "typography": [
+      {
+        "key": "reference",
+        "box": {
+          "x": 370,
+          "y": 1616.398128898129,
+          "width": 260,
+          "height": 110.47297297297291
+        },
+        "sourceSize": 39,
+        "fontSize": 40.54054054054054,
+        "lineHeight": 52.7027027027027,
+        "lines": [
+          "1. Korinther 13,13"
+        ],
+        "positions": [
+          {
+            "x": 365.7738804172825,
+            "baseline": 1683.4392836822542,
+            "bounds": {
+              "x": 372.4457141773121,
+              "y": 1656.627244384274,
+              "width": 255.10857164537586,
+              "height": 30.014742000682936
+            }
+          }
+        ],
+        "rotation": 0
+      },
+      {
+        "key": "excerpt",
+        "box": {
+          "x": 190,
+          "y": 1743.8669438669438,
+          "width": 620,
+          "height": 161.46049896049885
+        },
+        "sourceSize": 36,
+        "fontSize": 37.42203742203743,
+        "lineHeight": 48.64864864864866,
+        "lines": [
+          "aber die Liebe ist die größte unter ihnen."
+        ],
+        "positions": [
+          {
+            "x": 242.9181778079011,
+            "baseline": 1833.4270850040807,
+            "bounds": {
+              "x": 246.0515059978699,
+              "y": 1807.7906504926461,
+              "width": 507.8969880042602,
+              "height": 33.613085709094015
+            }
+          }
+        ],
+        "rotation": 0
+      },
+      {
+        "key": "dedication",
+        "box": {
+          "x": 200,
+          "y": 1913.8253638253639,
+          "width": 600,
+          "height": 59.48544698544697
+        },
+        "sourceSize": 30,
+        "fontSize": 31.185031185031185,
+        "lineHeight": 40.54054054054054,
+        "lines": [
+          "Für Anna · 2026"
+        ],
+        "positions": [
+          {
+            "x": 409.0589297009853,
+            "baseline": 1953.4397909993195,
+            "bounds": {
+              "x": 411.62347215810587,
+              "y": 1932.293057233529,
+              "width": 176.7530556837883,
+              "height": 22.550060169116872
+            }
+          }
+        ],
+        "rotation": 0
+      }
+    ],
+    "hash": "5ab76117957c18d96391a54a80631dc6b2acf5083371d4647d7b4bde8f7d1ae0",
+    "productionApproved": false
+  },
+  {
+    "geometryFixture": "schmal",
+    "realPodbaseTemplate": false,
+    "designId": "getragen",
+    "kind": "fixed",
+    "canvas": {
+      "width": 1000,
+      "height": 2400
+    },
+    "sourcePixels": {
+      "width": 962,
+      "height": 1634
+    },
+    "imagePlacement": {
+      "x": 0,
+      "y": 350.7276507276507,
+      "width": 1000,
+      "height": 1698.5446985446986,
+      "scale": 1.0395010395010396
+    },
+    "typography": [
+      {
+        "key": "reference",
+        "box": {
+          "x": 360,
+          "y": 1556.6943866943866,
+          "width": 280,
+          "height": 110.40540540540542
+        },
+        "sourceSize": 48,
+        "fontSize": 49.8960498960499,
+        "lineHeight": 64.86486486486487,
+        "lines": [
+          "Jesaja 40,11"
+        ],
+        "positions": [
+          {
+            "x": 393.0394360825822,
+            "baseline": 1623.6223839223837,
+            "bounds": {
+              "x": 391.1102520908982,
+              "y": 1589.4186417186415,
+              "width": 217.77949581820357,
+              "height": 44.956895356895366
+            }
+          }
+        ],
+        "rotation": 0
+      }
+    ],
+    "hash": "e4d6574e9222325cc51f06af1ae8c90e1405f5200676bcc9e098ead566335aa3",
+    "productionApproved": false
+  },
+  {
+    "geometryFixture": "schmal",
+    "realPodbaseTemplate": false,
+    "designId": "getragen",
+    "kind": "custom",
+    "canvas": {
+      "width": 1000,
+      "height": 2400
+    },
+    "sourcePixels": {
+      "width": 962,
+      "height": 1634
+    },
+    "imagePlacement": {
+      "x": 0,
+      "y": 350.7276507276507,
+      "width": 1000,
+      "height": 1698.5446985446986,
+      "scale": 1.0395010395010396
+    },
+    "typography": [
+      {
+        "key": "reference",
+        "box": {
+          "x": 360,
+          "y": 1556.6943866943866,
+          "width": 280,
+          "height": 110.40540540540542
+        },
+        "sourceSize": 42,
+        "fontSize": 43.65904365904366,
+        "lineHeight": 56.75675675675676,
+        "lines": [
+          "1. Korinther 13,13"
+        ],
+        "positions": [
+          {
+            "x": 355.44880452812333,
+            "baseline": 1624.6098091022388,
+            "bounds": {
+              "x": 362.63383580451693,
+              "y": 1595.7353052428755,
+              "width": 274.7323283909661,
+              "height": 32.32356830842778
+            }
+          }
+        ],
+        "rotation": 0
+      },
+      {
+        "key": "excerpt",
+        "box": {
+          "x": 190,
+          "y": 1684.0852390852388,
+          "width": 620,
+          "height": 161.36174636174633
+        },
+        "sourceSize": 36,
+        "fontSize": 37.42203742203743,
+        "lineHeight": 48.64864864864866,
+        "lines": [
+          "aber die Liebe ist die größte unter ihnen."
+        ],
+        "positions": [
+          {
+            "x": 242.9181778079011,
+            "baseline": 1773.5960039229994,
+            "bounds": {
+              "x": 246.0515059978699,
+              "y": 1747.9595694115649,
+              "width": 507.8969880042602,
+              "height": 33.613085709094015
+            }
+          }
+        ],
+        "rotation": 0
+      },
+      {
+        "key": "dedication",
+        "box": {
+          "x": 200,
+          "y": 1853.939708939709,
+          "width": 600,
+          "height": 59.44906444906451
+        },
+        "sourceSize": 30,
+        "fontSize": 31.185031185031185,
+        "lineHeight": 40.54054054054054,
+        "lines": [
+          "Für Anna · 2026"
+        ],
+        "positions": [
+          {
+            "x": 409.0589297009853,
+            "baseline": 1893.5359448454733,
+            "bounds": {
+              "x": 411.62347215810587,
+              "y": 1872.3892110796828,
+              "width": 176.7530556837883,
+              "height": 22.550060169116872
+            }
+          }
+        ],
+        "rotation": 0
+      }
+    ],
+    "hash": "9b4280cbfd6cbb9afdb25f9bef1f9f2d4a7045b6273b04fa23991777fdd99990",
+    "productionApproved": false
+  },
+  {
+    "geometryFixture": "breit",
+    "realPodbaseTemplate": false,
+    "designId": "unter-seinen-fluegeln",
+    "kind": "fixed",
+    "canvas": {
+      "width": 1400,
+      "height": 2400
+    },
+    "sourcePixels": {
+      "width": 962,
+      "height": 1634
+    },
+    "imagePlacement": {
+      "x": 0,
+      "y": 11.018711018710974,
+      "width": 1400,
+      "height": 2377.962577962578,
+      "scale": 1.4553014553014554
+    },
+    "typography": [
+      {
+        "key": "reference",
+        "box": {
+          "x": 504,
+          "y": 1723.1517671517672,
+          "width": 392,
+          "height": 154.5675675675675
+        },
+        "sourceSize": 48,
+        "fontSize": 69.85446985446985,
+        "lineHeight": 90.81081081081082,
+        "lines": [
+          "Psalm 91,4"
+        ],
+        "positions": [
+          {
+            "x": 563.655838923147,
+            "baseline": 1820.833056133056,
+            "bounds": {
+              "x": 569.4022900016294,
+              "y": 1774.5195426195426,
+              "width": 261.19541999674135,
+              "height": 51.83201663201663
+            }
+          }
+        ],
+        "rotation": 0
+      }
+    ],
+    "hash": "fbe9f86a9f45bca319baa9639324224d81cde0e1a53edc0ff749d9e82b39f1f6",
+    "productionApproved": false
+  },
+  {
+    "geometryFixture": "breit",
+    "realPodbaseTemplate": false,
+    "designId": "unter-seinen-fluegeln",
+    "kind": "custom",
+    "canvas": {
+      "width": 1400,
+      "height": 2400
+    },
+    "sourcePixels": {
+      "width": 962,
+      "height": 1634
+    },
+    "imagePlacement": {
+      "x": 0,
+      "y": 11.018711018710974,
+      "width": 1400,
+      "height": 2377.962577962578,
+      "scale": 1.4553014553014554
+    },
+    "typography": [
+      {
+        "key": "reference",
+        "box": {
+          "x": 504,
+          "y": 1723.1517671517672,
+          "width": 392,
+          "height": 154.5675675675675
+        },
+        "sourceSize": 42,
+        "fontSize": 61.12266112266113,
+        "lineHeight": 79.45945945945947,
+        "lines": [
+          "1. Korinther 13,13"
+        ],
+        "positions": [
+          {
+            "x": 497.62831201374905,
+            "baseline": 1818.2333574735203,
+            "bounds": {
+              "x": 507.6873844519475,
+              "y": 1777.8090541688916,
+              "width": 384.62523109610504,
+              "height": 45.25299353331885
+            }
+          }
+        ],
+        "rotation": 0
+      },
+      {
+        "key": "excerpt",
+        "box": {
+          "x": 266,
+          "y": 1901.4989604989603,
+          "width": 868,
+          "height": 225.90644490644468
+        },
+        "sourceSize": 36,
+        "fontSize": 52.390852390852395,
+        "lineHeight": 68.10810810810811,
+        "lines": [
+          "aber die Liebe ist die größte unter ihnen."
+        ],
+        "positions": [
+          {
+            "x": 340.0855070705816,
+            "baseline": 2026.8140322488953,
+            "bounds": {
+              "x": 344.4720502571248,
+              "y": 1990.923023932887,
+              "width": 711.0558994857503,
+              "height": 47.05831803859148
+            }
+          }
+        ],
+        "rotation": 0
+      },
+      {
+        "key": "dedication",
+        "box": {
+          "x": 280,
+          "y": 2139.2952182952185,
+          "width": 840,
+          "height": 83.22869022869008
+        },
+        "sourceSize": 30,
+        "fontSize": 43.65904365904366,
+        "lineHeight": 56.75675675675676,
+        "lines": [
+          "Für Anna · 2026"
+        ],
+        "positions": [
+          {
+            "x": 572.6825240835991,
+            "baseline": 2194.7299485632884,
+            "bounds": {
+              "x": 576.2728385191284,
+              "y": 2165.1245212911817,
+              "width": 247.45432296174317,
+              "height": 31.57008423676362
+            }
+          }
+        ],
+        "rotation": 0
+      }
+    ],
+    "hash": "dab40305ea3596b0fa44a978195645fa847e0cca9edfb0b075e4309595b819bf",
+    "productionApproved": false
+  },
+  {
+    "geometryFixture": "breit",
+    "realPodbaseTemplate": false,
+    "designId": "nach-dem-sturm",
+    "kind": "fixed",
+    "canvas": {
+      "width": 1400,
+      "height": 2400
+    },
+    "sourcePixels": {
+      "width": 962,
+      "height": 1635
+    },
+    "imagePlacement": {
+      "x": 0,
+      "y": 10.291060291060148,
+      "width": 1400,
+      "height": 2379.4178794178797,
+      "scale": 1.4553014553014554
+    },
+    "typography": [
+      {
+        "key": "reference",
+        "box": {
+          "x": 504,
+          "y": 1652.089397089397,
+          "width": 392,
+          "height": 154.6621621621623
+        },
+        "sourceSize": 48,
+        "fontSize": 69.85446985446985,
+        "lineHeight": 90.81081081081082,
+        "lines": [
+          "Markus 4,39"
+        ],
+        "positions": [
+          {
+            "x": 543.0982203714565,
+            "baseline": 1749.9227650727648,
+            "bounds": {
+              "x": 545.5032538303961,
+              "y": 1703.3996881496878,
+              "width": 308.9934923392076,
+              "height": 52.04158004158005
+            }
+          }
+        ],
+        "rotation": 0
+      }
+    ],
+    "hash": "62065a013c10aff17fc02fd3ebbce39f306628df8bf74116a3322b7b4060a202",
+    "productionApproved": false
+  },
+  {
+    "geometryFixture": "breit",
+    "realPodbaseTemplate": false,
+    "designId": "nach-dem-sturm",
+    "kind": "custom",
+    "canvas": {
+      "width": 1400,
+      "height": 2400
+    },
+    "sourcePixels": {
+      "width": 962,
+      "height": 1635
+    },
+    "imagePlacement": {
+      "x": 0,
+      "y": 10.291060291060148,
+      "width": 1400,
+      "height": 2379.4178794178797,
+      "scale": 1.4553014553014554
+    },
+    "typography": [
+      {
+        "key": "reference",
+        "box": {
+          "x": 504,
+          "y": 1652.089397089397,
+          "width": 392,
+          "height": 154.6621621621623
+        },
+        "sourceSize": 42,
+        "fontSize": 61.12266112266113,
+        "lineHeight": 79.45945945945947,
+        "lines": [
+          "1. Korinther 13,13"
+        ],
+        "positions": [
+          {
+            "x": 497.62831201374905,
+            "baseline": 1747.2182847084473,
+            "bounds": {
+              "x": 507.6873844519475,
+              "y": 1706.7939814038186,
+              "width": 384.62523109610504,
+              "height": 45.25299353331885
+            }
+          }
+        ],
+        "rotation": 0
+      },
+      {
+        "key": "excerpt",
+        "box": {
+          "x": 266,
+          "y": 1830.5457380457378,
+          "width": 868,
+          "height": 226.04469854469835
+        },
+        "sourceSize": 36,
+        "fontSize": 52.390852390852395,
+        "lineHeight": 68.10810810810811,
+        "lines": [
+          "aber die Liebe ist die größte unter ihnen."
+        ],
+        "positions": [
+          {
+            "x": 340.0855070705816,
+            "baseline": 1955.9299366147995,
+            "bounds": {
+              "x": 344.4720502571248,
+              "y": 1920.0389282987912,
+              "width": 711.0558994857503,
+              "height": 47.05831803859148
+            }
+          }
+        ],
+        "rotation": 0
+      },
+      {
+        "key": "dedication",
+        "box": {
+          "x": 280,
+          "y": 2068.487525987526,
+          "width": 840,
+          "height": 83.2796257796258
+        },
+        "sourceSize": 30,
+        "fontSize": 43.65904365904366,
+        "lineHeight": 56.75675675675676,
+        "lines": [
+          "Für Anna · 2026"
+        ],
+        "positions": [
+          {
+            "x": 572.6825240835991,
+            "baseline": 2123.947724031064,
+            "bounds": {
+              "x": 576.2728385191284,
+              "y": 2094.342296758957,
+              "width": 247.45432296174317,
+              "height": 31.57008423676362
+            }
+          }
+        ],
+        "rotation": 0
+      }
+    ],
+    "hash": "2d4fc1a6976b28ae0c7f891c9b39b0e741e3863e1b1468811c651034862b8fd4",
+    "productionApproved": false
+  },
+  {
+    "geometryFixture": "breit",
+    "realPodbaseTemplate": false,
+    "designId": "absetzen",
+    "kind": "fixed",
+    "canvas": {
+      "width": 1400,
+      "height": 2400
+    },
+    "sourcePixels": {
+      "width": 962,
+      "height": 1635
+    },
+    "imagePlacement": {
+      "x": 0,
+      "y": 10.291060291060148,
+      "width": 1400,
+      "height": 2379.4178794178797,
+      "scale": 1.4553014553014554
+    },
+    "typography": [
+      {
+        "key": "reference",
+        "box": {
+          "x": 504,
+          "y": 1794.85446985447,
+          "width": 392,
+          "height": 154.6621621621623
+        },
+        "sourceSize": 47,
+        "fontSize": 68.3991683991684,
+        "lineHeight": 88.91891891891893,
+        "lines": [
+          "Matthäus 11,28"
+        ],
+        "positions": [
+          {
+            "x": 502.15540480901194,
+            "baseline": 1892.2151028924575,
+            "bounds": {
+              "x": 504.51029165668444,
+              "y": 1846.7524646751103,
+              "width": 390.9794166866311,
+              "height": 50.86617252088138
+            }
+          }
+        ],
+        "rotation": 0
+      }
+    ],
+    "hash": "bd7528c83fda56479ee004abff6b9f458ebf79f81169b22bf8e9208b7cb7f6f2",
+    "productionApproved": false
+  },
+  {
+    "geometryFixture": "breit",
+    "realPodbaseTemplate": false,
+    "designId": "absetzen",
+    "kind": "custom",
+    "canvas": {
+      "width": 1400,
+      "height": 2400
+    },
+    "sourcePixels": {
+      "width": 962,
+      "height": 1635
+    },
+    "imagePlacement": {
+      "x": 0,
+      "y": 10.291060291060148,
+      "width": 1400,
+      "height": 2379.4178794178797,
+      "scale": 1.4553014553014554
+    },
+    "typography": [
+      {
+        "key": "reference",
+        "box": {
+          "x": 504,
+          "y": 1794.85446985447,
+          "width": 392,
+          "height": 154.6621621621623
+        },
+        "sourceSize": 42,
+        "fontSize": 61.12266112266113,
+        "lineHeight": 79.45945945945947,
+        "lines": [
+          "1. Korinther 13,13"
+        ],
+        "positions": [
+          {
+            "x": 497.62831201374905,
+            "baseline": 1889.9833574735203,
+            "bounds": {
+              "x": 507.6873844519475,
+              "y": 1849.5590541688916,
+              "width": 384.62523109610504,
+              "height": 45.25299353331885
+            }
+          }
+        ],
+        "rotation": 0
+      },
+      {
+        "key": "excerpt",
+        "box": {
+          "x": 266,
+          "y": 1973.3108108108108,
+          "width": 868,
+          "height": 226.0446985446988
+        },
+        "sourceSize": 36,
+        "fontSize": 52.390852390852395,
+        "lineHeight": 68.10810810810811,
+        "lines": [
+          "aber die Liebe ist die größte unter ihnen."
+        ],
+        "positions": [
+          {
+            "x": 340.0855070705816,
+            "baseline": 2098.695009379873,
+            "bounds": {
+              "x": 344.4720502571248,
+              "y": 2062.8040010638647,
+              "width": 711.0558994857503,
+              "height": 47.05831803859148
+            }
+          }
+        ],
+        "rotation": 0
+      },
+      {
+        "key": "dedication",
+        "box": {
+          "x": 280,
+          "y": 2211.252598752599,
+          "width": 840,
+          "height": 63.74740124740083
+        },
+        "sourceSize": 30,
+        "fontSize": 43.65904365904366,
+        "lineHeight": 56.75675675675676,
+        "lines": [
+          "Für Anna · 2026"
+        ],
+        "positions": [
+          {
+            "x": 572.6825240835991,
+            "baseline": 2256.9466845300244,
+            "bounds": {
+              "x": 576.2728385191284,
+              "y": 2227.3412572579177,
+              "width": 247.45432296174317,
+              "height": 31.57008423676362
+            }
+          }
+        ],
+        "rotation": 0
+      }
+    ],
+    "hash": "2934bdea2c3fd1094ff0fbcc2017a302ba4735d299e974c885cfaf516deeb9b2",
+    "productionApproved": false
+  },
+  {
+    "geometryFixture": "breit",
+    "realPodbaseTemplate": false,
+    "designId": "ganz-nah",
+    "kind": "fixed",
+    "canvas": {
+      "width": 1400,
+      "height": 2400
+    },
+    "sourcePixels": {
+      "width": 962,
+      "height": 1635
+    },
+    "imagePlacement": {
+      "x": 0,
+      "y": 10.291060291060148,
+      "width": 1400,
+      "height": 2379.4178794178797,
+      "scale": 1.4553014553014554
+    },
+    "typography": [
+      {
+        "key": "reference",
+        "box": {
+          "x": 504,
+          "y": 1759.1632016632018,
+          "width": 392,
+          "height": 154.6621621621623
+        },
+        "sourceSize": 48,
+        "fontSize": 69.85446985446985,
+        "lineHeight": 90.81081081081082,
+        "lines": [
+          "Psalm 131,2"
+        ],
+        "positions": [
+          {
+            "x": 548.6111819451663,
+            "baseline": 1856.8917879417882,
+            "bounds": {
+              "x": 554.3576330236486,
+              "y": 1810.5782744282747,
+              "width": 291.28473395270265,
+              "height": 51.83201663201663
+            }
+          }
+        ],
+        "rotation": 0
+      }
+    ],
+    "hash": "96132c07465a88e729925b785d3658960cb3f413ccdf31228de1ad674c8d45be",
+    "productionApproved": false
+  },
+  {
+    "geometryFixture": "breit",
+    "realPodbaseTemplate": false,
+    "designId": "ganz-nah",
+    "kind": "custom",
+    "canvas": {
+      "width": 1400,
+      "height": 2400
+    },
+    "sourcePixels": {
+      "width": 962,
+      "height": 1635
+    },
+    "imagePlacement": {
+      "x": 0,
+      "y": 10.291060291060148,
+      "width": 1400,
+      "height": 2379.4178794178797,
+      "scale": 1.4553014553014554
+    },
+    "typography": [
+      {
+        "key": "reference",
+        "box": {
+          "x": 504,
+          "y": 1759.1632016632018,
+          "width": 392,
+          "height": 154.6621621621623
+        },
+        "sourceSize": 42,
+        "fontSize": 61.12266112266113,
+        "lineHeight": 79.45945945945947,
+        "lines": [
+          "1. Korinther 13,13"
+        ],
+        "positions": [
+          {
+            "x": 497.62831201374905,
+            "baseline": 1854.2920892822522,
+            "bounds": {
+              "x": 507.6873844519475,
+              "y": 1813.8677859776235,
+              "width": 384.62523109610504,
+              "height": 45.25299353331885
+            }
+          }
+        ],
+        "rotation": 0
+      },
+      {
+        "key": "excerpt",
+        "box": {
+          "x": 266,
+          "y": 1937.6195426195425,
+          "width": 868,
+          "height": 226.04469854469858
+        },
+        "sourceSize": 36,
+        "fontSize": 52.390852390852395,
+        "lineHeight": 68.10810810810811,
+        "lines": [
+          "aber die Liebe ist die größte unter ihnen."
+        ],
+        "positions": [
+          {
+            "x": 340.0855070705816,
+            "baseline": 2063.0037411886046,
+            "bounds": {
+              "x": 344.4720502571248,
+              "y": 2027.1127328725963,
+              "width": 711.0558994857503,
+              "height": 47.05831803859148
+            }
+          }
+        ],
+        "rotation": 0
+      },
+      {
+        "key": "dedication",
+        "box": {
+          "x": 280,
+          "y": 2175.5613305613306,
+          "width": 840,
+          "height": 83.2796257796258
+        },
+        "sourceSize": 30,
+        "fontSize": 43.65904365904366,
+        "lineHeight": 56.75675675675676,
+        "lines": [
+          "Für Anna · 2026"
+        ],
+        "positions": [
+          {
+            "x": 572.6825240835991,
+            "baseline": 2231.0215286048683,
+            "bounds": {
+              "x": 576.2728385191284,
+              "y": 2201.4161013327616,
+              "width": 247.45432296174317,
+              "height": 31.57008423676362
+            }
+          }
+        ],
+        "rotation": 0
+      }
+    ],
+    "hash": "ccf9f40120944124afd0535509163e365bce2f5b09e073baae0bc50a8c9b0a95",
+    "productionApproved": false
+  },
+  {
+    "geometryFixture": "breit",
+    "realPodbaseTemplate": false,
+    "designId": "im-schatten",
+    "kind": "fixed",
+    "canvas": {
+      "width": 1400,
+      "height": 2400
+    },
+    "sourcePixels": {
+      "width": 962,
+      "height": 1635
+    },
+    "imagePlacement": {
+      "x": 0,
+      "y": 10.291060291060148,
+      "width": 1400,
+      "height": 2379.4178794178797,
+      "scale": 1.4553014553014554
+    },
+    "typography": [
+      {
+        "key": "reference",
+        "box": {
+          "x": 518,
+          "y": 1782.9573804573806,
+          "width": 364,
+          "height": 154.66216216216208
+        },
+        "sourceSize": 48,
+        "fontSize": 69.85446985446985,
+        "lineHeight": 90.81081081081082,
+        "lines": [
+          "Psalm 121,5"
+        ],
+        "positions": [
+          {
+            "x": 549.3806899294784,
+            "baseline": 1880.6859667359668,
+            "bounds": {
+              "x": 555.1271410079607,
+              "y": 1834.3724532224533,
+              "width": 289.74571798407857,
+              "height": 51.83201663201663
+            }
+          }
+        ],
+        "rotation": 0
+      }
+    ],
+    "hash": "c7f7e503a77b8c29ca3fd092bc67ba2653a79c4ec2397317b3fd027247d4d6d0",
+    "productionApproved": false
+  },
+  {
+    "geometryFixture": "breit",
+    "realPodbaseTemplate": false,
+    "designId": "im-schatten",
+    "kind": "custom",
+    "canvas": {
+      "width": 1400,
+      "height": 2400
+    },
+    "sourcePixels": {
+      "width": 962,
+      "height": 1635
+    },
+    "imagePlacement": {
+      "x": 0,
+      "y": 10.291060291060148,
+      "width": 1400,
+      "height": 2379.4178794178797,
+      "scale": 1.4553014553014554
+    },
+    "typography": [
+      {
+        "key": "reference",
+        "box": {
+          "x": 518,
+          "y": 1782.9573804573806,
+          "width": 364,
+          "height": 154.66216216216208
+        },
+        "sourceSize": 39,
+        "fontSize": 56.75675675675676,
+        "lineHeight": 73.78378378378379,
+        "lines": [
+          "1. Korinther 13,13"
+        ],
+        "positions": [
+          {
+            "x": 512.0834325841955,
+            "baseline": 1876.814995747842,
+            "bounds": {
+              "x": 521.4239998482369,
+              "y": 1839.2781435452976,
+              "width": 357.1520003035261,
+              "height": 42.02063598632813
+            }
+          }
+        ],
+        "rotation": 0
+      },
+      {
+        "key": "excerpt",
+        "box": {
+          "x": 266,
+          "y": 1961.4137214137213,
+          "width": 868,
+          "height": 226.04469854469835
+        },
+        "sourceSize": 36,
+        "fontSize": 52.390852390852395,
+        "lineHeight": 68.10810810810811,
+        "lines": [
+          "aber die Liebe ist die größte unter ihnen."
+        ],
+        "positions": [
+          {
+            "x": 340.0855070705816,
+            "baseline": 2086.7979199827832,
+            "bounds": {
+              "x": 344.4720502571248,
+              "y": 2050.9069116667747,
+              "width": 711.0558994857503,
+              "height": 47.05831803859148
+            }
+          }
+        ],
+        "rotation": 0
+      },
+      {
+        "key": "dedication",
+        "box": {
+          "x": 280,
+          "y": 2199.355509355509,
+          "width": 840,
+          "height": 75.64449064449082
+        },
+        "sourceSize": 30,
+        "fontSize": 43.65904365904366,
+        "lineHeight": 56.75675675675676,
+        "lines": [
+          "Für Anna · 2026"
+        ],
+        "positions": [
+          {
+            "x": 572.6825240835991,
+            "baseline": 2250.9981398314794,
+            "bounds": {
+              "x": 576.2728385191284,
+              "y": 2221.3927125593727,
+              "width": 247.45432296174317,
+              "height": 31.57008423676362
+            }
+          }
+        ],
+        "rotation": 0
+      }
+    ],
+    "hash": "f1c774ed007ccdb414916c707db385804bb0b70a859967395048fa960f910468",
+    "productionApproved": false
+  },
+  {
+    "geometryFixture": "breit",
+    "realPodbaseTemplate": false,
+    "designId": "getragen",
+    "kind": "fixed",
+    "canvas": {
+      "width": 1400,
+      "height": 2400
+    },
+    "sourcePixels": {
+      "width": 962,
+      "height": 1634
+    },
+    "imagePlacement": {
+      "x": 0,
+      "y": 11.018711018710974,
+      "width": 1400,
+      "height": 2377.962577962578,
+      "scale": 1.4553014553014554
+    },
+    "typography": [
+      {
+        "key": "reference",
+        "box": {
+          "x": 504,
+          "y": 1699.3721413721414,
+          "width": 392,
+          "height": 154.5675675675675
+        },
+        "sourceSize": 48,
+        "fontSize": 69.85446985446985,
+        "lineHeight": 90.81081081081082,
+        "lines": [
+          "Jesaja 40,11"
+        ],
+        "positions": [
+          {
+            "x": 550.2552789826899,
+            "baseline": 1793.0713386519783,
+            "bounds": {
+              "x": 547.5542849598208,
+              "y": 1745.1860995667391,
+              "width": 304.89143008035825,
+              "height": 62.93965117837189
+            }
+          }
+        ],
+        "rotation": 0
+      }
+    ],
+    "hash": "2e8c41f19ab91fc1a42fdb45e12194939c481f6aa3366999e088085d15310f44",
+    "productionApproved": false
+  },
+  {
+    "geometryFixture": "breit",
+    "realPodbaseTemplate": false,
+    "designId": "getragen",
+    "kind": "custom",
+    "canvas": {
+      "width": 1400,
+      "height": 2400
+    },
+    "sourcePixels": {
+      "width": 962,
+      "height": 1634
+    },
+    "imagePlacement": {
+      "x": 0,
+      "y": 11.018711018710974,
+      "width": 1400,
+      "height": 2377.962577962578,
+      "scale": 1.4553014553014554
+    },
+    "typography": [
+      {
+        "key": "reference",
+        "box": {
+          "x": 504,
+          "y": 1699.3721413721414,
+          "width": 392,
+          "height": 154.5675675675675
+        },
+        "sourceSize": 42,
+        "fontSize": 61.12266112266113,
+        "lineHeight": 79.45945945945947,
+        "lines": [
+          "1. Korinther 13,13"
+        ],
+        "positions": [
+          {
+            "x": 497.62831201374905,
+            "baseline": 1794.4537316938945,
+            "bounds": {
+              "x": 507.6873844519475,
+              "y": 1754.0294283892658,
+              "width": 384.62523109610504,
+              "height": 45.25299353331885
+            }
+          }
+        ],
+        "rotation": 0
+      },
+      {
+        "key": "excerpt",
+        "box": {
+          "x": 266,
+          "y": 1877.7193347193345,
+          "width": 868,
+          "height": 225.90644490644513
+        },
+        "sourceSize": 36,
+        "fontSize": 52.390852390852395,
+        "lineHeight": 68.10810810810811,
+        "lines": [
+          "aber die Liebe ist die größte unter ihnen."
+        ],
+        "positions": [
+          {
+            "x": 340.0855070705816,
+            "baseline": 2003.0344064692697,
+            "bounds": {
+              "x": 344.4720502571248,
+              "y": 1967.1433981532614,
+              "width": 711.0558994857503,
+              "height": 47.05831803859148
+            }
+          }
+        ],
+        "rotation": 0
+      },
+      {
+        "key": "dedication",
+        "box": {
+          "x": 280,
+          "y": 2115.5155925155923,
+          "width": 840,
+          "height": 83.22869022869008
+        },
+        "sourceSize": 30,
+        "fontSize": 43.65904365904366,
+        "lineHeight": 56.75675675675676,
+        "lines": [
+          "Für Anna · 2026"
+        ],
+        "positions": [
+          {
+            "x": 572.6825240835991,
+            "baseline": 2170.950322783662,
+            "bounds": {
+              "x": 576.2728385191284,
+              "y": 2141.3448955115555,
+              "width": 247.45432296174317,
+              "height": 31.57008423676362
+            }
+          }
+        ],
+        "rotation": 0
+      }
+    ],
+    "hash": "3ee8ad0f37ca550498c9f1e764c8d2c160a83d4e9d1897aa45270c786f1f9644",
+    "productionApproved": false
+  }
+]

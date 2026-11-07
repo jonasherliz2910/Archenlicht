@@ -1,0 +1,19 @@
+node_modules/
+.pnpm-store/
+.env
+.env.*
+!.env.example
+.vercel/
+data/
+test-results/
+.podbase-openapi.js
+.tools/
+tmp/
+*.log
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+*.zip
+# Full-size review exports are reproducible with design-previews.
+docs/previews/designpaket*/*-fixed.png
+docs/previews/designpaket*/*-custom.png

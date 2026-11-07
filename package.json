@@ -1,0 +1,20 @@
+{
+  "name": "archenlicht",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=24.0.0" },
+  "scripts": {
+    "start": "node --env-file-if-exists=.env server/index.js",
+    "dev": "node --env-file-if-exists=.env --watch server/index.js",
+    "test": "node --test --test-concurrency=1 tests/*.test.js",
+    "check": "node scripts/check.mjs",
+    "assets": "node scripts/brand-assets.mjs",
+    "design-previews": "node scripts/design-preview.mjs",
+    "seed": "node --env-file-if-exists=.env scripts/seed.mjs"
+  },
+  "dependencies": {
+    "opentype.js": "1.3.4",
+    "sharp": "0.34.5"
+  }
+}

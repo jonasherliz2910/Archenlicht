@@ -1,0 +1,773 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Podbase Open API",
+    "description": "- Podbase Open API is a RESTful API that allows you to create new orders and get created orders with their statuses. \n- API Key is required to access the endpoints. \n- You can get your API key by creating an account on Podbase and requesting API key through integrations dashboard.\n",
+    "contact": {
+      "email": "vilius@podbase.com"
+    },
+    "version": "v1.0.0"
+  },
+  "paths": {
+    "/orders": {
+      "post": {
+        "summary": "Create Order",
+        "description": "Create a new order in the connected store.",
+        "tags": [
+          "Open API"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateOrderRequestDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Order created successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateOrderResponseDTO"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - The request was invalid or cannot be otherwise served.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Unauthorized - Invalid or missing authentication token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity - The request was well-formed but was unable to be followed due to semantic errors.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RateLimitErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - An error occurred on the server.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "Get Paginated Orders",
+        "description": "Retrieve a paginated list of orders from the connected store.",
+        "tags": [
+          "Open API"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 0
+            },
+            "description": "Page number for pagination."
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 20
+            },
+            "description": "Number of orders per page."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A paginated list of orders.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedOrdersResponseDTO"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing authentication token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Too Many Requests - Rate limit exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RateLimitErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - An error occurred on the server.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orders/{orderId}": {
+      "get": {
+        "summary": "Get Order by ID",
+        "description": "Retrieve a specific order by its ID from the connected store.",
+        "tags": [
+          "Open API"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "orderId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The unique identifier of the order."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Order details retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderResponseDTO"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Unauthorized - Invalid or missing authentication token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - The specified order does not exist.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RateLimitErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - An error occurred on the server.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/catalog": {
+      "get": {
+        "summary": "Get Product Catalog",
+        "description": "Retrieve the product catalog from the connected store.",
+        "tags": [
+          "Open API"
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of products in the catalog.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductCatalogResponseDTO"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Unauthorized - Invalid or missing authentication token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests - Rate limit exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RateLimitErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - An error occurred on the server.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CreateOrderRequestDTO": {
+        "type": "object",
+        "properties": {
+          "externalOrderId": {
+            "type": "string",
+            "description": "Unique identifier for the order in the external system."
+          },
+          "buyerInfo": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "phone": {
+                "description": "Phone number must start with a country code, for example +1 followed by rest of the number. USA example - +14185438090",
+                "type": "string"
+              },
+              "email": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "name",
+              "phone"
+            ]
+          },
+          "deliveryAddress": {
+            "type": "object",
+            "properties": {
+              "line1": {
+                "type": "string"
+              },
+              "line2": {
+                "type": "string"
+              },
+              "city": {
+                "type": "string"
+              },
+              "postalCode": {
+                "type": "string"
+              },
+              "country": {
+                "type": "string"
+              },
+              "region": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "line1",
+              "city",
+              "country"
+            ]
+          },
+          "shippingTypeId": {
+            "type": "string",
+            "description": "Identifier for the shipping method.\n- PBS-F7-7ZH-223S = Economy Delivery\n- PBS-3K-HSP-223D = Express Delivery\n",
+            "enum": [
+              "PBS-F7-7ZH-223S",
+              "PBS-3K-HSP-223D"
+            ]
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "productId": {
+                  "description": "Unique identifier for the product from the Podbase catalog.",
+                  "type": "string"
+                },
+                "variantId": {
+                  "description": "Unique identifier for the product variant from the Podbase catalog.",
+                  "type": "string"
+                },
+                "quantity": {
+                  "description": "Quantity of the product to order.",
+                  "type": "integer"
+                },
+                "printFile": {
+                  "description": "URL to the print file for custom products. Must be a publicly accessible link. Must be one of these file types - JPEG, JPG, PNG, TIF, TIFF",
+                  "type": "string",
+                  "format": "uri"
+                },
+                "externalProductId": {
+                  "description": "Unique identifier for the product in the external system.",
+                  "type": "string"
+                },
+                "title": {
+                  "description": "Title of the product.",
+                  "type": "string"
+                },
+                "price": {
+                  "description": "Sale price of the product without a decimal separator.",
+                  "type": "number"
+                }
+              },
+              "required": [
+                "productId",
+                "variantId",
+                "quantity",
+                "printFile",
+                "externalProductId"
+              ]
+            }
+          }
+        },
+        "required": [
+          "externalOrderId",
+          "buyerInfo",
+          "deliveryAddress",
+          "shippingTypeId",
+          "items"
+        ]
+      },
+      "CreateOrderResponseDTO": {
+        "type": "object",
+        "properties": {
+          "orderId": {
+            "type": "string"
+          }
+        }
+      },
+      "OrderResponseDTO": {
+        "type": "object",
+        "properties": {
+          "orderId": {
+            "type": "string"
+          },
+          "externalOrderId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "UNAPPROVED",
+              "APPROVED",
+              "CANCELED",
+              "FULFILLED",
+              "REJECTED"
+            ]
+          },
+          "trackingNumber": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "trackingUrl": {
+            "oneOf": [
+              {
+                "type": "string",
+                "format": "uri"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "buyerInfo": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "phone": {
+                "type": "string"
+              },
+              "email": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "name",
+              "phone"
+            ]
+          },
+          "deliveryAddress": {
+            "type": "object",
+            "properties": {
+              "line1": {
+                "type": "string"
+              },
+              "line2": {
+                "oneOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "city": {
+                "type": "string"
+              },
+              "postalCode": {
+                "type": "string"
+              },
+              "region": {
+                "type": "string"
+              },
+              "country": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "line1",
+              "city",
+              "region",
+              "country"
+            ]
+          },
+          "shippingTypeId": {
+            "type": "string"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "productId": {
+                  "type": "string"
+                },
+                "variantId": {
+                  "type": "string"
+                },
+                "quantity": {
+                  "type": "integer"
+                },
+                "printFile": {
+                  "type": "string",
+                  "format": "uri"
+                },
+                "externalProductId": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "price": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "productId",
+                "variantId",
+                "quantity",
+                "printFile",
+                "externalProductId"
+              ]
+            }
+          }
+        },
+        "required": [
+          "orderId",
+          "externalOrderId",
+          "status",
+          "buyerInfo",
+          "deliveryAddress",
+          "shippingTypeId",
+          "items"
+        ]
+      },
+      "PaginatedOrdersResponseDTO": {
+        "type": "object",
+        "properties": {
+          "orders": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrderResponseDTO"
+            }
+          },
+          "pagination": {
+            "type": "object",
+            "properties": {
+              "limit": {
+                "type": "integer"
+              },
+              "page": {
+                "type": "integer"
+              },
+              "total": {
+                "type": "integer"
+              },
+              "hasNextPage": {
+                "type": "boolean"
+              },
+              "hasPrevPage": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "limit",
+              "page",
+              "total",
+              "hasNextPage",
+              "hasPrevPage"
+            ]
+          }
+        },
+        "required": [
+          "orders",
+          "pagination"
+        ]
+      },
+      "ProductCatalogResponseDTO": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            },
+            "variants": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "inStock": {
+                    "type": "boolean",
+                    "description": "Defines if variant is currently possible to order"
+                  }
+                },
+                "required": [
+                  "id",
+                  "name"
+                ]
+              }
+            }
+          },
+          "required": [
+            "id",
+            "title",
+            "variants"
+          ]
+        }
+      },
+      "BadRequestErrorResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "number",
+            "example": 400
+          },
+          "message": {
+            "type": "string",
+            "example": "Print files are not images: https://example.com/image.jpg"
+          }
+        },
+        "required": [
+          "status",
+          "message"
+        ]
+      },
+      "UnauthorizedErrorResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "number",
+            "example": 403
+          },
+          "message": {
+            "type": "string",
+            "example": "Unauthorized"
+          }
+        },
+        "required": [
+          "status",
+          "message"
+        ]
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "number",
+            "example": 500
+          },
+          "message": {
+            "type": "string",
+            "example": "Internal server error"
+          }
+        },
+        "required": [
+          "message",
+          "status"
+        ]
+      },
+      "ValidationErrorResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "integer",
+            "example": 422
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "example": {
+              "buyerInfo": {
+                "phone": [
+                  "phone should not be empty",
+                  "phone must be a string"
+                ]
+              }
+            }
+          }
+        },
+        "required": [
+          "status",
+          "message",
+          "data"
+        ]
+      },
+      "RateLimitErrorResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "number",
+            "example": 429
+          },
+          "message": {
+            "type": "string",
+            "example": "Too many requests, please try again later."
+          }
+        },
+        "required": [
+          "status",
+          "message"
+        ]
+      }
+    },
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-api-key"
+      }
+    }
+  },
+  "security": [
+    {
+      "ApiKeyAuth": []
+    }
+  ],
+  "servers": [
+    {
+      "url": "https://open-api.podbase.com"
+    }
+  ]
+}

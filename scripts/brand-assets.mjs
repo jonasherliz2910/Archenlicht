@@ -1,0 +1,20 @@
+import { mkdirSync, writeFileSync, readFileSync, copyFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import opentype from 'opentype.js';
+import sharp from 'sharp';
+import { BRAND, DESIGNS, MODELS } from '../server/catalog.js';
+import { renderLayout } from '../server/layout.js';
+const sans = opentype.loadSync(fileURLToPath(new URL('../public/fonts/DMSans.ttf', import.meta.url))), hand = opentype.loadSync(fileURLToPath(new URL('../public/fonts/Caveat.ttf', import.meta.url)));
+const text = (font, value, y, size, width = 1000) => font.getPath(value, (width - font.getAdvanceWidth(value, size)) / 2, y, size).toSVG(2);
+mkdirSync('public/assets', { recursive: true }); mkdirSync('docs/previews', { recursive: true });
+const master = readFileSync('Logoentwürfe/Archenlicht-02.png'), logoData = `data:image/png;base64,${master.toString('base64')}`;
+copyFileSync('Logoentwürfe/Archenlicht-02.png', 'public/assets/archenlicht-logo.png');
+const card = `<svg xmlns="http://www.w3.org/2000/svg" width="100mm" height="150mm" viewBox="0 0 1000 1500"><rect width="1000" height="1500" fill="${BRAND.colors.paper}"/><rect x="45" y="45" width="910" height="1410" fill="none" stroke="#d5ddc8" stroke-width="2"/><image href="${logoData}" x="290" y="155" width="420" height="210"/><g fill="${BRAND.colors.forest}">${text(hand, 'Ein Vers für dich', 640, 86)}</g><g stroke="#d1dac2" stroke-width="2"><path d="M160 820H840M160 960H840M160 1100H840M160 1240H840"/></g><g fill="#8a9879">${text(sans, 'Ein Stück Hoffnung für deinen Weg.', 1370, 21)}</g></svg>`;
+writeFileSync('public/assets/geschenkkarte-entwurf.svg', card);
+await sharp(Buffer.from(card), { density: 300 }).resize(1181, 1772).png().withMetadata({ density: 300 }).toFile('public/assets/geschenkkarte-entwurf.png');
+const profile = `<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1080" viewBox="0 0 1000 1000"><rect width="1000" height="1000" fill="${BRAND.colors.paper}"/><image href="${logoData}" x="100" y="300" width="800" height="400"/><circle cx="500" cy="500" r="445" fill="none" stroke="${BRAND.colors.sage}" stroke-width="2"/></svg>`;
+writeFileSync('public/assets/social-profil.svg', profile); await sharp(Buffer.from(profile)).png().toFile('public/assets/social-profil.png');
+const tiles = [];
+for (let i = 0; i < DESIGNS.length; i++) { const layout = renderLayout({ kind: 'fixed', designId: DESIGNS[i].id, modelId: MODELS[0].id }); tiles.push({ input: await sharp(Buffer.from(layout.svg)).resize(220, 440).png().toBuffer(), top: 20, left: 20 + i * 240 }); }
+await sharp({ create: { width: 1460, height: 480, channels: 4, background: '#faf8f3' } }).composite(tiles).png().toFile('docs/previews/motiv-entwuerfe.png');
+console.log('Geschenkkarte (10 × 15 cm / 300 dpi), Social-Profil und Motivübersicht als Entwürfe erstellt.');

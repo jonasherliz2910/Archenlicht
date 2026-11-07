@@ -1,0 +1,257 @@
+{
+  "version": 2,
+  "status": "preview-only",
+  "sourcePixels": {
+    "width": 962,
+    "height": 1635
+  },
+  "targetBackground": "#FCFAF4",
+  "ink": "#163E29",
+  "font": "ArchenlichtCaveat",
+  "designs": [
+    {
+      "id": "01-Unter-seinen-Fluegeln",
+      "title": "Unter seinen Flügeln",
+      "reference": "Psalm 91,4",
+      "image": "assets/01-Unter-seinen-Fluegeln.png",
+      "productionApproved": false,
+      "boxes": {
+        "reference": {
+          "x": 0.36,
+          "y": 0.72,
+          "width": 0.28,
+          "height": 0.065,
+          "maxFont": 38,
+          "minFont": 24,
+          "maxLines": 1
+        },
+        "excerpt": {
+          "x": 0.19,
+          "y": 0.7949999999999999,
+          "width": 0.62,
+          "height": 0.095,
+          "maxFont": 28,
+          "minFont": 23,
+          "maxLines": 3
+        },
+        "dedication": {
+          "x": 0.2,
+          "y": 0.895,
+          "width": 0.6,
+          "height": 0.035,
+          "maxFont": 24,
+          "minFont": 21,
+          "maxLines": 1
+        }
+      },
+      "sourcePixels": {
+        "width": 962,
+        "height": 1634
+      }
+    },
+    {
+      "id": "02-Nach-dem-Sturm",
+      "title": "Nach dem Sturm",
+      "reference": "Markus 4,39",
+      "image": "assets/02-Nach-dem-Sturm.png",
+      "productionApproved": false,
+      "boxes": {
+        "reference": {
+          "x": 0.36,
+          "y": 0.69,
+          "width": 0.28,
+          "height": 0.065,
+          "maxFont": 38,
+          "minFont": 24,
+          "maxLines": 1
+        },
+        "excerpt": {
+          "x": 0.19,
+          "y": 0.7649999999999999,
+          "width": 0.62,
+          "height": 0.095,
+          "maxFont": 28,
+          "minFont": 23,
+          "maxLines": 3
+        },
+        "dedication": {
+          "x": 0.2,
+          "y": 0.865,
+          "width": 0.6,
+          "height": 0.035,
+          "maxFont": 24,
+          "minFont": 21,
+          "maxLines": 1
+        }
+      },
+      "sourcePixels": {
+        "width": 962,
+        "height": 1635
+      }
+    },
+    {
+      "id": "03-Absetzen",
+      "title": "Absetzen",
+      "reference": "Matthäus 11,28",
+      "image": "assets/03-Absetzen.png",
+      "productionApproved": false,
+      "boxes": {
+        "reference": {
+          "x": 0.36,
+          "y": 0.75,
+          "width": 0.28,
+          "height": 0.065,
+          "maxFont": 38,
+          "minFont": 24,
+          "maxLines": 1
+        },
+        "excerpt": {
+          "x": 0.19,
+          "y": 0.825,
+          "width": 0.62,
+          "height": 0.095,
+          "maxFont": 28,
+          "minFont": 23,
+          "maxLines": 3
+        },
+        "dedication": {
+          "x": 0.2,
+          "y": 0.925,
+          "width": 0.6,
+          "height": 0.035,
+          "maxFont": 24,
+          "minFont": 21,
+          "maxLines": 1
+        }
+      },
+      "sourcePixels": {
+        "width": 962,
+        "height": 1635
+      }
+    },
+    {
+      "id": "04-Ganz-nah",
+      "title": "Ganz nah",
+      "reference": "Psalm 131,2",
+      "image": "assets/04-Ganz-nah.png",
+      "productionApproved": false,
+      "boxes": {
+        "reference": {
+          "x": 0.36,
+          "y": 0.735,
+          "width": 0.28,
+          "height": 0.065,
+          "maxFont": 38,
+          "minFont": 24,
+          "maxLines": 1
+        },
+        "excerpt": {
+          "x": 0.19,
+          "y": 0.8099999999999999,
+          "width": 0.62,
+          "height": 0.095,
+          "maxFont": 28,
+          "minFont": 23,
+          "maxLines": 3
+        },
+        "dedication": {
+          "x": 0.2,
+          "y": 0.9099999999999999,
+          "width": 0.6,
+          "height": 0.035,
+          "maxFont": 24,
+          "minFont": 21,
+          "maxLines": 1
+        }
+      },
+      "sourcePixels": {
+        "width": 962,
+        "height": 1635
+      }
+    },
+    {
+      "id": "05-Im-Schatten",
+      "title": "Im Schatten",
+      "reference": "Psalm 121,5",
+      "image": "assets/05-Im-Schatten.png",
+      "productionApproved": false,
+      "boxes": {
+        "reference": {
+          "x": 0.36,
+          "y": 0.745,
+          "width": 0.28,
+          "height": 0.065,
+          "maxFont": 38,
+          "minFont": 24,
+          "maxLines": 1
+        },
+        "excerpt": {
+          "x": 0.19,
+          "y": 0.82,
+          "width": 0.62,
+          "height": 0.095,
+          "maxFont": 28,
+          "minFont": 23,
+          "maxLines": 3
+        },
+        "dedication": {
+          "x": 0.2,
+          "y": 0.9199999999999999,
+          "width": 0.6,
+          "height": 0.035,
+          "maxFont": 24,
+          "minFont": 21,
+          "maxLines": 1
+        }
+      },
+      "sourcePixels": {
+        "width": 962,
+        "height": 1635
+      }
+    },
+    {
+      "id": "06-Getragen",
+      "title": "Getragen",
+      "reference": "Jesaja 40,11",
+      "image": "assets/06-Getragen.png",
+      "productionApproved": false,
+      "boxes": {
+        "reference": {
+          "x": 0.36,
+          "y": 0.71,
+          "width": 0.28,
+          "height": 0.065,
+          "maxFont": 38,
+          "minFont": 24,
+          "maxLines": 1
+        },
+        "excerpt": {
+          "x": 0.19,
+          "y": 0.7849999999999999,
+          "width": 0.62,
+          "height": 0.095,
+          "maxFont": 28,
+          "minFont": 23,
+          "maxLines": 3
+        },
+        "dedication": {
+          "x": 0.2,
+          "y": 0.885,
+          "width": 0.6,
+          "height": 0.035,
+          "maxFont": 24,
+          "minFont": 21,
+          "maxLines": 1
+        }
+      },
+      "sourcePixels": {
+        "width": 962,
+        "height": 1634
+      }
+    }
+  ],
+  "previewCanvas": {
+    "width": 962,
+    "height": 2000
+  }
+}

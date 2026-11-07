@@ -1,0 +1,1034 @@
+[
+  {
+    "designId": "unter-seinen-fluegeln",
+    "kind": "fixed",
+    "hash": "51c3b85203415d5d1e09aaac00729d086a7de819fa0d92c446a4c2a9dbc28395",
+    "configuration": {
+      "kind": "fixed",
+      "designId": "unter-seinen-fluegeln",
+      "modelId": "google-pixel-11-pro-xl",
+      "verseId": null,
+      "dedication": "",
+      "layoutVersion": "archenlicht-package-layout-v3",
+      "templateVersion": "test-pixel-template-v1",
+      "artworkVersion": "archenlicht-designpaket-v1-3f9073d8f0fa",
+      "artworkHash": "3f9073d8f0fa4f570b234965f4fe1ad3c6a1deffa19368906cfae7c6cc4eaf22",
+      "fontVersion": "Caveat-0bdb6b660482d31531b3945849fba5916b3ef8695da7024a9e6b9ee3c4157988",
+      "verseReference": "Psalm 91,4",
+      "verseExcerpt": "",
+      "productionApproved": false
+    },
+    "imagePlacement": {
+      "x": 0,
+      "y": 180.24948024948014,
+      "width": 1200,
+      "height": 2039.5010395010397,
+      "scale": 1.2474012474012475
+    },
+    "typography": [
+      {
+        "key": "reference",
+        "box": {
+          "x": 384,
+          "y": 1709.8752598752599,
+          "width": 432,
+          "height": 132.5675675675675
+        },
+        "sourceSize": 48,
+        "fontSize": 59.87525987525988,
+        "lineHeight": 77.83783783783784,
+        "lines": [
+          "Psalm 91,4"
+        ],
+        "positions": [
+          {
+            "x": 483.13357621349564,
+            "baseline": 1793.6426195426195,
+            "bounds": {
+              "x": 488.05910570933764,
+              "y": 1753.9453222453221,
+              "width": 223.88178858132474,
+              "height": 44.427442827442825
+            }
+          }
+        ],
+        "rotation": 0
+      }
+    ],
+    "productionApproved": false
+  },
+  {
+    "designId": "unter-seinen-fluegeln",
+    "kind": "custom",
+    "hash": "40ae7267c65753d02f628c402a23b0d33426e65bba07eced50cbe9ebfcfb9d68",
+    "configuration": {
+      "kind": "custom",
+      "designId": "unter-seinen-fluegeln",
+      "modelId": "google-pixel-11-pro-xl",
+      "verseId": "1kor13-13",
+      "dedication": "Für Anna · 2026",
+      "layoutVersion": "archenlicht-package-layout-v3",
+      "templateVersion": "test-pixel-template-v1",
+      "artworkVersion": "archenlicht-designpaket-v1-3f9073d8f0fa",
+      "artworkHash": "3f9073d8f0fa4f570b234965f4fe1ad3c6a1deffa19368906cfae7c6cc4eaf22",
+      "fontVersion": "Caveat-0bdb6b660482d31531b3945849fba5916b3ef8695da7024a9e6b9ee3c4157988",
+      "verseReference": "1. Korinther 13,13",
+      "verseExcerpt": "aber die Liebe ist die größte unter ihnen.",
+      "productionApproved": false
+    },
+    "imagePlacement": {
+      "x": 0,
+      "y": 180.24948024948014,
+      "width": 1200,
+      "height": 2039.5010395010397,
+      "scale": 1.2474012474012475
+    },
+    "typography": [
+      {
+        "key": "reference",
+        "box": {
+          "x": 384,
+          "y": 1709.8752598752599,
+          "width": 432,
+          "height": 132.5675675675675
+        },
+        "sourceSize": 48,
+        "fontSize": 59.87525987525988,
+        "lineHeight": 77.83783783783784,
+        "lines": [
+          "1. Korinther 13,13"
+        ],
+        "positions": [
+          {
+            "x": 401.7583601668074,
+            "baseline": 1793.5936291986097,
+            "bounds": {
+              "x": 411.6121180036707,
+              "y": 1753.9943125893321,
+              "width": 376.7757639926586,
+              "height": 44.32946213942308
+            }
+          }
+        ],
+        "rotation": 0
+      },
+      {
+        "key": "excerpt",
+        "box": {
+          "x": 228,
+          "y": 1862.837837837838,
+          "width": 744,
+          "height": 193.75259875259871
+        },
+        "sourceSize": 36,
+        "fontSize": 44.90644490644491,
+        "lineHeight": 58.378378378378386,
+        "lines": [
+          "aber die Liebe ist die größte unter ihnen."
+        ],
+        "positions": [
+          {
+            "x": 291.50185965960213,
+            "baseline": 1970.3100071965457,
+            "bounds": {
+              "x": 295.2617609070034,
+              "y": 1939.5462857828243,
+              "width": 609.4764781859933,
+              "height": 40.335702862625936
+            }
+          }
+        ],
+        "rotation": 0
+      },
+      {
+        "key": "dedication",
+        "box": {
+          "x": 240,
+          "y": 2066.787941787942,
+          "width": 720,
+          "height": 71.38253638253627
+        },
+        "sourceSize": 30,
+        "fontSize": 37.42203742203743,
+        "lineHeight": 48.64864864864866,
+        "lines": [
+          "Für Anna · 2026"
+        ],
+        "positions": [
+          {
+            "x": 490.870734988382,
+            "baseline": 2114.3252543966887,
+            "bounds": {
+              "x": 493.9481472422649,
+              "y": 2088.94917387774,
+              "width": 212.10370551547024,
+              "height": 27.060072202940248
+            }
+          }
+        ],
+        "rotation": 0
+      }
+    ],
+    "productionApproved": false
+  },
+  {
+    "designId": "nach-dem-sturm",
+    "kind": "fixed",
+    "hash": "f294a3375c0c1c9fc0a9ac2e9f7149397012e836a43de147401e38124bb767b7",
+    "configuration": {
+      "kind": "fixed",
+      "designId": "nach-dem-sturm",
+      "modelId": "google-pixel-11-pro-xl",
+      "verseId": null,
+      "dedication": "",
+      "layoutVersion": "archenlicht-package-layout-v3",
+      "templateVersion": "test-pixel-template-v1",
+      "artworkVersion": "archenlicht-designpaket-v1-c1cd0948c997",
+      "artworkHash": "c1cd0948c997b28568a834e80c341e7f371b90ab7f70eafe841e1616b4758c67",
+      "fontVersion": "Caveat-0bdb6b660482d31531b3945849fba5916b3ef8695da7024a9e6b9ee3c4157988",
+      "verseReference": "Markus 4,39",
+      "verseExcerpt": "",
+      "productionApproved": false
+    },
+    "imagePlacement": {
+      "x": 0,
+      "y": 180.24948024948014,
+      "width": 1200,
+      "height": 2039.5010395010397,
+      "scale": 1.2474012474012475
+    },
+    "typography": [
+      {
+        "key": "reference",
+        "box": {
+          "x": 432,
+          "y": 1618.097713097713,
+          "width": 336,
+          "height": 132.5675675675675
+        },
+        "sourceSize": 48,
+        "fontSize": 59.87525987525988,
+        "lineHeight": 77.83783783783784,
+        "lines": [
+          "Markus 4,39"
+        ],
+        "positions": [
+          {
+            "x": 465.5127785908705,
+            "baseline": 1701.9548856548856,
+            "bounds": {
+              "x": 467.5741992964318,
+              "y": 1662.0779625779626,
+              "width": 264.8516014071364,
+              "height": 44.607068607068605
+            }
+          }
+        ],
+        "rotation": 0
+      }
+    ],
+    "productionApproved": false
+  },
+  {
+    "designId": "nach-dem-sturm",
+    "kind": "custom",
+    "hash": "b90cc6d32b3e35c783183ef3527725565827a2406255f93216d33bea3294a6a4",
+    "configuration": {
+      "kind": "custom",
+      "designId": "nach-dem-sturm",
+      "modelId": "google-pixel-11-pro-xl",
+      "verseId": "1kor13-13",
+      "dedication": "Für Anna · 2026",
+      "layoutVersion": "archenlicht-package-layout-v3",
+      "templateVersion": "test-pixel-template-v1",
+      "artworkVersion": "archenlicht-designpaket-v1-c1cd0948c997",
+      "artworkHash": "c1cd0948c997b28568a834e80c341e7f371b90ab7f70eafe841e1616b4758c67",
+      "fontVersion": "Caveat-0bdb6b660482d31531b3945849fba5916b3ef8695da7024a9e6b9ee3c4157988",
+      "verseReference": "1. Korinther 13,13",
+      "verseExcerpt": "aber die Liebe ist die größte unter ihnen.",
+      "productionApproved": false
+    },
+    "imagePlacement": {
+      "x": 0,
+      "y": 180.24948024948014,
+      "width": 1200,
+      "height": 2039.5010395010397,
+      "scale": 1.2474012474012475
+    },
+    "typography": [
+      {
+        "key": "reference",
+        "box": {
+          "x": 432,
+          "y": 1618.097713097713,
+          "width": 336,
+          "height": 132.5675675675675
+        },
+        "sourceSize": 42,
+        "fontSize": 52.390852390852395,
+        "lineHeight": 68.10810810810811,
+        "lines": [
+          "1. Korinther 13,13"
+        ],
+        "positions": [
+          {
+            "x": 426.538553154642,
+            "baseline": 1699.6367596283274,
+            "bounds": {
+              "x": 435.16061524452635,
+              "y": 1664.9873567957886,
+              "width": 329.6787695109473,
+              "height": 38.78828017141616
+            }
+          }
+        ],
+        "rotation": 0
+      },
+      {
+        "key": "excerpt",
+        "box": {
+          "x": 228,
+          "y": 1771.060291060291,
+          "width": 744,
+          "height": 193.75259875259871
+        },
+        "sourceSize": 36,
+        "fontSize": 44.90644490644491,
+        "lineHeight": 58.378378378378386,
+        "lines": [
+          "aber die Liebe ist die größte unter ihnen."
+        ],
+        "positions": [
+          {
+            "x": 291.50185965960213,
+            "baseline": 1878.5324604189989,
+            "bounds": {
+              "x": 295.2617609070034,
+              "y": 1847.7687390052774,
+              "width": 609.4764781859933,
+              "height": 40.335702862625936
+            }
+          }
+        ],
+        "rotation": 0
+      },
+      {
+        "key": "dedication",
+        "box": {
+          "x": 240,
+          "y": 1975.0103950103949,
+          "width": 720,
+          "height": 71.3825363825365
+        },
+        "sourceSize": 30,
+        "fontSize": 37.42203742203743,
+        "lineHeight": 48.64864864864866,
+        "lines": [
+          "Für Anna · 2026"
+        ],
+        "positions": [
+          {
+            "x": 490.870734988382,
+            "baseline": 2022.5477076191416,
+            "bounds": {
+              "x": 493.9481472422649,
+              "y": 1997.171627100193,
+              "width": 212.10370551547024,
+              "height": 27.060072202940248
+            }
+          }
+        ],
+        "rotation": 0
+      }
+    ],
+    "productionApproved": false
+  },
+  {
+    "designId": "absetzen",
+    "kind": "fixed",
+    "hash": "90f9054c1f0879413ecc5c386a21e1c8aaed588f5ced05d4b6a9bb3eda699d3b",
+    "configuration": {
+      "kind": "fixed",
+      "designId": "absetzen",
+      "modelId": "google-pixel-11-pro-xl",
+      "verseId": null,
+      "dedication": "",
+      "layoutVersion": "archenlicht-package-layout-v3",
+      "templateVersion": "test-pixel-template-v1",
+      "artworkVersion": "archenlicht-designpaket-v1-29d4015c17d9",
+      "artworkHash": "29d4015c17d98ba5ab907d2e3876413ac2121ac7dec15e80500bf2a893cce3ec",
+      "fontVersion": "Caveat-0bdb6b660482d31531b3945849fba5916b3ef8695da7024a9e6b9ee3c4157988",
+      "verseReference": "Matthäus 11,28",
+      "verseExcerpt": "",
+      "productionApproved": false
+    },
+    "imagePlacement": {
+      "x": 0,
+      "y": 180.24948024948014,
+      "width": 1200,
+      "height": 2039.5010395010397,
+      "scale": 1.2474012474012475
+    },
+    "typography": [
+      {
+        "key": "reference",
+        "box": {
+          "x": 432,
+          "y": 1760.862785862786,
+          "width": 336,
+          "height": 132.5675675675675
+        },
+        "sourceSize": 47,
+        "fontSize": 58.62785862785863,
+        "lineHeight": 76.21621621621622,
+        "lines": [
+          "Matthäus 11,28"
+        ],
+        "positions": [
+          {
+            "x": 430.41891840784933,
+            "baseline": 1844.314759945622,
+            "bounds": {
+              "x": 432.43739284871145,
+              "y": 1805.3467785159173,
+              "width": 335.1252143025771,
+              "height": 43.5995822613056
+            }
+          }
+        ],
+        "rotation": 0
+      }
+    ],
+    "productionApproved": false
+  },
+  {
+    "designId": "absetzen",
+    "kind": "custom",
+    "hash": "6c8a6e9eff9304ffe61470262a33d1f8223613c0e796be8fa76b68021058d9d0",
+    "configuration": {
+      "kind": "custom",
+      "designId": "absetzen",
+      "modelId": "google-pixel-11-pro-xl",
+      "verseId": "1kor13-13",
+      "dedication": "Für Anna · 2026",
+      "layoutVersion": "archenlicht-package-layout-v3",
+      "templateVersion": "test-pixel-template-v1",
+      "artworkVersion": "archenlicht-designpaket-v1-29d4015c17d9",
+      "artworkHash": "29d4015c17d98ba5ab907d2e3876413ac2121ac7dec15e80500bf2a893cce3ec",
+      "fontVersion": "Caveat-0bdb6b660482d31531b3945849fba5916b3ef8695da7024a9e6b9ee3c4157988",
+      "verseReference": "1. Korinther 13,13",
+      "verseExcerpt": "aber die Liebe ist die größte unter ihnen.",
+      "productionApproved": false
+    },
+    "imagePlacement": {
+      "x": 0,
+      "y": 180.24948024948014,
+      "width": 1200,
+      "height": 2039.5010395010397,
+      "scale": 1.2474012474012475
+    },
+    "typography": [
+      {
+        "key": "reference",
+        "box": {
+          "x": 432,
+          "y": 1760.862785862786,
+          "width": 336,
+          "height": 132.5675675675675
+        },
+        "sourceSize": 42,
+        "fontSize": 52.390852390852395,
+        "lineHeight": 68.10810810810811,
+        "lines": [
+          "1. Korinther 13,13"
+        ],
+        "positions": [
+          {
+            "x": 426.538553154642,
+            "baseline": 1842.4018323934004,
+            "bounds": {
+              "x": 435.16061524452635,
+              "y": 1807.7524295608616,
+              "width": 329.6787695109473,
+              "height": 38.78828017141616
+            }
+          }
+        ],
+        "rotation": 0
+      },
+      {
+        "key": "excerpt",
+        "box": {
+          "x": 228,
+          "y": 1913.8253638253636,
+          "width": 744,
+          "height": 193.75259875259871
+        },
+        "sourceSize": 36,
+        "fontSize": 44.90644490644491,
+        "lineHeight": 58.378378378378386,
+        "lines": [
+          "aber die Liebe ist die größte unter ihnen."
+        ],
+        "positions": [
+          {
+            "x": 291.50185965960213,
+            "baseline": 2021.2975331840714,
+            "bounds": {
+              "x": 295.2617609070034,
+              "y": 1990.53381177035,
+              "width": 609.4764781859933,
+              "height": 40.335702862625936
+            }
+          }
+        ],
+        "rotation": 0
+      },
+      {
+        "key": "dedication",
+        "box": {
+          "x": 240,
+          "y": 2117.775467775468,
+          "width": 720,
+          "height": 71.38253638253627
+        },
+        "sourceSize": 30,
+        "fontSize": 37.42203742203743,
+        "lineHeight": 48.64864864864866,
+        "lines": [
+          "Für Anna · 2026"
+        ],
+        "positions": [
+          {
+            "x": 490.870734988382,
+            "baseline": 2165.3127803842144,
+            "bounds": {
+              "x": 493.9481472422649,
+              "y": 2139.936699865266,
+              "width": 212.10370551547024,
+              "height": 27.060072202940248
+            }
+          }
+        ],
+        "rotation": 0
+      }
+    ],
+    "productionApproved": false
+  },
+  {
+    "designId": "ganz-nah",
+    "kind": "fixed",
+    "hash": "c8ed1905c75696da21db8e2da58bd1d9fb7b0731207dea208d4c8221140555ef",
+    "configuration": {
+      "kind": "fixed",
+      "designId": "ganz-nah",
+      "modelId": "google-pixel-11-pro-xl",
+      "verseId": null,
+      "dedication": "",
+      "layoutVersion": "archenlicht-package-layout-v3",
+      "templateVersion": "test-pixel-template-v1",
+      "artworkVersion": "archenlicht-designpaket-v1-71adf8ae098c",
+      "artworkHash": "71adf8ae098c79075ca2d6fbe39e9ea890b1b7e12e69a7135a4b859debc48217",
+      "fontVersion": "Caveat-0bdb6b660482d31531b3945849fba5916b3ef8695da7024a9e6b9ee3c4157988",
+      "verseReference": "Psalm 131,2",
+      "verseExcerpt": "",
+      "productionApproved": false
+    },
+    "imagePlacement": {
+      "x": 0,
+      "y": 180.24948024948014,
+      "width": 1200,
+      "height": 2039.5010395010397,
+      "scale": 1.2474012474012475
+    },
+    "typography": [
+      {
+        "key": "reference",
+        "box": {
+          "x": 432,
+          "y": 1709.8752598752599,
+          "width": 336,
+          "height": 132.5675675675675
+        },
+        "sourceSize": 48,
+        "fontSize": 59.87525987525988,
+        "lineHeight": 77.83783783783784,
+        "lines": [
+          "Psalm 131,2"
+        ],
+        "positions": [
+          {
+            "x": 470.23815654032944,
+            "baseline": 1793.6426195426195,
+            "bounds": {
+              "x": 475.16368603617144,
+              "y": 1753.9453222453221,
+              "width": 249.6726279276572,
+              "height": 44.427442827442825
+            }
+          }
+        ],
+        "rotation": 0
+      }
+    ],
+    "productionApproved": false
+  },
+  {
+    "designId": "ganz-nah",
+    "kind": "custom",
+    "hash": "4a9959e340c6ca3cb6a5666ca8caabce2a98de64305132a20f86dac724d1ff98",
+    "configuration": {
+      "kind": "custom",
+      "designId": "ganz-nah",
+      "modelId": "google-pixel-11-pro-xl",
+      "verseId": "1kor13-13",
+      "dedication": "Für Anna · 2026",
+      "layoutVersion": "archenlicht-package-layout-v3",
+      "templateVersion": "test-pixel-template-v1",
+      "artworkVersion": "archenlicht-designpaket-v1-71adf8ae098c",
+      "artworkHash": "71adf8ae098c79075ca2d6fbe39e9ea890b1b7e12e69a7135a4b859debc48217",
+      "fontVersion": "Caveat-0bdb6b660482d31531b3945849fba5916b3ef8695da7024a9e6b9ee3c4157988",
+      "verseReference": "1. Korinther 13,13",
+      "verseExcerpt": "aber die Liebe ist die größte unter ihnen.",
+      "productionApproved": false
+    },
+    "imagePlacement": {
+      "x": 0,
+      "y": 180.24948024948014,
+      "width": 1200,
+      "height": 2039.5010395010397,
+      "scale": 1.2474012474012475
+    },
+    "typography": [
+      {
+        "key": "reference",
+        "box": {
+          "x": 432,
+          "y": 1709.8752598752599,
+          "width": 336,
+          "height": 132.5675675675675
+        },
+        "sourceSize": 42,
+        "fontSize": 52.390852390852395,
+        "lineHeight": 68.10810810810811,
+        "lines": [
+          "1. Korinther 13,13"
+        ],
+        "positions": [
+          {
+            "x": 426.538553154642,
+            "baseline": 1791.4143064058742,
+            "bounds": {
+              "x": 435.16061524452635,
+              "y": 1756.7649035733355,
+              "width": 329.6787695109473,
+              "height": 38.78828017141616
+            }
+          }
+        ],
+        "rotation": 0
+      },
+      {
+        "key": "excerpt",
+        "box": {
+          "x": 228,
+          "y": 1862.837837837838,
+          "width": 744,
+          "height": 193.75259875259871
+        },
+        "sourceSize": 36,
+        "fontSize": 44.90644490644491,
+        "lineHeight": 58.378378378378386,
+        "lines": [
+          "aber die Liebe ist die größte unter ihnen."
+        ],
+        "positions": [
+          {
+            "x": 291.50185965960213,
+            "baseline": 1970.3100071965457,
+            "bounds": {
+              "x": 295.2617609070034,
+              "y": 1939.5462857828243,
+              "width": 609.4764781859933,
+              "height": 40.335702862625936
+            }
+          }
+        ],
+        "rotation": 0
+      },
+      {
+        "key": "dedication",
+        "box": {
+          "x": 240,
+          "y": 2066.787941787942,
+          "width": 720,
+          "height": 71.38253638253627
+        },
+        "sourceSize": 30,
+        "fontSize": 37.42203742203743,
+        "lineHeight": 48.64864864864866,
+        "lines": [
+          "Für Anna · 2026"
+        ],
+        "positions": [
+          {
+            "x": 490.870734988382,
+            "baseline": 2114.3252543966887,
+            "bounds": {
+              "x": 493.9481472422649,
+              "y": 2088.94917387774,
+              "width": 212.10370551547024,
+              "height": 27.060072202940248
+            }
+          }
+        ],
+        "rotation": 0
+      }
+    ],
+    "productionApproved": false
+  },
+  {
+    "designId": "im-schatten",
+    "kind": "fixed",
+    "hash": "d68000f625c22f9125802dc8d8766cb7d6467427c4e23d4e2cf0960e7bbc3c1a",
+    "configuration": {
+      "kind": "fixed",
+      "designId": "im-schatten",
+      "modelId": "google-pixel-11-pro-xl",
+      "verseId": null,
+      "dedication": "",
+      "layoutVersion": "archenlicht-package-layout-v3",
+      "templateVersion": "test-pixel-template-v1",
+      "artworkVersion": "archenlicht-designpaket-v1-9beb5d57fb88",
+      "artworkHash": "9beb5d57fb88b2739b9294d00dc85e2fd62606db6e5838957e19475548debfaf",
+      "fontVersion": "Caveat-0bdb6b660482d31531b3945849fba5916b3ef8695da7024a9e6b9ee3c4157988",
+      "verseReference": "Psalm 121,5",
+      "verseExcerpt": "",
+      "productionApproved": false
+    },
+    "imagePlacement": {
+      "x": 0,
+      "y": 180.24948024948014,
+      "width": 1200,
+      "height": 2039.5010395010397,
+      "scale": 1.2474012474012475
+    },
+    "typography": [
+      {
+        "key": "reference",
+        "box": {
+          "x": 432,
+          "y": 1750.6652806652805,
+          "width": 336,
+          "height": 132.5675675675675
+        },
+        "sourceSize": 48,
+        "fontSize": 59.87525987525988,
+        "lineHeight": 77.83783783783784,
+        "lines": [
+          "Psalm 121,5"
+        ],
+        "positions": [
+          {
+            "x": 470.897734212578,
+            "baseline": 1834.4326403326402,
+            "bounds": {
+              "x": 475.82326370842,
+              "y": 1794.7353430353428,
+              "width": 248.35347258316006,
+              "height": 44.427442827442825
+            }
+          }
+        ],
+        "rotation": 0
+      }
+    ],
+    "productionApproved": false
+  },
+  {
+    "designId": "im-schatten",
+    "kind": "custom",
+    "hash": "581a53b2d1b9bdb7b9439982f6fa7298effacad0d93a139d53435341a3a82acc",
+    "configuration": {
+      "kind": "custom",
+      "designId": "im-schatten",
+      "modelId": "google-pixel-11-pro-xl",
+      "verseId": "1kor13-13",
+      "dedication": "Für Anna · 2026",
+      "layoutVersion": "archenlicht-package-layout-v3",
+      "templateVersion": "test-pixel-template-v1",
+      "artworkVersion": "archenlicht-designpaket-v1-9beb5d57fb88",
+      "artworkHash": "9beb5d57fb88b2739b9294d00dc85e2fd62606db6e5838957e19475548debfaf",
+      "fontVersion": "Caveat-0bdb6b660482d31531b3945849fba5916b3ef8695da7024a9e6b9ee3c4157988",
+      "verseReference": "1. Korinther 13,13",
+      "verseExcerpt": "aber die Liebe ist die größte unter ihnen.",
+      "productionApproved": false
+    },
+    "imagePlacement": {
+      "x": 0,
+      "y": 180.24948024948014,
+      "width": 1200,
+      "height": 2039.5010395010397,
+      "scale": 1.2474012474012475
+    },
+    "typography": [
+      {
+        "key": "reference",
+        "box": {
+          "x": 432,
+          "y": 1750.6652806652805,
+          "width": 336,
+          "height": 132.5675675675675
+        },
+        "sourceSize": 42,
+        "fontSize": 52.390852390852395,
+        "lineHeight": 68.10810810810811,
+        "lines": [
+          "1. Korinther 13,13"
+        ],
+        "positions": [
+          {
+            "x": 426.538553154642,
+            "baseline": 1832.2043271958948,
+            "bounds": {
+              "x": 435.16061524452635,
+              "y": 1797.5549243633561,
+              "width": 329.6787695109473,
+              "height": 38.78828017141616
+            }
+          }
+        ],
+        "rotation": 0
+      },
+      {
+        "key": "excerpt",
+        "box": {
+          "x": 228,
+          "y": 1903.6278586278586,
+          "width": 744,
+          "height": 193.75259875259871
+        },
+        "sourceSize": 36,
+        "fontSize": 44.90644490644491,
+        "lineHeight": 58.378378378378386,
+        "lines": [
+          "aber die Liebe ist die größte unter ihnen."
+        ],
+        "positions": [
+          {
+            "x": 291.50185965960213,
+            "baseline": 2011.1000279865664,
+            "bounds": {
+              "x": 295.2617609070034,
+              "y": 1980.336306572845,
+              "width": 609.4764781859933,
+              "height": 40.335702862625936
+            }
+          }
+        ],
+        "rotation": 0
+      },
+      {
+        "key": "dedication",
+        "box": {
+          "x": 240,
+          "y": 2107.577962577963,
+          "width": 720,
+          "height": 71.38253638253627
+        },
+        "sourceSize": 30,
+        "fontSize": 37.42203742203743,
+        "lineHeight": 48.64864864864866,
+        "lines": [
+          "Für Anna · 2026"
+        ],
+        "positions": [
+          {
+            "x": 490.870734988382,
+            "baseline": 2155.1152751867094,
+            "bounds": {
+              "x": 493.9481472422649,
+              "y": 2129.739194667761,
+              "width": 212.10370551547024,
+              "height": 27.060072202940248
+            }
+          }
+        ],
+        "rotation": 0
+      }
+    ],
+    "productionApproved": false
+  },
+  {
+    "designId": "getragen",
+    "kind": "fixed",
+    "hash": "6f738cc5d6fae5e0e567494a44b018a69d3707e0d784f190acfe0883b9fc651c",
+    "configuration": {
+      "kind": "fixed",
+      "designId": "getragen",
+      "modelId": "google-pixel-11-pro-xl",
+      "verseId": null,
+      "dedication": "",
+      "layoutVersion": "archenlicht-package-layout-v3",
+      "templateVersion": "test-pixel-template-v1",
+      "artworkVersion": "archenlicht-designpaket-v1-a992a1ef7c8d",
+      "artworkHash": "a992a1ef7c8d1f2bb537adc021a31427d4923d532293e420749e618bb22b5c8c",
+      "fontVersion": "Caveat-0bdb6b660482d31531b3945849fba5916b3ef8695da7024a9e6b9ee3c4157988",
+      "verseReference": "Jesaja 40,11",
+      "verseExcerpt": "",
+      "productionApproved": false
+    },
+    "imagePlacement": {
+      "x": 0,
+      "y": 180.24948024948014,
+      "width": 1200,
+      "height": 2039.5010395010397,
+      "scale": 1.2474012474012475
+    },
+    "typography": [
+      {
+        "key": "reference",
+        "box": {
+          "x": 432,
+          "y": 1648.6902286902287,
+          "width": 336,
+          "height": 132.5675675675675
+        },
+        "sourceSize": 48,
+        "fontSize": 59.87525987525988,
+        "lineHeight": 77.83783783783784,
+        "lines": [
+          "Jesaja 40,11"
+        ],
+        "positions": [
+          {
+            "x": 471.64738181385826,
+            "baseline": 1729.0444208030144,
+            "bounds": {
+              "x": 469.3322440799705,
+              "y": 1687.9999301585237,
+              "width": 261.335511840059,
+              "height": 53.94816463097714
+            }
+          }
+        ],
+        "rotation": 0
+      }
+    ],
+    "productionApproved": false
+  },
+  {
+    "designId": "getragen",
+    "kind": "custom",
+    "hash": "775efd34954a75edf0d67c92a368f61e57eb6d337932a2adbca73e83f6c3a4da",
+    "configuration": {
+      "kind": "custom",
+      "designId": "getragen",
+      "modelId": "google-pixel-11-pro-xl",
+      "verseId": "1kor13-13",
+      "dedication": "Für Anna · 2026",
+      "layoutVersion": "archenlicht-package-layout-v3",
+      "templateVersion": "test-pixel-template-v1",
+      "artworkVersion": "archenlicht-designpaket-v1-a992a1ef7c8d",
+      "artworkHash": "a992a1ef7c8d1f2bb537adc021a31427d4923d532293e420749e618bb22b5c8c",
+      "fontVersion": "Caveat-0bdb6b660482d31531b3945849fba5916b3ef8695da7024a9e6b9ee3c4157988",
+      "verseReference": "1. Korinther 13,13",
+      "verseExcerpt": "aber die Liebe ist die größte unter ihnen.",
+      "productionApproved": false
+    },
+    "imagePlacement": {
+      "x": 0,
+      "y": 180.24948024948014,
+      "width": 1200,
+      "height": 2039.5010395010397,
+      "scale": 1.2474012474012475
+    },
+    "typography": [
+      {
+        "key": "reference",
+        "box": {
+          "x": 432,
+          "y": 1648.6902286902287,
+          "width": 336,
+          "height": 132.5675675675675
+        },
+        "sourceSize": 42,
+        "fontSize": 52.390852390852395,
+        "lineHeight": 68.10810810810811,
+        "lines": [
+          "1. Korinther 13,13"
+        ],
+        "positions": [
+          {
+            "x": 426.538553154642,
+            "baseline": 1730.229275220843,
+            "bounds": {
+              "x": 435.16061524452635,
+              "y": 1695.5798723883042,
+              "width": 329.6787695109473,
+              "height": 38.78828017141616
+            }
+          }
+        ],
+        "rotation": 0
+      },
+      {
+        "key": "excerpt",
+        "box": {
+          "x": 228,
+          "y": 1801.6528066528067,
+          "width": 744,
+          "height": 193.75259875259871
+        },
+        "sourceSize": 36,
+        "fontSize": 44.90644490644491,
+        "lineHeight": 58.378378378378386,
+        "lines": [
+          "aber die Liebe ist die größte unter ihnen."
+        ],
+        "positions": [
+          {
+            "x": 291.50185965960213,
+            "baseline": 1909.1249760115145,
+            "bounds": {
+              "x": 295.2617609070034,
+              "y": 1878.361254597793,
+              "width": 609.4764781859933,
+              "height": 40.335702862625936
+            }
+          }
+        ],
+        "rotation": 0
+      },
+      {
+        "key": "dedication",
+        "box": {
+          "x": 240,
+          "y": 2005.602910602911,
+          "width": 720,
+          "height": 71.38253638253627
+        },
+        "sourceSize": 30,
+        "fontSize": 37.42203742203743,
+        "lineHeight": 48.64864864864866,
+        "lines": [
+          "Für Anna · 2026"
+        ],
+        "positions": [
+          {
+            "x": 490.870734988382,
+            "baseline": 2053.1402232116575,
+            "bounds": {
+              "x": 493.9481472422649,
+              "y": 2027.764142692709,
+              "width": 212.10370551547024,
+              "height": 27.060072202940248
+            }
+          }
+        ],
+        "rotation": 0
+      }
+    ],
+    "productionApproved": false
+  }
+]
