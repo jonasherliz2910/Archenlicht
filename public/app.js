@@ -1,3 +1,5 @@
+import { phoneMockup } from './device-preview.js';
+import { mountPreviewGallery } from './preview-gallery.js';
 import { modelTrigger, createModelPicker } from './model-picker.js';
 import { recipientFields, accountSettings, localCardOptions } from './account-ui.js';
 import { readJsonResponse, SHOP_UNAVAILABLE } from './api-client.js';
@@ -12,7 +14,7 @@ const icon = (name, cls = '') => `<svg class="icon ${cls}" width="22" height="22
 const logo = () => `<a href="/" class="wordmark" aria-label="${esc(state.brand.name)} Startseite"><img src="${esc(state.brand.logo)}" alt="${esc(state.brand.name)} – Originalzeichen mit offenem Bootsrumpf" width="176" height="88"></a>`;
 let state, config, currentPreview, previewSequence = 0, previewTimer, previewPending = false, currentStep = 0, advisorResults, situation = '', advisorLoaded = false, modeAdvice = false, registerMode = false, statusTimer, routeSequence = 0;
 const caps = new Map();
-let expiresTimer, modelPicker;
+let expiresTimer, modelPicker, galleryCleanup;
 function armExpiry(data) {
   if (!data?.csrf || !data.sessionExpires) return;
   clearTimeout(expiresTimer);
@@ -46,11 +48,10 @@ function footer() {
 }
 const designImage = id => `/assets/design-${id}.svg`;
 function phone(id, options = {}) {
-  const model = state.models.find(m => m.name === options.model) || state.models.find(m => m.id === 'iphone-15'), { camera, width, height } = model.template;
-  const cameraStyle = `left:${camera.x / width * 100}%;top:${camera.y / height * 100}%;width:${camera.width / width * 100}%;height:${camera.height / height * 100}%;`;
-  const cameraClass = model.brand === 'Google' ? 'pixel' : model.name.includes('Z Flip') ? 'flip' : options.model?.includes('Ultra') ? 'samsung' : '';
-  return `<div class="phone ${options.cls || ''} ${cameraClass}" style="--print-ratio:${width}/${height};--case-paper:${state.designs.find(d => d.id === id)?.color || '#FCFAF4'}"><img src="${esc(options.url || designImage(id))}" width="${width}" height="${height}" alt="${esc(options.alt || `Hüllenentwurf ${state.designs.find(d => d.id === id)?.title || ''}`)}" ${options.eager ? 'fetchpriority="high"' : 'loading="lazy"'}><div class="camera" style="${cameraStyle}" aria-hidden="true"><i></i><i></i><i></i><b></b><em></em></div><div class="phone-shine" aria-hidden="true"></div></div>`;
+  const model = state.models.find(m => m.name === options.model) || state.models.find(m => m.id === 'iphone-15');
+  return phoneMockup(model, { imageUrl: options.url || designImage(id), color: state.designs.find(d => d.id === id)?.color, className: options.cls || '', caseOnly: Boolean(options.caseOnly), label: options.alt });
 }
+
 const botanical = `<svg class="botanical" viewBox="0 0 300 520" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M106 520C197 365 112 194 245 15M145 420C28 432 31 319 45 273C128 290 152 358 145 420ZM159 341C259 366 282 270 272 215C195 219 157 274 159 341ZM163 258C60 266 85 156 98 125C153 152 178 199 163 258ZM184 173C277 190 293 111 286 76C229 80 194 122 184 173ZM220 72C161 79 171 23 191 0C221 21 233 42 220 72Z"/></svg>`;
 function productCard(d, index) {
   return `<article class="product-card"><a href="/kollektion/${d.id}" class="product-visual" style="--card-bg:${d.color}"><span class="product-label">${esc(d.label)}</span>${phone(d.id)}<span class="product-open" aria-label="Motiv entdecken">${icon('arrow')}</span><span class="product-number">0${index + 1}</span></a><div class="product-detail"><div><a href="/kollektion/${d.id}"><h3>${esc(d.title)}</h3></a><p>${esc(d.reference)} <span>· Tough-Hülle</span></p></div><span>${money(state.brand.fixedPrice)}</span></div></article>`;
@@ -63,9 +64,11 @@ function home() {
 }
 const modelChoice = () => modelTrigger(state.models, config.modelId);
 function previewPanel() {
-  const d = state.designs.find(d => d.id === config.designId);
-  return `<div class="preview-panel"><div class="mobile-model-choice">${modelChoice()}</div><div class="preview-stage" style="--card-bg:${d.color}"><span class="preview-tag">DEINE DRUCKVORSCHAU</span><div id="live-phone">${phone(d.id, { url: currentPreview?.svgUrl, cls: 'detail-phone', model: state.models.find(m => m.id === config.modelId)?.name, eager: true })}</div><span class="preview-subtitle" id="preview-model">${esc(state.models.find(m => m.id === config.modelId)?.name)}</span></div><div class="preview-info">${icon('check')} Vorschau und Druckdatei nutzen dasselbe Layout.</div><details class="print-details"><summary>Vollständigen Drucktext ansehen ${icon('chevron')}</summary><pre id="print-text">${esc(currentPreview?.printText || 'Vorschau wird erstellt …')}</pre><p>Gerade ausgerichtet · Schrift und Motiv werden proportional eingesetzt.</p><a id="print-download" href="${currentPreview?.pngUrl || '#'}" target="_blank" rel="noopener">PNG-Testentwurf vergrößern ${icon('arrow')}</a></details><p class="draft-note">Kameraausschnitt und Sicherheitsränder werden in der Vorschau berücksichtigt. Echte Podbase-Schablonen und Druckfreigaben stehen noch aus.</p></div>`;
+  const d = state.designs.find(d => d.id === config.designId), model = state.models.find(m => m.id === config.modelId);
+  const slides = [false, true].map((caseOnly, index) => `<div class="preview-slide" role="group" aria-roledescription="Bild" aria-label="${index + 1} von 2: ${caseOnly ? 'Nur Hülle' : 'Mit Handy'}"><span class="preview-tag">${caseOnly ? 'DEINE HÜLLE · OFFENE AUSSPARUNG' : 'DEINE HÜLLE AM HANDY'}</span><div id="${caseOnly ? 'case-phone' : 'live-phone'}" class="preview-device">${phone(d.id, { url: currentPreview?.svgUrl, cls: 'detail-phone', model: model.name, caseOnly })}</div><span class="preview-subtitle" data-preview-model>${esc(model.name)}</span></div>`).join('');
+  return `<div class="preview-panel"><div class="mobile-model-choice">${modelChoice()}</div><section class="preview-stage preview-gallery" aria-label="Hüllenansichten" aria-roledescription="Karussell" style="--card-bg:${d.color}"><div class="preview-track" tabindex="0" aria-label="Hüllenansichten: mit Pfeiltasten oder Wischen wechseln">${slides}</div><div class="preview-controls"><button type="button" class="preview-arrow" data-preview-previous aria-label="Vorherige Hüllenansicht">${icon('back')}</button><div class="preview-tabs" role="group" aria-label="Ansicht wählen"><button type="button" data-preview-slide="0" aria-pressed="true">Mit Handy</button><button type="button" data-preview-slide="1" aria-pressed="false">Nur Hülle</button></div><button type="button" class="preview-arrow" data-preview-next aria-label="N?chste Hüllenansicht">${icon('right')}</button></div><p class="preview-hint">Wischen oder Ansicht wählen</p><span class="visually-hidden" data-preview-status aria-live="polite">1 / 2 ? Mit Handy</span></section><div class="preview-info">${icon('check')} Dein Motiv und Text bleiben in beiden Ansichten gleich.</div><details class="print-details"><summary>Vollständigen Drucktext ansehen ${icon('chevron')}</summary><pre id="print-text">${esc(currentPreview?.printText || 'Vorschau wird erstellt …')}</pre><p>Gerade ausgerichtet · Schrift und Motiv werden proportional eingesetzt.</p><a id="print-download" href="${currentPreview?.pngUrl || '#'}" target="_blank" rel="noopener">PNG-Testentwurf vergrößern ${icon('arrow')}</a></details><p class="draft-note">Illustrative Modellvorschau. Form und Ausschnitt können bei der fertigen Hülle abweichen; die endgültigen Podbase-Vorlagen stehen noch aus.</p></div>`;
 }
+
 function fixedProduct(d) {
   return `<div class="section-wrap detail-page"><a href="/kollektion" class="back-link">${icon('back')} Zur Kollektion</a><div class="product-layout">${previewPanel()}<div class="product-copy"><span class="eyebrow">RUHE UND GEBORGENHEIT · 0${state.designs.indexOf(d) + 1}/06</span><h1>${esc(d.title)}</h1><p class="verse-title handwritten">${esc(d.reference)}</p><p class="product-poem">${esc(d.note)}</p><div class="price-line"><strong>${money(state.brand.fixedPrice)}</strong><span>Endpreis inkl. Versand in DE & Geschenkkarte</span></div><div class="divider"></div>${modelChoice()}<p class="field-help">Du findest dein genaues Modell unter Einstellungen → Geräteinformationen.</p><div class="case-type">${icon('shield')}<div><strong>Podbase Tough-Standardhülle</strong><span>Ein Hüllentyp · schützende Doppelschicht</span></div></div><div id="preview-error" class="form-error" role="alert"></div><button class="button primary full" id="add-cart" data-action="add-cart">${new URLSearchParams(location.search).has('bearbeiten') ? 'Änderung im Warenkorb speichern' : 'In den Warenkorb'} ${icon('bag')}</button><div class="purchase-notes"><span>${icon('truck')} Deutschland · Versand inklusive</span><span>${icon('gift')} 10 × 15 cm Geschenkkarte inklusive</span></div><div class="product-story"><h3>Eine leise Erinnerung für jeden Tag.</h3><p>Eine feine Illustration und eine handschriftliche Versstelle. Ohne Markenaufdruck. Damit das im Mittelpunkt steht, was dir etwas bedeutet.</p></div><a href="/gestalten?motiv=${d.id}" class="underlined">Lieber mit deinem eigenen Wunschvers? ${icon('arrow')}</a></div></div></div><section class="section-wrap related"><span class="eyebrow">AUCH DAS KÖNNTE DICH BEGLEITEN</span><h2>Andere Worte. Dieselbe Hoffnung.</h2><div class="product-grid">${state.designs.filter(x => x.id !== d.id).slice(0, 3).map(productCard).join('')}</div></section>`;
 }
@@ -91,9 +94,10 @@ async function updatePreview() {
     if (seq !== previewSequence) return;
     currentPreview = preview; previewPending = false;
     const d = state.designs.find(d => d.id === config.designId), model = state.models.find(m => m.id === config.modelId);
-    if ($('#live-phone')) $('#live-phone').innerHTML = phone(d.id, { url: preview.svgUrl, cls: 'detail-phone', model: model.name, eager: true });
+    if ($('#live-phone')) $('#live-phone').innerHTML = phone(d.id, { url: preview.svgUrl, cls: 'detail-phone', model: model.name });
+    if ($('#case-phone')) $('#case-phone').innerHTML = phone(d.id, { url: preview.svgUrl, cls: 'detail-phone', model: model.name, caseOnly: true });
     if ($('.preview-stage')) $('.preview-stage').style.setProperty('--card-bg', d.color);
-    if ($('#preview-model')) $('#preview-model').textContent = model.name;
+    $$('[data-preview-model]').forEach(label => { label.textContent = model.name; });
     if ($('#print-text')) $('#print-text').textContent = preview.printText;
     if ($('#print-download')) $('#print-download').href = preview.pngUrl;
     const available = state.variants.find(v => v.model_id === config.modelId && v.design_id === config.designId);
@@ -198,7 +202,9 @@ async function render({ scroll = true } = {}) {
     else html = notFound();
   } catch (e) { html = notFound(e.message); }
   if (sequence !== routeSequence) return;
+  galleryCleanup?.();
   $('#inhalt').innerHTML = html;
+  galleryCleanup = mountPreviewGallery($('.preview-gallery'));
   if (scroll) window.scrollTo({ top: 0, behavior: 'instant' });
   document.title = `${path === '/' ? 'Ein Vers für deinen Alltag' : $('#inhalt h1')?.textContent || 'Shop'} | ${state.brand.name}`;
   if ((path === '/gestalten' || path.startsWith('/kollektion/')) && $('#live-phone')) updatePreview();

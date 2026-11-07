@@ -70,8 +70,9 @@ function textBox(definition, image, model) {
 export function renderLayout(configuration) {
   const c = normalizeConfiguration(configuration), model = findModel(c.modelId), asset = designAsset(c.designId);
   const { width, height } = model.template, source = asset.sourcePixels;
-  const scale = Math.min(width / source.width, height / source.height);
-  const image = { x: (width - source.width * scale) / 2, y: (height - source.height * scale) / 2, width: source.width * scale, height: source.height * scale, scale };
+  const area = model.template.artArea || { x: 0, y: 0, width, height };
+  const scale = Math.min(area.width / source.width, area.height / source.height);
+  const image = { x: area.x + (area.width - source.width * scale) / 2, y: area.y + (area.height - source.height * scale) / 2, width: source.width * scale, height: source.height * scale, scale };
   const values = { reference: c.verseReference, excerpt: c.verseExcerpt, dedication: c.dedication };
   const typography = Object.entries(values).filter(([, value]) => value).map(([key, value]) => fitText(value, asset.boxes[key], textBox(asset.boxes[key], image, model), scale, key));
   const textPaths = typography.map(block => `<g data-field="${block.key}">${block.lines.map((line, index) => font.getPath(line, block.positions[index].x, block.positions[index].baseline, block.fontSize).toSVG(3)).join('')}</g>`).join('');
@@ -84,7 +85,9 @@ export function renderLayout(configuration) {
     { id: 'bottom', x: 0, y: bottom, width, height: height - bottom, transform: `translate(0 ${bottom * 2}) scale(1 -1)` },
     { id: 'left', x: 0, y: 0, width: image.x, height, transform: `translate(${image.x * 2} 0) scale(-1 1)` },
     { id: 'right', x: right, y: 0, width: width - right, height, transform: `translate(${right * 2} 0) scale(-1 1)` }
-  ].filter(edge => edge.width > 0.001 && edge.height > 0.001);
+  ].filter(edge => edge.width > 0.001 && edge.height > 0.001 && !(model.template.artArea && edge.id === 'top'));
+  // A large reserved display area uses the matching base paper. Reflecting an
+  // entire half-device here would duplicate the illustration above its safe area.
   const clips = edges.map(edge => `<clipPath id="paper-${edge.id}"><rect x="${edge.x}" y="${edge.y}" width="${edge.width}" height="${edge.height}"/></clipPath>`).join('');
   const paper = `<g data-background="extended-paper">${edges.map(edge => `<g clip-path="url(#paper-${edge.id})"><use href="#blank-motif" transform="${edge.transform}"/></g>`).join('')}</g>`;
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}"><defs><image id="blank-motif" data-artwork="${asset.hash}" x="${image.x}" y="${image.y}" width="${image.width}" height="${image.height}" preserveAspectRatio="xMidYMid meet" href="${asset.dataUrl}"/>${clips}</defs><rect width="${width}" height="${height}" fill="${DESIGN_PACKAGE.targetBackground}"/>${paper}<use href="#blank-motif"/><g fill="${DESIGN_PACKAGE.ink}">${textPaths}</g></svg>`;
