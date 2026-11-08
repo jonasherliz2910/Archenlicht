@@ -1,39 +1,174 @@
-# Vor einem echten Verkauf
+# Verkaufsstart Archenlicht – geprüfter Stand
 
-Der derzeitige Stand ist lokal startbar und über die API durchgehend testbar. Eine technische Endabnahme benötigt noch die Browser-/Mobilprüfung und echte Stripe-Testzahlungen. Verkauf beginnt erst nach geklärten Voraussetzungen und Jonas’ ausdrücklicher Musterfreigabe. `SHOP_MODE=live` ist deshalb gesperrt.
+Geprüft am **8. November 2026**, Ausgangsstand `a1c2156` mit anschließend vorbereiteter Resend-Anbindung, veröffentlichter Shop
+`https://www.archenlicht.de`, Vercel-Projekt `jonas-4eb6/archenlicht`.
 
-| Voraussetzung | Zuständig | Konkrete Freigabe / nächster Nachweis |
-|---|---|---|
-| Markenname und Domain | Jonas | Archenlicht bestätigen, Namen prüfen lassen, Domain bestimmen. Kein Domainkauf erfolgt. Markenname zentral in `server/catalog.js`; danach Markenassets neu generieren. |
-| Betreiberangaben und Rechtsseiten | Jonas + qualifizierte rechtliche Prüfung | Vollständige Angaben und freigegebene Texte für Impressum, Datenschutz, AGB, Widerruf/Musterformular, Preise/Steuern, Lieferzeiten und Vertragsschluss. Vorlagen im Shop ersetzen. |
-| Stripe-Händlerkonto und Testzugang | Jonas | Stripe-Konto für den tatsächlichen Betreiber, Testschlüssel, Karte und PayPal im Stripe-Dashboard einrichten. PayPal als Stripe-Zahlungsmethode bestätigen. |
-| Anbieter-Testabnahme | Umsetzung + Jonas | Beide Wege über echten gehosteten Stripe-Testcheckout einschließlich Webhooks, Abbruch, Replay und Bestellabgleich. Keine Live-Schlüssel verwenden. |
-| Live-Zahlungsfreigabe | Jonas + Umsetzung | Händlerfreischaltung und Live-Secrets getrennt vom Testbetrieb; Liveadapter erst nach vollständiger Abnahme freigeben. Fehler-/Erstattungsprozess und Rechnungsangaben festlegen. |
-| Podbase-Konto und API | Jonas | Eigenen Store, API-Schlüssel und Kontoeinstellungen bereitstellen. Podbase besitzt laut Dokumentation keinen isolierten kostenlosen Sandboxbetrieb; zunächst manuelle Auftragsfreigabe konfigurieren. Keine Produktion ohne ausdrückliche Zustimmung. |
-| Aktueller Tough-Katalog | Umsetzung + Jonas | Echte Produkt-/Varianten-IDs aus `/catalog`, tatsächliches `inStock`, regelmäßige Aktualisierung sowie erneute Prüfung vor Checkout. Die 74 Testmodelle (Apple, Samsung und Google Pixel) sind kein Verfügbarkeitsversprechen. |
-| Motive und Schablonen | Jonas liefert Assets; Umsetzung integriert | Finale Illustrationen, Podbase-Modelltemplates und Druckränder; Vorschau und physische Lesbarkeit für jede veröffentlichte Kombination prüfen und Freigabe pro Modell/Motiv dokumentieren. |
-| Bibelquelle und Rechte | Jonas + Rechteinhaber | Moderne verständliche Quelle, exakte Textfassung, Quellenangaben, Rechte für Onlineanzeige und kommerziellen Produktdruck schriftlich klären. BasisBibel und Hoffnung für alle prüfen. Testquelle bleibt live gesperrt. |
-| Externe KI | Jonas + Umsetzung + Datenschutzprüfung | Nur falls gewünscht: Anbieter, Vertrag, Speicher-/Trainingspraxis, Region und Löschung prüfen. Freitext weiterhin nur flüchtig, keine Weitergabe an Fulfillment/Analytics. Zitate nur aus freigegebenem Bestand. Lokale Beratung ist bereits ohne externen Dienst testbar. |
-| Geschenkkarte | Jonas + Podbase | Den einseitigen 10 × 15-cm-Entwurf freigeben, im Store als feste Beilage aktivieren und Muster im selben Paket prüfen. Kein individuell gedruckter Kartentext im Launchumfang. |
-| Öffentliche Druckdateien | Umsetzung + Hosting | Unveränderliche HTTPS-Direktlinks auf vollständige hochauflösende PNGs ohne Authentifizierung; keine Preview- oder Freigabelinks. Geprüfte Modelle und Datenschutz bei Widmungen berücksichtigen. |
-| E-Mail-Absender und Zustellung | Jonas + Umsetzung | Absenderdomain, SPF/DKIM/DMARC, Mailanbieter, geprüfte Vorlagen; Statuslink, Fehleralarm und einmaliger Versand praktisch testen. Lokale Outbox ist kein echter Versand. |
-| Hosting und Persistenz | Jonas entscheidet; Umsetzung richtet ein | Region/Anbieter, HTTPS, dauerhafter Datenträger oder gemeinsame Datenbank, dauerhaft laufender Queueworker, Backups samt Wiederherstellung und Monitoring. Test-/Livedaten und Secrets getrennt. |
-| Kontobetrieb und Datenschutz | Jonas + Umsetzung | E-Mail-Verifikation, Kontowiederherstellung, angemessener Missbrauchsschutz, Auskunft/Löschung, Aufbewahrungsfristen und Dienstleisterverträge vor Öffnung prüfen und ergänzen. |
-| Browser und echtes Smartphone | Umsetzung + Jonas | Desktop sowie 390-/360-px-Ansicht und echtes Handy; QR-/TikTok-Einstieg, alle Gestaltungsfelder, Bearbeiten, Zahlungscheckout und Status prüfen. Derzeit technisch blockiert. |
-| Verpackung und reale Gesamtkosten | Jonas + Steuer-/Fachberatung nach Bedarf | Produkt, Druck, Beilage, Versand DE, Steuern, Stripe-/PayPal-Gebühren, Domain/Hosting/Mail und mögliche Ersatz-/Rückabwicklungsfälle bestimmen. Keine belastbare Marge aus den Testpreisen ableiten. |
-| Ausdrücklich freigegebener Musterauftrag | Jonas | Kostenpflichtigen Einzelauftrag separat autorisieren. Tatsächliches Druckbild je Muster, Kamerapassung, Lesbarkeit, Beilage, Gesamtkosten, Versandmail und echtes Tracking dokumentieren. Erst danach Verkauf freigeben. |
+**Ergebnis: funktionsfähiger Testshop, noch nicht für echte Verkäufe bereit.**
+Die öffentliche API meldet `mode=test` und `paymentMode=sandbox`.
+Der Server sperrt Livezahlungen und echte Produktion. Echter Mailversand ist
+weiterhin ausgeschaltet; ein begrenzter Resend-Testadapter ist vorbereitet.
+Diese Prüfung hat keine neuen Mails, Zahlungen oder Produktionsaufträge ausgelöst
+und keine Anbieter- oder Hostingeinstellungen geändert.
 
-## Kostenblatt für die Musterprüfung
+## Bestätigte Betreiberzuordnung
 
-| Bestandteil | Kollektion | Wunschvers |
-|---|---:|---:|
-| Test-Endpreis inkl. Versand/Beilage | 29,90 € | 34,90 € |
-| Podbase Tough inkl. Druck | offen | offen |
-| Feste Karte | offen | offen |
-| Deutschlandversand | offen | offen |
-| Stripegebühr je Methode | offen | offen |
-| Steuerliche Behandlung | offen | offen |
-| Anteil Domain/Hosting/Mail | offen | offen |
-| Reale Gesamtkosten / verbleibender Betrag | noch nicht berechenbar | noch nicht berechenbar |
+Jonas hat am 8. November 2026 ausdrücklich bestätigt, dass Archenlicht über
+**Herzly Marketing GbR**, vertreten durch **Julian Isaak und Laura Herliz**, läuft.
+Geschäftsanschrift: **Stettiner Straße 27, 36251 Bad Hersfeld**.
+Shopname bleibt **Archenlicht**. Versandadresse, Antwortadresse und Kundenkontakt
+sollen **info@archenlicht.de** verwenden. Die Herzly-Rechtstexte dienen als
+Grundlage; insbesondere die Datenschutzerklärung ist auf den tatsächlichen
+Archenlicht-Shop anzupassen, nicht unverändert zu kopieren.
 
-Werbebudget: **0 €**. TikTok-Videos entstehen außerhalb des Shops. Die Herkunftslinks sind vorhanden; es wurden keine Werbekampagnen oder bezahlten Dienste beauftragt.
+**Steuerliche Angabe durch Jonas bestätigt:** Nach Rückfrage erklärt Jonas,
+dass die Herzly Marketing GbR die Kleinunternehmerregelung nutzt. Diese Angabe
+gilt als Vorgabe für Archenlicht; die bestehende Einstellung ohne gesonderten
+Umsatzsteuerausweis und mit deaktivierter automatischer Steuerberechnung bleibt
+erhalten. Dies ist eine Betreiberangabe, keine eigenständige steuerliche Prüfung.
+Der abweichende öffentliche Herzly-Preishinweis „zzgl. USt.“ wird nicht übernommen.
+Archenlicht ist keine separate umsatzsteuerliche Unternehmereinheit allein
+durch seinen Shopnamen.
+[§ 2 UStG](https://www.gesetze-im-internet.de/ustg_1980/__2.html),
+[§ 19 UStG](https://www.gesetze-im-internet.de/ustg_1980/__19.html),
+[Herzly](https://www.herzly.de/).
+Es war keine Änderung der bisherigen Steuereinstellung nötig.
+
+## Bereits erledigt
+
+- Eigene Domain/HTTPS, GitHub-Veröffentlichung, Vercel und Neon-Datenbank.
+- Kollektion, Wunschversgestaltung, Warenkorb, Gast-/Kontokauf und freiwillig gespeicherte Lieferdaten.
+- Sechs Motive, neun Farben, mobile Darstellung und modellabhängige Vorschauen; alle 54 Farbkombinationen geprüft.
+- Aktuelle Codefassung: 62 automatisierte Tests bestanden, zwei externe Integrationstests ohne aktivierte Testzugänge übersprungen. Desktop-/Mobilgrößen im Testbrowser geprüft.
+- Eine durch Jonas abgeschlossene Stripe-Sandboxzahlung mit echtem Webhook und genau einem simulierten Fulfillmentauftrag ist dokumentiert.
+- Kleinunternehmerbehandlung im Testcheckout umgesetzt und durch Jonas ausdrücklich auch für die Betreiber-GbR bestätigt.
+
+## 1. Automatische E-Mails – implementiert, noch nicht aktiviert
+
+**Befund:** Resend-Schlüssel vorhanden. Jonas hat die bereits genehmigte Testmail
+in den Posteingang verschoben; über die Ordnerliste wurde `INBOX` bestätigt,
+`INBOX.Junk` ist leer. Das belegt noch keine bessere Zustellung neuer Mails.
+SPF, DKIM und DMARC bestanden beim ursprünglichen Empfang.
+Der eingeschränkte Schlüssel erlaubt keine Domainverwaltung
+(HTTP 401 `restricted_api_key`); dies belegt keinen ungültigen Versandschlüssel.
+In Vercel fehlt weiterhin die Versandkonfiguration, `MAIL_MODE=local` bleibt
+aktiv. Der neue Adapter verarbeitet ausschließlich neue Testbestellungen an
+ausdrücklich festgelegte Testempfänger. Details: [MAIL.md](MAIL.md).
+
+- [x] Resend-Adapter und HTML-/Textvorlagen von `Archenlicht <info@archenlicht.de>` mit bestätigten Betreiberangaben vorbereiten.
+- [x] Bestätigung nach Zahlung, simulierte Versandmail und Adminalarm implementieren und automatisiert prüfen.
+- [x] Dauerhafte Versandzustände, begrenzte Wiederholungen und Schutz vor Parallel-/Doppelversand ergänzen; alte simulierte Bestellungen ausschließen.
+- [ ] Resend-Webhook und Signing-Secret einrichten; begrenzten Testversand gemeinsam aktivieren.
+- [ ] Zustellung, Rückläufer und Spam-Einstufung mit genehmigten Testempfängern prüfen.
+- [ ] Versandmail mit echtem Podbase-Tracking sowie häufige, zuverlässige Hintergrundverarbeitung für Livebetrieb abnehmen.
+
+**Abnahme:** Genau eine Bestätigung pro bezahltem Auftrag; nachvollziehbare
+Versand-/Fehlermeldungen. Resend-Idempotency-Keys gelten 24 Stunden, daher bleibt
+ein dauerhafter Versandnachweis nötig.
+[Resend](https://resend.com/docs/dashboard/emails/idempotency-keys)
+
+## 2. Podbase – weiterhin simuliert
+
+**Befund:** Ausschließlich `LocalPodbase` aktiv. Alle 74 Modelle verwenden
+`SIM-TOUGH`/`SIM-VARIANT-*`. Ein vorbereiteter API-Client ist vorhanden,
+aber kein angeschlossener Händlerzugang. Die Shopliste belegt keine aktuelle
+Podbase-Verfügbarkeit.
+
+- [ ] Jonas: Händlerstore, API-Zugang, Zahlungsquelle und manuelle Auftragsfreigabe einrichten.
+- [ ] Tatsächliche Varianten, Bestand, Versandarten und Kosten übernehmen; regelmäßig und vor Checkout abgleichen.
+- [ ] Übergabe, Fehlerabgleich und echtes Tracking zunächst mit manuell unbestätigten Aufträgen prüfen.
+
+**Abnahme:** Genau ein nachprüfbarer Podbase-Auftrag pro Bestellung.
+Kostenpflichtige Musterfreigabe separat durch Jonas. Podbase testet in der
+Produktionsumgebung; manuelle Freigabe verhindert die sofortige kostenpflichtige
+Verarbeitung.
+[Podbase-Anleitung](https://help.podbase.com/hc/en-us/articles/26709382744604-Podbase-API-integration-guide)
+
+## 3. Druck und Muster – Bildschirmprüfung bestanden, Produktion offen
+
+**Befund:** Vorschau und PNG stimmen überein, beim schwarzen Boot online
+pixelgenau geprüft. Alle 888 Modell-/Motiv-/Hüllenart-Layouts halten die geprüfte
+Geometrie ein. Diese verwendet illustrative Testschablonen; die Druckassets
+bleiben `productionApproved: false`.
+
+- [ ] Echte Podbase-Druckschablonen je veröffentlichter Variante übernehmen.
+- [ ] Effektive Bildauflösung, Anschnitt, Kamera, Flip-Falz und Schrift auf realen Druckflächen prüfen.
+- [ ] Muster bestellen und Druckfarben, Lesbarkeit, Material und Passform tatsächlich prüfen.
+- [ ] Freigabe pro Modell-/Motivkombination dokumentieren.
+- [ ] Die versprochene 10 × 15-cm-Kartenbeilage bei Podbase bestätigen und im Musterpaket prüfen.
+
+Die Beilage ist eine Karte zum Selbstbeschriften, kein kaufbarer Gutschein.
+Eine Bildschirmvorschau ersetzt keine Musterfreigabe.
+
+## 4. Preise und Verkaufsinformationen – teilweise festgelegt
+
+**Befund:** 29,90 € / 34,90 € einschließlich Deutschlandversand und Kartenbeilage
+sind hinterlegt. Kleinunternehmerangabe gesetzt. Reale Kosten und verbindliche
+Lieferzeiten fehlen.
+
+- [ ] Hülle/Druck, Beilage, Versand, Zahlungsgebühren und zutreffende Steuern pro Variante erfassen.
+- [ ] Ersatzlieferungen, Rückabwicklungen und laufende Hosting-/Mail-/Domainkosten berücksichtigen.
+- [ ] Endpreise, Lieferzeiten, Reklamations- und Rücksendeadresse bestätigen.
+- [ ] Rechnung, Zahlungsbeleg und Erstattungsablauf festlegen und prüfen.
+
+**Abnahme:** Belegte Kalkulation und vollständige Käuferinformationen.
+
+## 5. Rechtliche Angaben – offen, Entwürfe öffentlich sichtbar
+
+**Befund:** Impressum, Datenschutz, AGB und Widerruf sind weiterhin Entwürfe.
+Die Datenschutzerklärung behauptet lokale SQLite-Speicherung, obwohl der Shop
+Neon/Vercel nutzt. Betreiberangaben fehlen. Diese öffentlichen Angaben sind
+bereits vor weiteren öffentlichen Tests zu korrigieren.
+
+- [x] Betreiberbezeichnung, Vertreter, Geschäftsanschrift und Archenlicht-Kontaktadresse durch Jonas bestätigt.
+- [x] Kleinunternehmerregelung der Betreiber-GbR durch Jonas bestätigt.
+- [ ] Rücksendeangaben und passende geprüfte Rechtstexte bereitstellen.
+- [ ] Datenschutz auf tatsächliche Dienstleister, Zwecke, Fristen und Betroffenenrechte abstimmen; Verträge prüfen.
+- [ ] Widerrufsbelehrung/Musterformular für Standard- und individuelle Waren einrichten; keinen pauschalen POD-Ausschluss behaupten.
+- [ ] **Online-Widerrufsfunktion** mit Bestätigungsschritt und Eingangsbestätigung implementieren. Die Textseite genügt dafür nicht. [§ 356a BGB](https://www.gesetze-im-internet.de/bgb/__356a.html)
+- [ ] Rechte an Motiven und verwendeter Bibelübersetzung für kommerziellen Druck dokumentieren; der Versbestand ist als Testquelle markiert.
+- [ ] Hersteller-/Produkt-/Sicherheitsangaben mit Podbase klären. [GPSR, insbesondere Artikel 19](https://eur-lex.europa.eu/eli/reg/2023/988/oj/deu)
+- [ ] Verpackungsverantwortung und Nachweise für das konkrete Liefermodell klären; keine automatische POD-Befreiung annehmen. [ZSVR](https://www.verpackungsregister.org/themen/versand-und-onlinehandel)
+
+**Abnahme:** Rechtlich geprüfte Betreiber- und Produktangaben sowie passende
+Funktionen im tatsächlichen Kaufweg.
+
+## 6. Livezahlung und Betrieb – Umstellung erforderlich
+
+**Befund:** Verfügbarer Stripe-Schlüssel erneut als Testschlüssel bestätigt;
+Webhook aktiv mit `livemode=false`. Karte/Link sind im Testzugang verfügbar,
+PayPal nicht. Damit ist der Livekontostatus nicht verifiziert. Ein Wechsel der
+Dashboardansicht ändert den Shop nicht.
+
+- [ ] Livekontofreigabe, Livezugang, eigener Live-Webhook und gewünschte Zahlungsmethoden prüfen.
+- [ ] Livefähigen Adapter implementieren; erwarteten Modus strikt prüfen und Test-/Livekunden sowie Bestellungen trennen.
+- [ ] Signatur-, Betrags-, Bestellbezug- und Duplikatprüfungen erhalten; Fehler-/Erstattungsfälle testen.
+- [ ] Passwortwiederherstellung, E-Mail-Verifikation und dauerhafte Anmeldebegrenzung ergänzen. Bisherige Begrenzung gilt nur pro Sitzung im flüchtigen Serverspeicher.
+- [ ] Test-/Vorschau- und Produktionsdatenbanken/Secrets trennen; die Vercel-Variablen gelten derzeit gemeinsam für Production, Preview und Development.
+- [ ] Zeitnahe Hintergrundverarbeitung ohne offene Shopseite einrichten; der Cron läuft nur täglich.
+- [ ] Backups, Aufbewahrung, Wiederherstellung und Fehleralarme praktisch nachweisen; ein vorhandener Datenbankdienst ersetzt keinen Wiederherstellungstest.
+- [ ] **Hostingtarif:** CLI bestätigt `hobby`. Für den Verkauf einen kommerziell geeigneten Tarif oder Host wählen. Es wurde kein Upgrade beauftragt.
+
+[Stripe-Livecheckliste](https://docs.stripe.com/get-started/checklist/go-live),
+[Vercel Hobby](https://vercel.com/docs/plans/hobby),
+[Cron-Grenzen](https://vercel.com/docs/schedules/cron-jobs/usage-and-pricing).
+
+## 7. Gesamten Kaufweg abnehmen – Testteile bestanden, reale Kette offen
+
+- [ ] Gast/Konto und feste/personalisierte Hülle auf Desktop und echtem Smartphone prüfen.
+- [ ] Bestellung → Zahlung → genau eine Bestätigung → genau ein Podbase-Auftrag → realer Versand → Trackingmail.
+- [ ] Abbruch, doppelte Webhooks, Mailausfall, Providerfehler und ausverkaufte Varianten kontrollieren.
+- [ ] Musterqualität/Kosten durch Jonas bestätigen, Erstattung/Widerruf durchspielen.
+- [ ] Testdaten von echten Verkaufszahlen trennen; erst danach ausdrücklich zum Verkauf freigeben.
+
+## Nächste Arbeitsreihenfolge
+
+1. Resend-Automatik samt zuverlässiger Hintergrundverarbeitung vorbereiten.
+2. Parallel: Podbase-Zugang, Betreiberangaben/Rechtstexte und Hostingentscheidung durch Jonas.
+3. Varianten/Schablonen anbinden, Kosten kalkulieren und Muster prüfen.
+4. Rechtstexte, Widerrufsfunktion, Kontobetrieb und getrennten Live-Zahlungsbetrieb fertigstellen.
+5. Vollständige Abnahme und ausdrückliche Verkaufsfreigabe.
+
+Lokale Prüfbelege: `test-results/launch-audit/public-pages.json`,
+`.tools/resend-receipt-evidence.json`, `.tools/launch-audit.mjs` sowie die
+vorhandenen Design-/Kaufwegtests. Ignorierte Nachweise enthalten teilweise
+technische Kontometadaten und werden nicht veröffentlicht.

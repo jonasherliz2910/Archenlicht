@@ -1,3 +1,8 @@
+export const MAIL_TABLES = [
+  "CREATE TABLE IF NOT EXISTS mail_deliveries(mail_id TEXT PRIMARY KEY REFERENCES mail_outbox(id),state TEXT NOT NULL,payload TEXT NOT NULL,provider_id TEXT UNIQUE,attempts INTEGER NOT NULL DEFAULT 0,first_attempt INTEGER,next_attempt INTEGER NOT NULL DEFAULT 0,lease_until INTEGER NOT NULL DEFAULT 0,lease_token TEXT,last_error TEXT,created INTEGER NOT NULL,accepted_at INTEGER)",
+  "CREATE TABLE IF NOT EXISTS mail_events(event_id TEXT PRIMARY KEY,provider_id TEXT NOT NULL,type TEXT NOT NULL,event_at INTEGER NOT NULL,created INTEGER NOT NULL)",
+  "CREATE TABLE IF NOT EXISTS mail_suppressions(address_hash TEXT PRIMARY KEY,reason TEXT NOT NULL,created INTEGER NOT NULL)"
+];
 export const TABLES = [
   "CREATE TABLE IF NOT EXISTS users(id TEXT PRIMARY KEY,email TEXT UNIQUE NOT NULL,password TEXT NOT NULL,role TEXT NOT NULL DEFAULT 'customer',created INTEGER NOT NULL)",
   "CREATE TABLE IF NOT EXISTS account_profiles(user_id TEXT PRIMARY KEY REFERENCES users(id),address TEXT,address_version INTEGER NOT NULL DEFAULT 0,updated INTEGER NOT NULL)",
@@ -17,5 +22,6 @@ export const TABLES = [
   "CREATE TABLE IF NOT EXISTS fulfillment(order_id TEXT PRIMARY KEY REFERENCES orders(id),state TEXT NOT NULL,provider_id TEXT UNIQUE,error TEXT,tracking TEXT,tracking_url TEXT,attempts INTEGER NOT NULL DEFAULT 0,lease_until INTEGER NOT NULL DEFAULT 0,updated INTEGER NOT NULL)",
   "CREATE TABLE IF NOT EXISTS provider_orders(id TEXT PRIMARY KEY,external_id TEXT UNIQUE NOT NULL,payload TEXT NOT NULL,status TEXT NOT NULL,tracking TEXT,created INTEGER NOT NULL)",
   "CREATE TABLE IF NOT EXISTS mail_outbox(id TEXT PRIMARY KEY,order_id TEXT REFERENCES orders(id),kind TEXT NOT NULL,recipient TEXT NOT NULL,subject TEXT NOT NULL,body TEXT NOT NULL,status TEXT NOT NULL,created INTEGER NOT NULL,UNIQUE(order_id,kind))",
-  "CREATE TABLE IF NOT EXISTS feedback(id TEXT PRIMARY KEY,visit_id TEXT NOT NULL,reason TEXT NOT NULL,created INTEGER NOT NULL)"
+  "CREATE TABLE IF NOT EXISTS feedback(id TEXT PRIMARY KEY,visit_id TEXT NOT NULL,reason TEXT NOT NULL,created INTEGER NOT NULL)",
+  ...MAIL_TABLES
 ];

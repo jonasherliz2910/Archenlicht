@@ -8,6 +8,7 @@ import { createStore } from './async-store.js';
 import { designAsset } from './design-assets.js';
 import { LocalPodbase, podbasePayload } from './podbase.js';
 import { Payments, TAX_TREATMENT, TAX_NOTICE } from './payments.js';
+import { Mailer } from './mail.js';
 
 export class Shop {
   static async create(config) {
@@ -17,11 +18,12 @@ export class Shop {
   static validateMode(config) {
     if (config.shopMode !== 'test') throw new Error('Livebetrieb ist bis zur vollständigen Freigabe der Live-Voraussetzungen gesperrt.');
     if (!['local', 'sandbox'].includes(config.paymentMode)) throw new Error('PAYMENT_MODE muss local oder sandbox sein.');
-    if (config.podbaseMode !== 'local' || config.mailMode !== 'local') throw new Error('Produktion und echter Mailversand benötigen eine separate Freigabe. Bitte lokale Adapter verwenden.');
+    if (config.podbaseMode !== 'local') throw new Error('Produktion benötigt eine separate Freigabe. Bitte lokalen Adapter verwenden.');
+    Mailer.validate(config);
   }
   constructor(config, store) {
     Shop.validateMode(config);
-    this.config = config; this.s = store; this.podbase = new LocalPodbase(this.s); this.payments = new Payments(config, this.s);
+    this.config = config; this.s = store; this.podbase = new LocalPodbase(this.s); this.payments = new Payments(config, this.s); this.mailer = new Mailer(config, this.s);
     this.situations = new Map(); this.advisorScenario = 'ok'; this.busy = false;
     if (!store.remote) mkdirSync(join(config.dataDir, 'prints'), { recursive: true });
   }
@@ -204,7 +206,7 @@ export class Shop {
     } catch (e) { (await this.s.run("UPDATE orders SET status='payment_setup_failed' WHERE id=?", id)); throw e; }
   }
   async acceptPayment(event) {
-    return (await this.s.tx(async () => {
+    const result = (await this.s.tx(async () => {
       const order = (await this.s.get('SELECT * FROM orders WHERE id=?', event.orderId));
       if (!order || !event.id || typeof event.paymentId !== 'string' || !event.completed || event.amount !== order.amount || event.currency !== 'EUR' || event.paymentId !== order.payment_id) throw new ShopError('Zahlungsstatus, Betrag, Währung oder Bestellbezug stimmen nicht überein.', 409);
       const preferences = (await this.s.get('SELECT * FROM checkout_preferences WHERE order_id=?', order.id));
@@ -223,12 +225,16 @@ export class Shop {
       if (preferences?.save_address && preferences.user_id === order.user_id) (await this.s.run('UPDATE account_profiles SET address=?,address_version=address_version+1,updated=? WHERE user_id=? AND address_version=?', order.recipient, Date.now(), order.user_id, preferences.address_version));
       if (this.config.paymentMode === 'local' && event.saveCard === true && order.user_id && order.payment_method === 'card') (await this.s.run('INSERT OR IGNORE INTO local_payment_methods VALUES(?,?,?,?,?,?,?)', `SIM-CARD-${digest(order.user_id).slice(0, 24)}`, order.user_id, 'visa', '4242', 12, new Date().getUTCFullYear() + 4, Date.now()));
       (await this.s.run('INSERT INTO fulfillment(order_id,state,error,updated) VALUES(?,?,?,?)', order.id, available ? 'ready' : 'rejected', available ? null : 'Variante nach Zahlungsbeginn weggefallen. Bitte Erstattung oder Ersatz klären.', Date.now()));
-      (await this.s.run("UPDATE mail_outbox SET status='local-delivered' WHERE order_id=? AND kind='confirmation'", order.id));
+      (await this.s.run("UPDATE mail_outbox SET status=? WHERE order_id=? AND kind='confirmation'", this.mailer.enabled ? 'test-held' : 'local-delivered', order.id));
+      await this.mailer.release(order.id);
       const purchased = JSON.parse(order.items).map(i => i.id);
       for (const itemId of purchased) (await this.s.run('DELETE FROM cart WHERE id=? AND session_id=?', itemId, order.session_id));
       if (!available) (await this.alert(order, 'Variante nach Zahlungsbeginn weggefallen.'));
       return { duplicate: false };
     }));
+    // Network delivery happens after the payment transaction has committed.
+    await this.mailer.safeFlush({ orderId: event.orderId });
+    return result;
   }
   async authorizeOrder(session, id, guestSecret) {
     const o = (await this.s.get('SELECT * FROM orders WHERE id=?', id));
@@ -254,7 +260,11 @@ export class Shop {
     const fulfillment = (await this.s.get('SELECT * FROM fulfillment WHERE order_id=?', order.id));
     return { id: order.id, number: order.number, amount: order.amount, currency: order.currency, status: order.status, paid: Boolean(order.paid_at), method: order.payment_method, canSaveCard: Boolean(session?.user_id && session.user_id === order.user_id && order.payment_method === 'card'), items: JSON.parse(order.items), recipient: JSON.parse(order.recipient), purpose: order.purpose, created: order.created, fulfillment, simulated: true };
   }
-  async mail(orderId, kind, recipient, subject, body, status = 'local-delivered') { (await this.s.run('INSERT OR IGNORE INTO mail_outbox VALUES(?,?,?,?,?,?,?,?)', randomUUID(), orderId, kind, recipient, subject, body, status, Date.now())); }
+  async mail(orderId, kind, recipient, subject, body, status = 'local-delivered') {
+    const id = randomUUID(), initial = this.mailer.enabled && status === 'local-delivered' ? 'test-held' : status;
+    const inserted = await this.s.run('INSERT OR IGNORE INTO mail_outbox VALUES(?,?,?,?,?,?,?,?)', id, orderId, kind, recipient, subject, body, initial, Date.now());
+    if (inserted.changes) await this.mailer.enqueue(id, orderId, kind, body, status);
+  }
   async alert(order, reason) { (await this.mail(order.id, 'fulfillment-error', this.config.adminEmail, `Handlungsbedarf · ${order.number}`, `SIMULIERTE ADMIN-E-MAIL\nBestellung ${order.number} wurde bezahlt, bleibt aber offen.\n${reason}\nGeschützter Auftragslink (Admin-Anmeldung): ${this.config.baseUrl}/bestellung/${order.id}`)); }
   async tick() {
     if (this.busy) return; this.busy = true;
@@ -298,6 +308,7 @@ export class Shop {
         } finally { (await this.s.run('UPDATE fulfillment SET lease_until=0 WHERE order_id=?', order.id)); }
       }
     } finally { this.busy = false; }
+    await this.mailer.safeFlush();
   }
   async analytics(from, to) {
     if (!Number.isFinite(from) || !Number.isFinite(to) || from >= to) throw new ShopError('Bitte wähle einen gültigen Zeitraum.');
