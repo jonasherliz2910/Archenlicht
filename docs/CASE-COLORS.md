@@ -23,21 +23,22 @@ gespeichert und ist Teil des Layout-Hashes. Ohne Farbangabe gilt Weiß.
 
 ## Originalmotive und Ausgabe
 
-Die gelieferten PNGs bleiben bytegleich. Der SVG-Renderer legt die ursprünglichen
-Bildpixel über die gewählte Vollfläche und blendet ausschließlich das Papier mit
-versionierten Luminanzmasken aus. Die Masken werden mit
-`node scripts/design-masks.mjs` reproduziert. Sie bewahren eingeschlossene helle
-Innenflächen; für bewusst offene Konturen der Hand und von Mutter/Kind sind
-Maskenbrücken bzw. eine dokumentierte Kontur hinterlegt. Die PNG-Ausgabe wird
-aus demselben SVG gerendert. Es gibt keine gespiegelt wiederholten Motive oder
-abweichend weißen Flächen neben dem Ausgangsbild.
+Die gelieferten PNGs bleiben bytegleich. `node scripts/design-foregrounds.mjs`
+erzeugt daraus RGBA-Druckebenen in unveränderter Quellauflösung unter
+`public/assets/design-foregrounds-v2`. Die früheren Luminanzmasken dienen als
+Innenkontur; antialiasierte Ränder und offene Aquarellflächen erhalten abgestufte
+Transparenz. Der Papieranteil wird auch aus den RGB-Randfarben entfernt, damit
+auf dunklen Hüllen keine hellen Farbsäume entstehen. Haut, Wolle und andere helle
+Innenflächen bleiben deckend. Wasser und offene Stoffenden laufen weich aus.
+Konturen und Motivproportionen werden nicht weichgezeichnet oder vergrößert.
 
-Masken und Quellbilder sind über SHA-256 verknüpft; beide Hashes gehen in die
-gespeicherte Gestaltung ein. Die Maske bleibt direkt im gespeicherten SVG, auch
-wenn das große Originalmotiv in Neon als unveränderlicher Artwork-Blob abgelegt
-wird. Früher gespeicherte Druckdateien bleiben abrufbar und unverändert.
+Der Renderer legt diese Ebene über die gewählte Vollfläche. Vorschau und
+PNG-Druckdatei verwenden dasselbe SVG. Quellbild und RGBA-Ebene sind über
+SHA-256 verknüpft; `artworkHash` und `renderHash` gehen in die gespeicherte
+Gestaltung ein. Neon speichert die RGBA-Ebene als unveränderlichen Artwork-Blob.
+Früher gespeicherte SVGs mit Originalbild und Maske bleiben abrufbar und unverändert.
 
-`archenlicht-package-layout-v6-storm-size` hält die bisherige Standardgröße als
+`archenlicht-package-layout-v7-soft-edges` hält die bisherige Standardgröße als
 Obergrenze, außer beim ausdrücklich vergrößerten Motiv „Nach dem Sturm“.
 Boot, Welle und zugehöriger Text sind dort zehn Prozent größer. Die Wellenenden
 halten mindestens 20 Einheiten Abstand zum inneren Anschnitt-Rand; für die Schrift
@@ -50,13 +51,15 @@ Podbase-Druckschablonen und deren Produktionsfreigabe stehen weiterhin aus.
 
 ## Prüfung
 
-- 55 automatisierte Tests: 53 bestanden, 2 externe Integrationstests ohne
+- 57 automatisierte Tests: 55 bestanden, 2 externe Integrationstests ohne
   Testzugänge übersprungen; keine Fehler.
 - Farben aller sechs Motive gerastert: identische Motivgröße je Farbwechsel,
   korrekte Hintergrundwerte, Textkontrast, keine Änderung des Originalbilds.
 - 74 Modelle × 6 Motive × beide Hüllenarten: Rand, Kameraabstand, Größenobergrenze
   und bei Flip Abstand zur Falz geprüft.
-- Masken erhalten die hellen Innenflächen; alle Motive auf Schwarz visuell geprüft.
+- Alle 54 Motiv-/Farbkombinationen visuell geprüft. Rastertests sichern deckende
+  Haut- und Wollflächen sowie einen stufenlosen Wasserverlauf ohne weißen
+  Papierfleck auf Schwarz ab.
 - Farbe über Bearbeitung, erneuten Warenkorbabruf und Bestellsnapshot geprüft;
   frühere Druckdatei blieb unverändert.
 - Separater Playwright-/Edge-Testbrowser: neun Farben, vier Gerätefamilien,
@@ -69,3 +72,5 @@ Podbase-Druckschablonen und deren Produktionsfreigabe stehen weiterhin aus.
   740 übrige Layouts mit identischen Motiv- und Textpositionen. Zusätzliche
   Browserprüfung von Boot und Welle auf iPhone, Galaxy S, Pixel und Z Flip,
   einschließlich personalisierter Flip-Hülle; Belege in `test-results/storm-size`.
+- Nach der Kantenkorrektur bleiben alle 888 Layouts geometrisch identisch zu v6.
+  Bildbelege und Browserberichte zur neuen Freistellung: `test-results/matte`.

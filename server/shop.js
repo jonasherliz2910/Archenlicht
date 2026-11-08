@@ -71,8 +71,8 @@ export class Shop {
     let svg = layout.svg;
     if (this.s.remote) {
       const artwork = designAsset(layout.configuration.designId);
-      await this.s.run('INSERT OR IGNORE INTO artwork_blobs VALUES(?,?)', artwork.hash, artwork.dataUrl);
-      svg = svg.replace(artwork.dataUrl, `artwork-sha256:${artwork.hash}`);
+      await this.s.run('INSERT OR IGNORE INTO artwork_blobs VALUES(?,?)', artwork.renderHash, artwork.renderDataUrl);
+      svg = svg.replace(artwork.renderDataUrl, `artwork-sha256:${artwork.renderHash}`);
     }
     (await this.s.run('INSERT OR IGNORE INTO assets VALUES(?,?,?,?,?)', layout.hash, JSON.stringify(layout.configuration), layout.printText, svg, Date.now()));
     return { configuration: layout.configuration, hash: layout.hash, svgUrl: `/prints/${layout.hash}.svg`, pngUrl: `/prints/${layout.hash}.png`, printText: layout.printText, camera: layout.camera, layoutVersion: layout.configuration.layoutVersion, productionApproved: layout.productionApproved, sourcePixels: layout.sourcePixels, simulated: true };

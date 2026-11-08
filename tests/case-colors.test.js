@@ -25,7 +25,7 @@ test('Neun erlaubte Farben ändern nur Hintergrund und Textkontrast, niemals die
       const expected=color.hex.slice(1).match(/../g).map(c=>parseInt(c,16));
       assert.deepEqual([...data.subarray(0,3)],expected);
       assert.ok(l.svg.includes(`fill="${color.ink}"`));
-      assert.ok(l.svg.includes(designAsset(d.id).dataUrl),'Original artwork remains embedded without recoloring');
+      assert.ok(l.svg.includes(designAsset(d.id).renderDataUrl),'Dieselbe mattebereinigte Druckebene wird für jede Hintergrundfarbe verwendet');
     }
     assert.equal(hashes.size,9);
   }

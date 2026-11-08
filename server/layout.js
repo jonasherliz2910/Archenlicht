@@ -8,7 +8,7 @@ import { designAsset } from './design-assets.js';
 import { caseColor } from '../public/case-colors.js';
 import { printExclusions } from '../public/device-preview.js';
 
-export const LAYOUT_VERSION = 'archenlicht-package-layout-v6-storm-size';
+export const LAYOUT_VERSION = 'archenlicht-package-layout-v7-soft-edges';
 const fontPath = new URL('../public/fonts/Caveat.ttf', import.meta.url);
 const font = opentype.loadSync(fileURLToPath(fontPath));
 export const FONT_VERSION = `Caveat-${createHash('sha256').update(readFileSync(fontPath)).digest('hex')}`;
@@ -28,7 +28,7 @@ export function normalizeConfiguration(input) {
   const asset = designAsset(design.id);
   const background = caseColor(input.backgroundId);
   if (!background) fail('Bitte wähle eine der angebotenen Hintergrundfarben.');
-  return { kind, designId: design.id, modelId: model.id, backgroundId: background.id, verseId: verse?.id || null, dedication, layoutVersion: LAYOUT_VERSION, templateVersion: model.templateVersion, artworkVersion: asset.version, artworkHash: asset.hash, maskHash: asset.maskHash, fontVersion: FONT_VERSION, verseReference: verse?.reference || design.reference, verseExcerpt: verse?.quote || '', productionApproved: false };
+  return { kind, designId: design.id, modelId: model.id, backgroundId: background.id, verseId: verse?.id || null, dedication, layoutVersion: LAYOUT_VERSION, templateVersion: model.templateVersion, artworkVersion: asset.version, artworkHash: asset.hash, renderHash: asset.renderHash, maskHash: asset.maskHash, fontVersion: FONT_VERSION, verseReference: verse?.reference || design.reference, verseExcerpt: verse?.quote || '', productionApproved: false };
 }
 
 const glyphBounds = (text, size) => font.getPath(text, 0, 0, size).getBoundingBox();
@@ -117,7 +117,7 @@ export function renderLayout(configuration) {
   const typography = Object.entries(values).filter(([, value]) => value).map(([key, value]) => fitText(value, asset.boxes[key], textBox(asset.boxes[key], image, model), scale, key));
   const textPaths = typography.map(block => `<g data-field="${block.key}">${block.lines.map((line, index) => font.getPath(line, block.positions[index].x, block.positions[index].baseline, block.fontSize).toSVG(3)).join('')}</g>`).join('');
   const placement = 'x="'+image.x+'" y="'+image.y+'" width="'+image.width+'" height="'+image.height+'" preserveAspectRatio="xMidYMid meet"';
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}"><defs><mask id="motif-paper-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="${width}" height="${height}"><image ${placement} href="${asset.maskDataUrl}"/></mask></defs><rect data-background="${background.id}" width="${width}" height="${height}" fill="${background.hex}"/><image data-artwork="${asset.hash}" ${placement} href="${asset.dataUrl}" mask="url(#motif-paper-mask)"/><g fill="${background.ink}">${textPaths}</g></svg>`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}"><rect data-background="${background.id}" width="${width}" height="${height}" fill="${background.hex}"/><image data-artwork="${asset.hash}" data-render="${asset.renderHash}" ${placement} href="${asset.renderDataUrl}"/><g fill="${background.ink}">${textPaths}</g></svg>`;
   const hash = createHash('sha256').update(JSON.stringify(c)).update(svg).digest('hex');
   const printText = [c.verseExcerpt, c.verseReference, c.dedication].filter(Boolean).join('\n');
   return { configuration: c, svg, hash, printText, reference: c.verseReference, width, height, camera: model.template.camera, imagePlacement: image, contentBounds, maximumScale, illustrationInset, typography, simulatedTemplate: true, productionApproved: false, sourcePixels: source };
