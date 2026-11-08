@@ -5,10 +5,10 @@ Geprüft am **8. November 2026**, Ausgangsstand `a1c2156` mit anschließend vorb
 
 **Ergebnis: funktionsfähiger Testshop, noch nicht für echte Verkäufe bereit.**
 Die öffentliche API meldet `mode=test` und `paymentMode=sandbox`.
-Der Server sperrt Livezahlungen und echte Produktion. Echter Mailversand ist
-weiterhin ausgeschaltet; ein begrenzter Resend-Testadapter ist vorbereitet.
-Diese Prüfung hat keine neuen Mails, Zahlungen oder Produktionsaufträge ausgelöst
-und keine Anbieter- oder Hostingeinstellungen geändert.
+Der Server sperrt Livezahlungen und echte Produktion. Jonas hat den begrenzten
+Resend-Testversand an `info@archenlicht.de` freigegeben; die Production-Konfiguration
+ist eingerichtet. Die Einrichtung hat keine neuen Mails, Zahlungen oder
+Produktionsaufträge ausgelöst. Die Abnahme mit einer neuen Testbestellung steht aus.
 
 ## Bestätigte Betreiberzuordnung
 
@@ -42,7 +42,7 @@ Es war keine Änderung der bisherigen Steuereinstellung nötig.
 - Eine durch Jonas abgeschlossene Stripe-Sandboxzahlung mit echtem Webhook und genau einem simulierten Fulfillmentauftrag ist dokumentiert.
 - Kleinunternehmerbehandlung im Testcheckout umgesetzt und durch Jonas ausdrücklich auch für die Betreiber-GbR bestätigt.
 
-## 1. Automatische E-Mails – implementiert, noch nicht aktiviert
+## 1. Automatische E-Mails – Testversand freigegeben, Abnahme offen
 
 **Befund:** Resend-Schlüssel vorhanden. Jonas hat die bereits genehmigte Testmail
 in den Posteingang verschoben; über die Ordnerliste wurde `INBOX` bestätigt,
@@ -50,14 +50,17 @@ in den Posteingang verschoben; über die Ordnerliste wurde `INBOX` bestätigt,
 SPF, DKIM und DMARC bestanden beim ursprünglichen Empfang.
 Der eingeschränkte Schlüssel erlaubt keine Domainverwaltung
 (HTTP 401 `restricted_api_key`); dies belegt keinen ungültigen Versandschlüssel.
-In Vercel fehlt weiterhin die Versandkonfiguration, `MAIL_MODE=local` bleibt
-aktiv. Der neue Adapter verarbeitet ausschließlich neue Testbestellungen an
-ausdrücklich festgelegte Testempfänger. Details: [MAIL.md](MAIL.md).
+In Vercel Production ist `MAIL_MODE=resend-test` mit dem einzigen Testempfänger
+`info@archenlicht.de` und Startgrenze `2026-11-08T19:42:43.712Z` konfiguriert.
+Preview/Development bleiben lokal. Der Adapter verarbeitet ausschließlich neue
+Testbestellungen an den ausdrücklich freigegebenen Empfänger. Details: [MAIL.md](MAIL.md).
 
 - [x] Resend-Adapter und HTML-/Textvorlagen von `Archenlicht <info@archenlicht.de>` mit bestätigten Betreiberangaben vorbereiten.
 - [x] Bestätigung nach Zahlung, simulierte Versandmail und Adminalarm implementieren und automatisiert prüfen.
 - [x] Dauerhafte Versandzustände, begrenzte Wiederholungen und Schutz vor Parallel-/Doppelversand ergänzen; alte simulierte Bestellungen ausschließen.
-- [ ] Resend-Webhook und Signing-Secret einrichten; begrenzten Testversand gemeinsam aktivieren.
+- [x] Resend-Webhook durch Jonas angelegt, Signing-Secret geschützt hinterlegt; eigene signierte Diagnoseanfrage angenommen, ungültige und alte Signaturen abgewiesen.
+- [x] Begrenzten Testversand nach ausdrücklicher Freigabe durch Jonas konfigurieren; nur neue Testbestellungen an `info@archenlicht.de`.
+- [ ] Neue Stripe-Sandboxbestellung abschließen und echte Resend-Zustellereignisse abnehmen.
 - [ ] Zustellung, Rückläufer und Spam-Einstufung mit genehmigten Testempfängern prüfen.
 - [ ] Versandmail mit echtem Podbase-Tracking sowie häufige, zuverlässige Hintergrundverarbeitung für Livebetrieb abnehmen.
 

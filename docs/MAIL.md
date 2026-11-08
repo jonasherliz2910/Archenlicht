@@ -1,6 +1,6 @@
 # Automatische Shop-E-Mails · 8. November 2026
 
-## Aktueller Stand: Adapter vorbereitet, Versand noch ausgeschaltet
+## Aktueller Stand: begrenzter Testversand freigegeben, Bestellabnahme offen
 
 Jonas hat die frühere Resend-Testmail aus Spam in den Posteingang verschoben.
 Das wurde am 8. November über die Hostinger-Ordnerliste bestätigt: passende
@@ -29,29 +29,53 @@ Bestellsnapshot. Alle Vorlagen sind ausdrücklich als Test gekennzeichnet.
 - `POST /api/webhooks/resend` prüft den unveränderten Body mit dem offiziellen Resend-SDK. Doppelte und verspätete Ereignisse sowie Zustellereignisse vor der Versandantwort werden abgeglichen. Rückläufer/Beschwerden sperren weitere Sendungen an diese Adresse.
 - Geschützter Nachweis unter `GET /api/admin/mail-status`; keine Nachrichteninhalte oder Geheimnisse in Diagnoseprotokollen.
 
-**Noch nicht aktiviert:** In Vercel bleibt `MAIL_MODE=local`. Die Implementierung
-führt deshalb keine echten Bestellmails aus. Es wurde in diesem Schritt keine
-weitere Testmail gesendet. Es fehlen noch der Resend-Webhook, dessen
-Signing-Secret und die anschließende gemeinsame Freigabe des begrenzten Tests.
+**Testversand ausdrücklich freigegeben:** Jonas hat mit „Testbestellmails
+freigeben“ die Bestellbestätigung und die als simuliert gekennzeichnete
+Versandmail für seine nächste Testbestellung von und an `info@archenlicht.de`
+autorisiert. In Vercel Production ist `MAIL_MODE=resend-test` konfiguriert;
+Preview und Development behalten `MAIL_MODE=local`. API-Schlüssel und
+Webhook-Secret sind ausschließlich in Production als Secrets hinterlegt.
+Der einzige Testempfänger ist `info@archenlicht.de`, die öffentliche Adresse
+`https://www.archenlicht.de`. Startgrenze ist
+`2026-11-08T19:42:43.712Z`; ältere Bestellungen werden nicht nachversandt.
+Die Einrichtung selbst hat keine weitere E-Mail versendet. Eine neue,
+von Jonas abgeschlossene Stripe-Sandboxbestellung und deren tatsächlicher
+Mail-/Zustellnachweis stehen noch aus.
 
-### Nächster geführter Einrichtungsschritt
+Jonas hat den Webhook angelegt und das Signing-Secret
+lokal hinterlegt. Am 8. November wurde `RESEND_WEBHOOK_SECRET` ausschließlich für
+Production als Vercel Secret gespeichert; Deployment
+`archenlicht-69uwbldlc-jonas-4eb6.vercel.app` ist Ready.
 
-In Resend unter Webhooks einen Endpunkt anlegen:
+An der öffentlichen Route wurde eine korrekt signierte Diagnoseanfrage mit
+HTTP 200 angenommen; veränderter Body und abgelaufene Signatur wurden mit
+HTTP 401 abgewiesen. Das absichtlich unbekannte Diagnoseereignis änderte keine
+Bestellung und legte keinen fiktiven Zustellnachweis an. Der Shop antwortete
+weiterhin mit HTTP 200 im Testmodus. Lokaler Nachweis:
+`.tools/resend-webhook-evidence.json` (ignoriert, ohne Schlüssel).
+Dies prüft die installierte Signaturprüfung, noch kein von Resend ausgelöstes
+Zustellereignis. Der Nachweis des echten Resend-Ereignisses folgt mit der
+freigegebenen Testbestellung. Konfigurationsnachweis ohne Secrets:
+`.tools/resend-activation-evidence.json`.
+
+### Konfiguration und nächster geführter Prüfschritt
+
+Erledigter Einrichtungsschritt: Jonas hat in Resend diesen Endpunkt angelegt:
 
 `https://www.archenlicht.de/api/webhooks/resend`
 
 Ereignisse: `email.sent`, `email.delivered`, `email.delivery_delayed`,
 `email.failed`, `email.bounced`, `email.complained`, `email.suppressed`.
-Das Signing-Secret anschließend ausschließlich geschützt als
-`RESEND_WEBHOOK_SECRET` hinterlegen, nicht im Chat oder Git.
+Das Signing-Secret ist geschützt als `RESEND_WEBHOOK_SECRET` hinterlegt,
+nicht im Chat oder Git.
 Der vorhandene eingeschränkte Sendeschlüssel kann keine Webhooks verwalten;
 deshalb erfolgt dieser Schritt im Resend-Dashboard.
 
-Vor Aktivierung gemeinsam prüfen:
+Konfiguriert und noch zu prüfen:
 
-- `RESEND_API_KEY` und `RESEND_WEBHOOK_SECRET` als serverseitige Secrets.
-- `MAIL_TEST_RECIPIENTS=info@archenlicht.de`, `MAIL_PUBLIC_URL=https://www.archenlicht.de` und frische ISO-Startzeit in `MAIL_ENABLED_SINCE`.
-- Erst dann `MAIL_MODE=resend-test`; ein neuer Sandboxkauf mit dieser Empfängeradresse prüft die echte Versandkette. Keine Altbestellungen nachversenden.
+- Erledigt: `RESEND_API_KEY` und `RESEND_WEBHOOK_SECRET` als serverseitige Production-Secrets.
+- Erledigt: `MAIL_TEST_RECIPIENTS=info@archenlicht.de`, `MAIL_PUBLIC_URL=https://www.archenlicht.de`, oben genannte ISO-Startzeit in `MAIL_ENABLED_SINCE` und `MAIL_MODE=resend-test` ausschließlich für Production.
+- Nächster Schritt: Jonas führt einen neuen Sandboxkauf mit dieser Empfängeradresse aus. Danach genau eine Bestellbestätigung und simulierte Versandmail sowie echte Resend-Webhooks prüfen. Keine Altbestellungen nachversenden.
 - Resend-Zustellereignis bedeutet Annahme beim Empfängerserver, nicht garantiert Posteingang; tatsächlichen Ordner zusätzlich prüfen.
 
 Sieben Mailtests prüfen Zahlungsfreigabe, Replay, Empfänger-/Altbestellungsschutz,
