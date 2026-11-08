@@ -1,0 +1,62 @@
+{
+  "unter-seinen-fluegeln": {
+    "sourceHash": "48a5f86a347f2f0de235180fbecf52db7f87e79c4ff64fdbeec9daabb5262a02",
+    "maskHash": "1d2f74d621841256d365cb2ccebba302f2a602bee484283fb8ea720c6937ac84",
+    "bounds": {
+      "x": 199,
+      "y": 730,
+      "width": 621,
+      "height": 418
+    }
+  },
+  "nach-dem-sturm": {
+    "sourceHash": "6f32c1b84ab525742edabe493da358d4840a41f40f57c917a58491c5dcedbc82",
+    "maskHash": "44f098caf2392062765dc69af815115515fc11f62d8e587af33e7d915bf5d448",
+    "bounds": {
+      "x": 106,
+      "y": 868,
+      "width": 750,
+      "height": 345
+    }
+  },
+  "absetzen": {
+    "sourceHash": "352b262da82ef6942313c6d38f680cccd2c8f6cd7ab6100f663db15762373b60",
+    "maskHash": "f0f36aa78ffe3e506da3d31441ec6239bc2a2ef57128bed5614c9f02fe5db9e2",
+    "bounds": {
+      "x": 149,
+      "y": 760,
+      "width": 665,
+      "height": 540
+    }
+  },
+  "ganz-nah": {
+    "sourceHash": "8ad0c76c12966a04080e45114e684bc56fb38fbc8bc81dd03133d3c6900f834f",
+    "maskHash": "bb009bf3c8c706f7ebbcca45c77aac2696b8d7840029586b5327367cfd2fa00f",
+    "bounds": {
+      "x": 153,
+      "y": 562,
+      "width": 657,
+      "height": 722
+    }
+  },
+  "im-schatten": {
+    "sourceHash": "21748973d4b045549f0f14b896c7c9c60355a844d24c5a4a2028a09d1afb9fd7",
+    "maskHash": "12992ca401352652f975e2ec519b0976f5c30e60b74f5936796e43c9aaddf469",
+    "bounds": {
+      "x": 140,
+      "y": 635,
+      "width": 632,
+      "height": 662
+    }
+  },
+  "getragen": {
+    "sourceHash": "bcafd39e0b97cac6a3b0164940b63cc8992b1f790a9d986fcf06b1ac58274718",
+    "maskHash": "954504148c898662276f7e12a5fc5c9b599d5dfb0dd9c04a35e620516db5dc3a",
+    "bounds": {
+      "x": 170,
+      "y": 646,
+      "width": 619,
+      "height": 598
+    }
+  }
+}

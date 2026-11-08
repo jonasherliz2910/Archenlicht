@@ -76,16 +76,30 @@ export function deviceProfile(model) {
       openings = family === 'galaxy-ultra-island' ? [island] : island ? [island,...lenses.filter(l=>l.cx>330).map(l=>circle(l.cx,l.cy,l.r+17)),circle(flash.cx,flash.cy,44)] : [...lenses.map(l=>circle(l.cx,l.cy,l.r+18)),circle(flash.cx,flash.cy,44)];
     }
   } else throw new Error(`Fehlendes Geräteprofil: ${id}`);
-  return { modelId:id, family, width:1000, height:Math.round(1000/ratio), corner, openings, lenses, flash, sensor, island, screen, illustrative:true };
+  const height = Math.round(1000/ratio);
+  return { modelId:id, family, width:1000, height, foldY: family === 'galaxy-flip' ? height / 2 : null, corner, openings, lenses, flash, sensor, island, screen, illustrative:true };
+}
+
+// One transform for the browser drawing and the server's collision checks.
+export function printFrame(model, p = deviceProfile(model)) {
+  const img = model.template || { width:1200,height:2400 };
+  const scale = Math.min((p.width-40)/img.width,(p.height-40)/img.height);
+  return { x:(p.width-img.width*scale)/2, y:(p.height-img.height*scale)/2, width:img.width*scale, height:img.height*scale, scale };
+}
+export function printExclusions(model) {
+  const p = deviceProfile(model), frame = printFrame(model, p);
+  return p.openings.map(s => {
+    const b = 'r' in s ? { x:s.cx-s.r,y:s.cy-s.r,width:s.r*2,height:s.r*2 } : s;
+    return { x:(b.x-frame.x)/frame.scale, y:(b.y-frame.y)/frame.scale, width:b.width/frame.scale, height:b.height/frame.scale };
+  });
 }
 
 let serial = 0;
 export function phoneMockup(model, { imageUrl, color='#FCFAF4', className='', caseOnly=false, label } = {}) {
   const p = deviceProfile(model), uid = `device-${++serial}`, holeId = `${uid}-holes`, rimId = `${uid}-rim`, lensId = `${uid}-lens`;
-  const holes = p.openings.map(s=>shape(s,'fill="black"')).join('');
+  const holes = p.openings.map(s=>shape(s,'fill="black"')).join('') + (p.foldY ? `<rect x="0" y="${p.foldY-9}" width="1000" height="18" fill="black"/>` : '');
   const body = rect(12,12,p.width-24,p.height-24,p.corner);
-  const img = model.template || { width:1200,height:2400 };
-  const scale = Math.min((p.width-40)/img.width,(p.height-40)/img.height), iw = img.width*scale, ih = img.height*scale;
+  const frame = printFrame(model, p), iw = frame.width, ih = frame.height;
   const lens = l => `${shape(l,`fill="#657069" stroke="#c0c7bf" stroke-width="13"`)}${shape(circle(l.cx,l.cy,l.r*.82),`fill="url(#${lensId})"`)}${shape(circle(l.cx-l.r*.27,l.cy-l.r*.29,l.r*.17),'fill="#a6c1cc" opacity=".5"')}`;
   const hardware = caseOnly ? '' : `<g class="device-hardware">${p.island?shape(p.island,`fill="${p.screen?'#222a29':'#b6bfb6'}" stroke="#7b877e" stroke-width="9"`):''}${p.lenses.map(lens).join('')}${shape(p.flash,'fill="#ede9d6" stroke="#929c91" stroke-width="8"')}${p.sensor?shape(p.sensor,'fill="#39443d"'):''}</g>`;
   const title = label || `${model.name} – ${caseOnly?'Hülle mit offener Kameraaussparung':'Hülle am Handy'}`;

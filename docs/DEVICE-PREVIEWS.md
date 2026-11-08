@@ -43,11 +43,19 @@ Geprüfte öffentliche Referenzen:
   beim Seitenwechsel entfernt.
 - Modell-, Motiv- und Textänderungen aktualisieren beide Bilder gemeinsam und
   lassen die gewählte Ansicht bestehen.
-- Das Z Flip8 benötigt wegen des großen Außendisplays eine gesonderte freie
-  Motivfläche. `test-flip-template-v3` setzt das vollständige Design proportional
-  darunter, mit passenden Papierflächen außen. Diese Änderung gilt auch für die
+- Das Z Flip8 benötigt wegen Außendisplay und Scharnier eine gesonderte freie
+  Motivfläche. `test-flip-template-v4` setzt Motiv und sämtliche aktiven Textfelder
+  vollständig auf die untere Klapphälfte (ab y=1290 bei Falz y=1200), mit
+  passenden Hintergrundflächen außen. Diese Änderung gilt auch für die
   erzeugte SVG/PNG-Druckdatei. Bereits gespeicherte Druckdateien werden nicht geändert.
   Die Vorlage bleibt simuliert und `productionApproved: false`.
+- Kamera-Ausschlüsse werden mit demselben `printFrame` wie die Browseransicht
+  in Druckkoordinaten umgerechnet. Die sichtbare Motivgruppe hält 45 Einheiten
+  Abstand und wird höchstens so groß wie die frühere Standardplatzierung.
+  Bei Bedarf wird sie versetzt oder proportional verkleinert. Leeres Quellpapier
+  außerhalb der Gruppe darf über die Leinwand hinausragen; keine gedruckte Linie.
+- In der mobilen Produktansicht gibt es nur den regulären Modellwähler bei den
+  Produktoptionen; im Gestalter nur den Modell-Schritt.
 
 ## Prüfung
 

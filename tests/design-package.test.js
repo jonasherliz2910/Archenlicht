@@ -63,8 +63,8 @@ test('Neue Manifestflächen und Bildversatz bleiben auf schmalen und breiten Tes
       for (const design of DESIGNS) for (const kind of ['fixed', 'custom']) {
         const asset = designAsset(design.id), record = DESIGN_PACKAGE.designs.find(d => d.id === asset.sourceId);
         const layout = renderLayout({ ...custom, kind, designId: design.id, modelId: model.id, verseId: '1kor13-13' }), image = layout.imagePlacement;
-        assert.ok(image.x >= -0.001 && image.y >= -0.001);
-        assert.ok(image.x + image.width <= layout.width + 0.001 && image.y + image.height <= layout.height + 0.001);
+        assert.ok(layout.contentBounds.x >= -0.001 && layout.contentBounds.y >= -0.001);
+        assert.ok(layout.contentBounds.x + layout.contentBounds.width <= layout.width + 0.001 && layout.contentBounds.y + layout.contentBounds.height <= layout.height + 0.001);
         assert.ok(Math.abs(image.width / asset.sourcePixels.width - image.height / asset.sourcePixels.height) < 1e-9);
         for (const block of layout.typography) {
           const box = asset.boxes[block.key];
@@ -109,19 +109,13 @@ test('Papier füllt die Hüllenränder ohne Farbstreifen; größere Texte halten
       }
     }
     const { data, info } = await sharp(Buffer.from(layout.svg)).removeAlpha().raw().toBuffer({ resolveWithObject: true });
-    const rowMean = y => { const sums = [0, 0, 0]; for (let x = 0; x < info.width; x++) for (let ch = 0; ch < 3; ch++) sums[ch] += data[(y * info.width + x) * 3 + ch] / info.width; return sums; };
-    const bandMean = start => { const result = [0, 0, 0]; for (let row = start; row < start + 16; row++) { const mean = rowMean(row); for (let ch = 0; ch < 3; ch++) result[ch] += mean[ch] / 16; } return result; };
-    const imageTop = layout.imagePlacement.y, imageBottom = imageTop + layout.imagePlacement.height;
-    for (const seam of [imageTop, imageBottom]) {
-      const before = bandMean(Math.floor(seam) - 20), after = bandMean(Math.ceil(seam) + 4);
-      assert.ok(before.every((value, ch) => Math.abs(value - after[ch]) < 0.35), `${design.id}: sichtbarer Farbsprung am Bildrand`);
+    // The approved colors use a continuous flat background, including outside
+    // the old source-paper rectangle. No mirrored artwork or white bands.
+    for(const [x,y] of [[0,0],[info.width-1,0],[0,info.height-1],[info.width-1,info.height-1]]) {
+      const offset=(y*info.width+x)*3;
+      assert.deepEqual([...data.subarray(offset,offset+3)],[250,250,248]);
     }
-    for (const [start, end] of [[0, Math.floor(imageTop) - 2], [Math.ceil(imageBottom) + 2, info.height]]) {
-      let min = 255, max = 0;
-      for (let y = start; y < end; y++) for (let x = 0; x < info.width; x++) { const value = data[(y * info.width + x) * 3]; min = Math.min(min, value); max = Math.max(max, value); }
-      assert.ok(min > 230, `${design.id}: Illustration wurde in den Hintergrund wiederholt`);
-      assert.ok(max - min >= 2, `${design.id}: flacher Farbstreifen statt Papierhintergrund`);
-    }
+
   }
 });
 

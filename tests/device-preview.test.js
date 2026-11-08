@@ -11,8 +11,8 @@ test('Flip-Motiv und Drucktext bleiben vollständig unter dem Außendisplay, ohn
   const m=model('samsung-galaxy-z-flip8');
   for(const d of DESIGNS)for(const kind of ['fixed','custom']){
     const l=renderLayout({kind,modelId:m.id,designId:d.id,verseId:'ps23-1',dedication:'Anna'});
-    assert.ok(l.imagePlacement.y>m.template.camera.y+m.template.camera.height);
-    assert.ok(l.imagePlacement.y+l.imagePlacement.height<=m.template.height);
+    assert.ok(l.contentBounds.y >= m.template.foldY + 90);
+    assert.ok(l.contentBounds.y+l.contentBounds.height<=m.template.height-m.template.safe+.001);
     assert.ok(Math.abs(l.imagePlacement.width/l.sourcePixels.width-l.imagePlacement.height/l.sourcePixels.height)<1e-9);
     for(const block of l.typography)assert.ok(block.box.y>m.template.camera.height);
     assert.equal(l.productionApproved,false);

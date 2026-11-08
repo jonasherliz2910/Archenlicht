@@ -1,4 +1,5 @@
 import { designAsset, DESIGN_PACKAGE } from './design-assets.js';
+import { caseColor } from '../public/case-colors.js';
 
 export const BRAND = { name: 'Archenlicht', logo: '/assets/archenlicht-logo.png', collection: 'Ruhe und Geborgenheit', currency: 'EUR', fixedPrice: 2990, customPrice: 3490, colors: { paper: '#FCF8EF', sage: '#A6B99B', forest: '#163E29' } };
 export const DESIGNS = [
@@ -11,7 +12,7 @@ export const DESIGNS = [
 ].map(design => {
   const asset = designAsset(design.id);
   if (asset.reference !== design.reference) throw new Error(`Die feste Versstelle für ${design.id} stimmt nicht mit dem Designpaket überein.`);
-  return { ...design, color: DESIGN_PACKAGE.targetBackground, ink: DESIGN_PACKAGE.ink, blankImageUrl: asset.blankImageUrl, artworkVersion: asset.version, productionApproved: false };
+  return { ...design, color: caseColor('white').hex, ink: DESIGN_PACKAGE.ink, blankImageUrl: asset.blankImageUrl, artworkVersion: asset.version, productionApproved: false };
 });
 const iphones = ['iPhone 12', 'iPhone 12 Pro', 'iPhone 12 Pro Max', 'iPhone 13', 'iPhone 13 mini', 'iPhone 13 Pro', 'iPhone 13 Pro Max', 'iPhone 14', 'iPhone 14 Plus', 'iPhone 14 Pro', 'iPhone 14 Pro Max', 'iPhone 15', 'iPhone 15 Plus', 'iPhone 15 Pro', 'iPhone 15 Pro Max', 'iPhone 16', 'iPhone 16 Plus', 'iPhone 16 Pro', 'iPhone 16 Pro Max'];
 const samsungs = ['Samsung Galaxy S21', 'Samsung Galaxy S21 Ultra', 'Samsung Galaxy S22', 'Samsung Galaxy S22 Ultra', 'Samsung Galaxy S23', 'Samsung Galaxy S23 Ultra', 'Samsung Galaxy S24', 'Samsung Galaxy S24 Ultra', 'Samsung Galaxy S25', 'Samsung Galaxy S25 Ultra', 'Samsung Galaxy A54', 'Samsung Galaxy A55'];
@@ -26,8 +27,8 @@ const currentModelGroups = [
 ];
 export const MODELS = [...modelGroups, ...currentModelGroups].flatMap(({ brand, names }) => names.map(name => ({ name, brand }))).map(({ name, brand }, i) => ({
   id: name.toLowerCase().replaceAll(' ', '-'), name, brand,
-  productId: 'SIM-TOUGH', variantId: `SIM-VARIANT-${i + 1}`, templateVersion: brand === 'Google' ? 'test-pixel-template-v1' : name.includes('Z Flip') ? 'test-flip-template-v3' : 'test-template-v1',
-  template: { width: 1200, height: 2400, bleed: 60, safe: 125, ...(name.includes('Z Flip') ? { artArea: { x: 0, y: 1020, width: 1200, height: 1255 } } : {}), camera: brand === 'Google' ? { x: 80, y: 170, width: 1040, height: 300 } : name.includes('Z Flip') ? { x: 40, y: 0, width: 1120, height: 970 } : { x: 80, y: 80, width: name.includes('Ultra') ? 380 : 460, height: name.includes('Ultra') ? 600 : 510 } },
+  productId: 'SIM-TOUGH', variantId: `SIM-VARIANT-${i + 1}`, templateVersion: brand === 'Google' ? 'test-pixel-template-v1' : name.includes('Z Flip') ? 'test-flip-template-v4' : 'test-template-v1',
+  template: { width: 1200, height: 2400, bleed: 60, safe: 125, ...(name.includes('Z Flip') ? { foldY: 1200, artArea: { x: 125, y: 1290, width: 950, height: 985 } } : {}), camera: brand === 'Google' ? { x: 80, y: 170, width: 1040, height: 300 } : name.includes('Z Flip') ? { x: 40, y: 0, width: 1120, height: 970 } : { x: 80, y: 80, width: name.includes('Ultra') ? 380 : 460, height: name.includes('Ultra') ? 600 : 510 } },
   simulated: true
 }));
 // Curated verbatim short excerpts from Luther 1912. Test-only; no modern translation is licensed.
