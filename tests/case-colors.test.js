@@ -31,11 +31,17 @@ test('Neun erlaubte Farben ändern nur Hintergrund und Textkontrast, niemals die
   }
 });
 
-test('Alle Motive bleiben bei allen Modellen von Kameras und Falz frei und werden nie größer als zuvor',()=>{
+test('Alle Motive halten Rand, Kamera und Falz frei; nur das Boot erhält die freigegebene Vergrößerung',()=>{
   for(const model of MODELS)for(const d of DESIGNS)for(const kind of ['fixed','custom']){
     const l=renderLayout({...fixed,kind,designId:d.id,modelId:model.id,verseId:'ps23-1',dedication:'Für Anna'}),b=l.contentBounds;
     assert.ok(l.imagePlacement.scale<=l.maximumScale);
-    assert.ok(b.x>=model.template.safe-.001&&b.x+b.width<=l.width-model.template.safe+.001);
+    const boat=d.id==='nach-dem-sturm',sideInset=boat?model.template.bleed+20:model.template.safe;
+    assert.ok(b.x>=sideInset-.001&&b.x+b.width<=l.width-sideInset+.001);
+    const previousScale=Math.min(l.width/l.sourcePixels.width,l.height/l.sourcePixels.height);
+    if(boat)assert.ok(l.imagePlacement.scale>=previousScale*1.08&&l.imagePlacement.scale<=previousScale*1.1+.001,'Boot muss sichtbar größer werden, ohne seine Proportionen zu ändern');
+    else assert.ok(l.imagePlacement.scale<=previousScale+.001);
+    assert.ok(Math.abs(l.imagePlacement.width/l.sourcePixels.width-l.imagePlacement.height/l.sourcePixels.height)<1e-9);
+    for(const block of l.typography)for(const {bounds:t} of block.positions)assert.ok(t.x>=model.template.safe-.001&&t.x+t.width<=l.width-model.template.safe+.001,'Schrift behält den bisherigen Sicherheitsrand');
     assert.ok(b.y>=model.template.safe-.001&&b.y+b.height<=l.height-model.template.safe+.001);
     for(const camera of printExclusions(model))assert.equal(overlap(b,{x:camera.x-40,y:camera.y-40,width:camera.width+80,height:camera.height+80}),false,`${model.id}/${d.id}`);
     if(model.template.foldY)assert.ok(b.y>=model.template.foldY+90,`${d.id}: vollständige Gruppe unter dem Scharnier`);

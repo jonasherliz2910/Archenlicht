@@ -8,7 +8,7 @@ import { designAsset } from './design-assets.js';
 import { caseColor } from '../public/case-colors.js';
 import { printExclusions } from '../public/device-preview.js';
 
-export const LAYOUT_VERSION = 'archenlicht-package-layout-v5-backgrounds';
+export const LAYOUT_VERSION = 'archenlicht-package-layout-v6-storm-size';
 const fontPath = new URL('../public/fonts/Caveat.ttf', import.meta.url);
 const font = opentype.loadSync(fileURLToPath(fontPath));
 export const FONT_VERSION = `Caveat-${createHash('sha256').update(readFileSync(fontPath)).digest('hex')}`;
@@ -73,7 +73,12 @@ function textBox(definition, image, model) {
 }
 
 function artworkPlacement(asset, model, values) {
-  const { width, height, safe, artArea } = model.template, source = asset.sourcePixels;
+  const { width, height, safe, bleed, artArea } = model.template, source = asset.sourcePixels;
+  // The boat's long, thin wave uses more width than its visual weight suggests.
+  // Allow that illustration 10% more size, while keeping its ends 20 units
+  // inside the bleed boundary. Text retains the original safe inset below.
+  const largerBoat = asset.id === 'nach-dem-sturm';
+  const illustrationInset = largerBoat ? Math.min(safe, bleed + 20) : safe;
   const boxes = [asset.inkBounds, ...Object.entries(values).filter(([, value]) => value).map(([key]) => {
     const b = asset.boxes[key];
     return { x:b.x*source.width, y:b.y*source.height, width:b.width*source.width, height:b.height*source.height };
@@ -81,31 +86,33 @@ function artworkPlacement(asset, model, values) {
   const group = { x:Math.min(...boxes.map(b=>b.x)), y:Math.min(...boxes.map(b=>b.y)) };
   group.width = Math.max(...boxes.map(b=>b.x+b.width))-group.x;
   group.height = Math.max(...boxes.map(b=>b.y+b.height))-group.y;
-  const maximumScale = Math.min(width/source.width, height/source.height);
+  const maximumScale = Math.min(width/source.width, height/source.height) * (largerBoat ? 1.1 : 1);
   const imageAt = (scale,x,y) => ({x,y,width:source.width*scale,height:source.height*scale,scale});
   const boundsAt = image => ({x:image.x+group.x*image.scale,y:image.y+group.y*image.scale,width:group.width*image.scale,height:group.height*image.scale});
   let image = imageAt(maximumScale,(width-source.width*maximumScale)/2,(height-source.height*maximumScale)/2);
   const bounds = boundsAt(image), clearance = 45;
   const cameras = printExclusions(model).map(b=>({x:b.x-clearance,y:b.y-clearance,width:b.width+clearance*2,height:b.height+clearance*2}));
   const collides = cameras.some(b=>intersects(bounds,b));
-  const outside = bounds.x < safe || bounds.y < safe || bounds.x+bounds.width > width-safe || bounds.y+bounds.height > height-safe;
+  const outside = bounds.x < illustrationInset || bounds.y < safe || bounds.x+bounds.width > width-illustrationInset || bounds.y+bounds.height > height-safe;
   if (artArea || collides || outside) {
     const top = Math.max(safe, ...cameras.map(b=>b.y+b.height));
-    const area = artArea || {x:safe,y:top,width:width-2*safe,height:height-safe-top};
+    const area = artArea
+      ? { ...artArea, ...(largerBoat ? {x:illustrationInset,width:width-2*illustrationInset} : {}) }
+      : {x:illustrationInset,y:top,width:width-2*illustrationInset,height:height-safe-top};
     // Fit visible artwork AND all active text boxes as one proportional group.
     // Empty source paper may extend beyond the canvas; no printed mark does.
     const scale = Math.min(maximumScale,area.width/group.width,area.height/group.height);
     image = imageAt(scale, area.x+(area.width-group.width*scale)/2-group.x*scale, area.y+(area.height-group.height*scale)/2-group.y*scale);
   }
   const contentBounds = boundsAt(image);
-  if (cameras.some(b=>intersects(contentBounds,b)) || contentBounds.x < safe-.001 || contentBounds.y+contentBounds.height > height-safe+.001) fail('Das Motiv passt nicht vollständig in die freie Fläche dieses Modells.');
-  return { image, contentBounds, maximumScale };
+  if (cameras.some(b=>intersects(contentBounds,b)) || contentBounds.x < illustrationInset-.001 || contentBounds.x+contentBounds.width > width-illustrationInset+.001 || contentBounds.y < safe-.001 || contentBounds.y+contentBounds.height > height-safe+.001) fail('Das Motiv passt nicht vollständig in die freie Fläche dieses Modells.');
+  return { image, contentBounds, maximumScale, illustrationInset };
 }
 export function renderLayout(configuration) {
   const c = normalizeConfiguration(configuration), model = findModel(c.modelId), asset = designAsset(c.designId);
   const { width, height } = model.template, source = asset.sourcePixels;
   const values = { reference: c.verseReference, excerpt: c.verseExcerpt, dedication: c.dedication };
-  const { image, contentBounds, maximumScale } = artworkPlacement(asset, model, values), { scale } = image;
+  const { image, contentBounds, maximumScale, illustrationInset } = artworkPlacement(asset, model, values), { scale } = image;
   const background = caseColor(c.backgroundId);
   const typography = Object.entries(values).filter(([, value]) => value).map(([key, value]) => fitText(value, asset.boxes[key], textBox(asset.boxes[key], image, model), scale, key));
   const textPaths = typography.map(block => `<g data-field="${block.key}">${block.lines.map((line, index) => font.getPath(line, block.positions[index].x, block.positions[index].baseline, block.fontSize).toSVG(3)).join('')}</g>`).join('');
@@ -113,7 +120,7 @@ export function renderLayout(configuration) {
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}"><defs><mask id="motif-paper-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="${width}" height="${height}"><image ${placement} href="${asset.maskDataUrl}"/></mask></defs><rect data-background="${background.id}" width="${width}" height="${height}" fill="${background.hex}"/><image data-artwork="${asset.hash}" ${placement} href="${asset.dataUrl}" mask="url(#motif-paper-mask)"/><g fill="${background.ink}">${textPaths}</g></svg>`;
   const hash = createHash('sha256').update(JSON.stringify(c)).update(svg).digest('hex');
   const printText = [c.verseExcerpt, c.verseReference, c.dedication].filter(Boolean).join('\n');
-  return { configuration: c, svg, hash, printText, reference: c.verseReference, width, height, camera: model.template.camera, imagePlacement: image, contentBounds, maximumScale, typography, simulatedTemplate: true, productionApproved: false, sourcePixels: source };
+  return { configuration: c, svg, hash, printText, reference: c.verseReference, width, height, camera: model.template.camera, imagePlacement: image, contentBounds, maximumScale, illustrationInset, typography, simulatedTemplate: true, productionApproved: false, sourcePixels: source };
 }
 export async function rasterize(svg) {
   const input = Buffer.from(svg), { width, height } = await sharp(input).metadata();

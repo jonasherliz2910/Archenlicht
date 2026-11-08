@@ -51,7 +51,8 @@ Geprüfte öffentliche Referenzen:
   Die Vorlage bleibt simuliert und `productionApproved: false`.
 - Kamera-Ausschlüsse werden mit demselben `printFrame` wie die Browseransicht
   in Druckkoordinaten umgerechnet. Die sichtbare Motivgruppe hält 45 Einheiten
-  Abstand und wird höchstens so groß wie die frühere Standardplatzierung.
+  Abstand und wird höchstens so groß wie die frühere Standardplatzierung
+  (ausdrücklich freigegebene Ausnahme: „Nach dem Sturm“ mit Faktor 1,1).
   Bei Bedarf wird sie versetzt oder proportional verkleinert. Leeres Quellpapier
   außerhalb der Gruppe darf über die Leinwand hinausragen; keine gedruckte Linie.
 - In der mobilen Produktansicht gibt es nur den regulären Modellwähler bei den

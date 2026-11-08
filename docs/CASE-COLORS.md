@@ -37,8 +37,12 @@ gespeicherte Gestaltung ein. Die Maske bleibt direkt im gespeicherten SVG, auch
 wenn das große Originalmotiv in Neon als unveränderlicher Artwork-Blob abgelegt
 wird. Früher gespeicherte Druckdateien bleiben abrufbar und unverändert.
 
-`archenlicht-package-layout-v5-backgrounds` hält die bisherige Standardgröße als
-Obergrenze. Alle aktiven Texte werden mit dem Motiv gemeinsam proportional
+`archenlicht-package-layout-v6-storm-size` hält die bisherige Standardgröße als
+Obergrenze, außer beim ausdrücklich vergrößerten Motiv „Nach dem Sturm“.
+Boot, Welle und zugehöriger Text sind dort zehn Prozent größer. Die Wellenenden
+halten mindestens 20 Einheiten Abstand zum inneren Anschnitt-Rand; für die Schrift
+bleibt die bisherige Sicherheitsfläche maßgeblich. Kamera- und Falzabstände
+bleiben unverändert. Alle aktiven Texte werden mit dem Motiv gemeinsam proportional
 platziert. Beim Galaxy Z Flip liegt diese Gruppe vollständig unter der Falz,
 einschließlich Wunschvers und Widmung. Kameraabstände und Vorschautransform
 verwenden dieselbe Gerätegeometrie. Die Geometrie bleibt illustrativ; endgültige
@@ -60,3 +64,8 @@ Podbase-Druckschablonen und deren Produktionsfreigabe stehen weiterhin aus.
   Warenkorbbearbeitung. Eine Modellauswahl, kein horizontaler Seitenüberlauf.
 - Lokale Bildbelege und Browserberichte liegen in `test-results/colors` (ignoriert).
   Keine echten Zahlungen, E-Mails oder Produktionsaufträge wurden ausgelöst.
+- Nach der Bootsvergrößerung erneut 53 Tests erfolgreich, 2 externe Tests
+  übersprungen. Vergleich aller 888 Layouts: 148 Bootsvarianten exakt 10 % größer,
+  740 übrige Layouts mit identischen Motiv- und Textpositionen. Zusätzliche
+  Browserprüfung von Boot und Welle auf iPhone, Galaxy S, Pixel und Z Flip,
+  einschließlich personalisierter Flip-Hülle; Belege in `test-results/storm-size`.
