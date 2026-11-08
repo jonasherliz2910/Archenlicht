@@ -2,6 +2,8 @@
 .tools
 .env*
 Stripekey.txt
+Mail
+resend
 data
 test-results
 tmp

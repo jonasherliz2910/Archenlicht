@@ -33,7 +33,7 @@ Auf einem anderen Rechner: **Node.js 24 oder neuer**, dann `npm install`, `npm r
 
 Das hinzugekommene [CI-Book](Archenlicht-CI-Book.pdf) wurde berücksichtigt: Original-Logo Nr. 2 unverändert im Seitenverhältnis 2:1, Warmweiß `#FCF8EF`, Salbei `#A6B99B`, Waldgrün `#163E29`, lesbare Fließtexte und vorgeschaltete Modellwahl auf dem Handy. Der Originalschriftzug wird als PNG eingesetzt; Karten- und Profil-SVG betten dieselbe Bilddatei ein. Eine Vektorfassung des Logos wird damit nicht vorgetäuscht.
 
-- Sechs stabile Produktseiten, mobil gestaltete Oberfläche, ein Tough-Hüllentyp und 74 **simulierte** iPhone-, Samsung-Galaxy- und Google-Pixel-Modelle.
+- Sechs stabile Produktseiten, mobil gestaltete Oberfläche, ein Tough-Hüllentyp und 74 iPhone-, Samsung-Galaxy- und Google-Pixel-Modelle. Optionaler echter Podbase-Katalog mit Bestandsprüfung; Druckschablonen und Produktion bleiben im Testbetrieb.
 - Kollektion: **29,90 €**; Wunschvers: **34,90 €**, jeweils als Test-Endpreis einschließlich Deutschlandversand und fester Geschenkkarte.
 - Wunschvers-Gestalter mit neun quellenbelegten kurzen Testauszügen, Motiv, Modell und optionaler Widmung. Die lokale regelbasierte Testberatung liefert drei unterschiedliche Stellen oder die sechs Ersatzmotive.
 - Sechs unveränderte Blankomotive aus dem gelieferten Designpaket. Versstelle, Originalauszug und optionale Widmung werden separat mit der mitgelieferten Caveat-Schrift gemessen, zentriert und gerade eingesetzt. Überlauf verhindert den Warenkorbzugang.
@@ -43,6 +43,34 @@ Das hinzugekommene [CI-Book](Archenlicht-CI-Book.pdf) wurde berücksichtigt: Ori
 - Persistente Fulfillment-Warteschlange, einmalige Übergabe aller Positionen, Abgleich bei unklarer Antwort, Wiederaufnahme nach Neustart, Fehlerfall und Adminnachricht.
 - Simulierte Produktion, Tracking und einmalige Versandnachricht. Testpostfach sowie Herkunfts-, Motiv-, Produktart- und Anlassauswertung nur für Jonas.
 - Vorbereitete Informationsseiten einschließlich Impressum, Datenschutz, AGB und Widerruf, ausdrücklich als Arbeitsentwürfe markiert.
+
+## Podbase verbinden, ohne einen Auftrag auszulösen
+
+`PODBASE_MODE=catalog` und der serverseitige `PODBASE_API_KEY` verbinden den Shop
+mit dem vorhandenen Podbase-Store. `PODBASE_MODE=local` behält den bisherigen
+vollständig lokalen Testbetrieb bei. Auf Vercel werden Schlüssel und Katalogmodus
+nur für Production gesetzt; Preview und Development bleiben lokal.
+
+Die Verbindung liest ausschließlich `GET https://open-api.podbase.com/catalog`.
+74 Modellzuordnungen mit echten Produkt-/Varianten-IDs stehen in
+`server/podbase-model-map.json`; abweichende Anbieternamen sind ausdrücklich
+gekennzeichnet. Die Shop-Modellwahl berücksichtigt den Anbieterbestand zusätzlich
+zu lokalen Motivfreigaben. Der Katalog wird pro laufender Instanz höchstens fünf
+Minuten zwischengespeichert und vor jeder neuen Checkout-Sitzung erneut geprüft.
+Bei Fehlern, entfernten Varianten oder abweichenden Namen wird kein neuer
+Checkout gestartet; die Website bleibt aufrufbar. Nach einem Verbindungsfehler
+gilt eine 30-sekündige Wiederholungspause.
+
+`/api/bootstrap` liefert den Verbindungsstatus ohne Schlüssel; der geschützte
+Admin-Endpunkt `/api/admin/podbase` prüft die Zuordnungen erneut.
+**Es werden keine Bestellungen an Podbase gesendet.** Die Fulfillment-Warteschlange
+verwendet weiterhin ausschließlich `LocalPodbase`, auch nach einer Stripe-
+Sandboxzahlung. Eine Musterbestellung ist für diese Kontoverbindung nicht nötig.
+Echte Bestellübertragung, geprüfte Produktionsdateien und tatsächliches Tracking
+bleiben eigene, noch nicht aktivierte Schritte. Die manuelle Auftragsfreigabe
+in Podbase wird durch die Katalogverbindung weder geändert noch vorausgesetzt.
+
+[Podbase-API-Anleitung](https://help.podbase.com/hc/en-us/articles/26709382744604-Podbase-API-integration-guide)
 
 ## Testzugänge und Beispielbestellungen
 

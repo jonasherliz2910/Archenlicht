@@ -1,0 +1,452 @@
+{
+  "productId": "PBP-FL-5D2-224T",
+  "productName": "Tough Phone Case",
+  "sourceDate": "2026-11-08",
+  "productionApproved": false,
+  "models": [
+    {
+      "modelId": "iphone-12",
+      "variantId": "PBV-3B-KKQ-22DS",
+      "catalogName": "iPhone 12",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "iphone-12-pro",
+      "variantId": "PBV-3B-EG5-22ES",
+      "catalogName": "iPhone 12 Pro",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "iphone-12-pro-max",
+      "variantId": "PBV-3B-UJ7-22FY",
+      "catalogName": "iPhone 12 Pro Max",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "iphone-13",
+      "variantId": "PBV-3B-HVC-22HF",
+      "catalogName": "iPhone 13",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "iphone-13-mini",
+      "variantId": "PBV-3B-OLL-22GL",
+      "catalogName": "iPhone 13 Mini",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "iphone-13-pro",
+      "variantId": "PBV-3B-KNZ-22IZ",
+      "catalogName": "iPhone 13 Pro",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "iphone-13-pro-max",
+      "variantId": "PBV-3B-AYQ-22JU",
+      "catalogName": "iPhone 13 Pro Max",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "iphone-14",
+      "variantId": "PBV-36-6CP-223G",
+      "catalogName": "iPhone 14",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "iphone-14-plus",
+      "variantId": "PBV-36-ZC2-2262",
+      "catalogName": "iPhone 14 Plus",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "iphone-14-pro",
+      "variantId": "PBV-36-SIX-2244",
+      "catalogName": "iPhone 14 Pro",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "iphone-14-pro-max",
+      "variantId": "PBV-36-DTS-225X",
+      "catalogName": "iPhone 14 Pro Max",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "iphone-15",
+      "variantId": "PBV-3OP-2IF-223Q",
+      "catalogName": "iPhone 15",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "iphone-15-plus",
+      "variantId": "PBV-3OP-254-226J",
+      "catalogName": "iPhone 15 Plus",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "iphone-15-pro",
+      "variantId": "PBV-3OP-2OX-224P",
+      "catalogName": "iPhone 15 Pro",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "iphone-15-pro-max",
+      "variantId": "PBV-3OP-2GX-2256",
+      "catalogName": "iPhone 15 Pro Max",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "iphone-16",
+      "variantId": "PBV-3ZV-26V-22NY",
+      "catalogName": "iPhone 16",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "iphone-16-plus",
+      "variantId": "PBV-3ZV-2CS-22QN",
+      "catalogName": "iPhone 16 Plus",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "iphone-16-pro",
+      "variantId": "PBV-3ZV-2UD-22O3",
+      "catalogName": "iPhone 16 Pro",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "iphone-16-pro-max",
+      "variantId": "PBV-3ZV-2M7-22PN",
+      "catalogName": "iPhone 16 Pro Max",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "samsung-galaxy-s21",
+      "variantId": "PBV-3H-DO2-22C5",
+      "catalogName": "Samsung Galaxy S21",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "samsung-galaxy-s21-ultra",
+      "variantId": "PBV-3H-BW5-22AQ",
+      "catalogName": "Samsung Galaxy S21 Ultra",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "samsung-galaxy-s22",
+      "variantId": "PBV-3H-Q73-227U",
+      "catalogName": "Samsung Galaxy S22 5G",
+      "nameMatchRequiresReview": true
+    },
+    {
+      "modelId": "samsung-galaxy-s22-ultra",
+      "variantId": "PBV-3H-CW6-225U",
+      "catalogName": "Samsung Galaxy S22 Ultra 5G",
+      "nameMatchRequiresReview": true
+    },
+    {
+      "modelId": "samsung-galaxy-s23",
+      "variantId": "PBV-3Y-2HI-224Q",
+      "catalogName": "Samsung Galaxy S23 5G",
+      "nameMatchRequiresReview": true
+    },
+    {
+      "modelId": "samsung-galaxy-s23-ultra",
+      "variantId": "PBV-3IT-2JT-2244",
+      "catalogName": "Samsung Galaxy S23 Ultra 5G",
+      "nameMatchRequiresReview": true
+    },
+    {
+      "modelId": "samsung-galaxy-s24",
+      "variantId": "PBV-3SL-2N6-223Q",
+      "catalogName": "Samsung Galaxy S24",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "samsung-galaxy-s24-ultra",
+      "variantId": "PBV-3SL-22E-224P",
+      "catalogName": "Samsung Galaxy S24 Ultra",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "samsung-galaxy-s25",
+      "variantId": "PBV-463-2HK-223E",
+      "catalogName": "Samsung Galaxy S25",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "samsung-galaxy-s25-ultra",
+      "variantId": "PBV-463-2Y7-225I",
+      "catalogName": "Samsung Galaxy S25 Ultra",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "samsung-galaxy-a54",
+      "variantId": "PBV-3L5-2RP-2233",
+      "catalogName": "Samsung Galaxy A54 5G",
+      "nameMatchRequiresReview": true
+    },
+    {
+      "modelId": "samsung-galaxy-a55",
+      "variantId": "PBV-3WZ-2R3-226F",
+      "catalogName": "Samsung Galaxy A55",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "google-pixel-6",
+      "variantId": "PBV-3H-XXC-22TM",
+      "catalogName": "Google Pixel 6",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "google-pixel-6-pro",
+      "variantId": "PBV-3H-BU4-22SQ",
+      "catalogName": "Google Pixel 6 Pro",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "google-pixel-6a",
+      "variantId": "PBV-3KP-2KZ-2233",
+      "catalogName": "Google Pixel 6A",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "google-pixel-7",
+      "variantId": "PBV-3JC-2I5-223Y",
+      "catalogName": "Google Pixel 7",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "google-pixel-7-pro",
+      "variantId": "PBV-3JC-2A6-224F",
+      "catalogName": "Google Pixel 7 Pro",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "google-pixel-7a",
+      "variantId": "PBV-3RJ-2CZ-223S",
+      "catalogName": "Google Pixel 7A",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "google-pixel-8",
+      "variantId": "PBV-3PJ-252-2235",
+      "catalogName": "Google Pixel 8",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "google-pixel-8-pro",
+      "variantId": "PBV-3PJ-27P-224C",
+      "catalogName": "Google Pixel 8 Pro",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "google-pixel-8a",
+      "variantId": "PBV-3WZ-2W5-227X",
+      "catalogName": "Google Pixel 8A",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "google-pixel-9",
+      "variantId": "PBV-3Z6-2NX-223L",
+      "catalogName": "Google Pixel 9 / 9 Pro",
+      "nameMatchRequiresReview": true
+    },
+    {
+      "modelId": "google-pixel-9-pro",
+      "variantId": "PBV-3Z6-2NX-223L",
+      "catalogName": "Google Pixel 9 / 9 Pro",
+      "nameMatchRequiresReview": true
+    },
+    {
+      "modelId": "google-pixel-9-pro-xl",
+      "variantId": "PBV-3Z6-2NV-224L",
+      "catalogName": "Google Pixel 9 Pro XL",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "google-pixel-9a",
+      "variantId": "PBV-47I-255-227C",
+      "catalogName": "Google Pixel 9A",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "google-pixel-10",
+      "variantId": "PBV-4EY-2NI-223Y",
+      "catalogName": "Google Pixel 10 / 10 Pro",
+      "nameMatchRequiresReview": true
+    },
+    {
+      "modelId": "google-pixel-10-pro",
+      "variantId": "PBV-4EY-2NI-223Y",
+      "catalogName": "Google Pixel 10 / 10 Pro",
+      "nameMatchRequiresReview": true
+    },
+    {
+      "modelId": "google-pixel-10-pro-xl",
+      "variantId": "PBV-4EY-24Z-224I",
+      "catalogName": "Google Pixel 10 Pro XL",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "google-pixel-10a",
+      "variantId": "PBV-4PS-2J3-224N",
+      "catalogName": "Google Pixel 10A",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "iphone-16e",
+      "variantId": "PBV-47I-2I2-224V",
+      "catalogName": "iPhone 16e",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "iphone-17",
+      "variantId": "PBV-4EY-2LR-225P",
+      "catalogName": "iPhone 17",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "iphone-air",
+      "variantId": "PBV-4EY-2JW-226N",
+      "catalogName": "iPhone 17 Air",
+      "nameMatchRequiresReview": true
+    },
+    {
+      "modelId": "iphone-17e",
+      "variantId": "PBV-4KV-2GT-2234",
+      "catalogName": "iPhone 17e",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "iphone-17-pro",
+      "variantId": "PBV-4EY-2QM-227G",
+      "catalogName": "iPhone 17 Pro",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "iphone-17-pro-max",
+      "variantId": "PBV-4EY-2FY-22AP",
+      "catalogName": "iPhone 17 Pro Max",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "iphone-18-pro",
+      "variantId": "PBV-4QL-2KM-223I",
+      "catalogName": "iPhone 18 Pro",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "iphone-18-pro-max",
+      "variantId": "PBV-4QL-2C3-224I",
+      "catalogName": "iPhone 18 Pro Max",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "samsung-galaxy-s25-plus",
+      "variantId": "PBV-463-2UV-2244",
+      "catalogName": "Samsung Galaxy S25 Plus",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "samsung-galaxy-s25-edge",
+      "variantId": "PBV-4GR-2XC-223W",
+      "catalogName": "Samsung Galaxy S25 Edge",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "samsung-galaxy-s25-fe",
+      "variantId": "PBV-4LM-2OI-223H",
+      "catalogName": "Samsung Galaxy S25 Fe",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "samsung-galaxy-s26",
+      "variantId": "PBV-4KJ-2DA-22HW",
+      "catalogName": "Samsung Galaxy S26",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "samsung-galaxy-s26-plus",
+      "variantId": "PBV-4KJ-2NO-22IR",
+      "catalogName": "Samsung Galaxy S26 Plus",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "samsung-galaxy-s26-ultra",
+      "variantId": "PBV-4KJ-2PZ-22JA",
+      "catalogName": "Samsung Galaxy S26 Ultra",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "samsung-galaxy-s26-fe",
+      "variantId": "PBV-4RB-2HK-223F",
+      "catalogName": "Samsung Galaxy S26 Fe",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "samsung-galaxy-a56",
+      "variantId": "PBV-4GR-2VQ-22FY",
+      "catalogName": "Samsung Galaxy A56",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "samsung-galaxy-a36",
+      "variantId": "PBV-47I-2EO-225H",
+      "catalogName": "Samsung Galaxy A36",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "samsung-galaxy-a26",
+      "variantId": "PBV-4GR-2OZ-22HZ",
+      "catalogName": "Samsung Galaxy A26",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "samsung-galaxy-a17",
+      "variantId": "PBV-4GR-2LZ-22KY",
+      "catalogName": "Samsung Galaxy A17",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "samsung-galaxy-a57",
+      "variantId": "PBV-4LT-25N-226R",
+      "catalogName": "Samsung Galaxy A57",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "samsung-galaxy-a37",
+      "variantId": "PBV-4LT-24I-2252",
+      "catalogName": "Samsung Galaxy A37",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "samsung-galaxy-a27",
+      "variantId": "PBV-4RB-2UF-224N",
+      "catalogName": "Samsung Galaxy A27",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "samsung-galaxy-z-flip8",
+      "variantId": "PBV-4RB-2AC-225X",
+      "catalogName": "Samsung Galaxy Z Flip 8",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "google-pixel-11",
+      "variantId": "PBV-4RB-2NR-22CD",
+      "catalogName": "Google Pixel 11",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "google-pixel-11-pro",
+      "variantId": "PBV-4RB-2Z5-22D5",
+      "catalogName": "Google Pixel 11 Pro",
+      "nameMatchRequiresReview": false
+    },
+    {
+      "modelId": "google-pixel-11-pro-xl",
+      "variantId": "PBV-4RB-24W-22E5",
+      "catalogName": "Google Pixel 11 Pro XL",
+      "nameMatchRequiresReview": false
+    }
+  ]
+}

@@ -4,6 +4,8 @@ node_modules/
 .env.*
 !.env.example
 Stripekey.txt
+Mail
+resend
 .vercel/
 data/
 test-results/
