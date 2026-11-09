@@ -4,9 +4,28 @@ import { randomUUID } from 'node:crypto';
 import { resolve } from 'node:path';
 import { createApp, defaultConfig } from '../server/index.js';
 import { Shop } from '../server/shop.js';
+import { podbasePayload } from '../server/podbase.js';
 
 const delivery = { name: 'Anna Mustermann', email: 'anna@example.test', phone: '+4915112345678', street: 'Hoffnungsweg 12', postalCode: '10115', city: 'Berlin', country: 'DE' };
 const product = { kind: 'fixed', designId: 'unter-seinen-fluegeln', modelId: 'iphone-15' };
+
+test('Deutsche Telefonnummern mit 0 und +49 werden vor Speicherung und Lieferung vereinheitlicht', async t => {
+  const { shop, account, checkout } = await fixture(t), { c } = await account();
+  for (const phone of ['0172 1234567', '+49 172 1234567', '0049 172 1234567', '0172-1234567', '(0172) 1234567', '0172/1234567']) {
+    const saved = await c.call('/api/account/address', 'PUT', { recipient: { ...delivery, phone } });
+    assert.equal(saved.status, 200);
+    assert.equal(saved.data.address.phone, '+491721234567');
+  }
+  assert.equal(shop.validateRecipient({ ...delivery, phone: '030 1234567' }).phone, '+49301234567');
+  assert.equal(shop.validateRecipient({ ...delivery, phone: '+43 664 1234567' }).phone, '+436641234567');
+  for (const phone of ['1721234567', '+49 0172 1234567', '0172abc1234567', '0', '++491721234567', '0172123456789012345']) assert.throws(() => shop.validateRecipient({ ...delivery, phone }), /Telefonnummer/);
+  for (const phone of ['0172 1234567', '+49 172 1234567']) {
+    const id = await checkout(c, { recipient: { ...delivery, phone } });
+    const order = await shop.s.get('SELECT * FROM orders WHERE id=?', id);
+    assert.equal(JSON.parse(order.recipient).phone, '+491721234567');
+    assert.equal(podbasePayload(order, 'https://www.archenlicht.de').buyerInfo.phone, '+491721234567');
+  }
+});
 const configForTest = () => ({ ...defaultConfig(), dataDir: resolve('test-results', randomUUID()), paymentMode: 'local', adminPassword: 'Nur-Test-Admin-2026!', autoShip: false });
 async function fixture(t) {
   const config = configForTest(), app = (await createApp(config));

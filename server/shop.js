@@ -204,8 +204,10 @@ export class Shop {
     const r = Object.fromEntries(fields.map(f => [f, String(input[f] || '').trim()]));
     if (Object.values(r).some(v => !v || v.length > 180 || /[\x00-\x1f<>]/.test(v))) throw new ShopError('Bitte fülle alle Lieferdaten korrekt aus.');
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(r.email)) throw new ShopError('Bitte prüfe deine E-Mail-Adresse.');
-    if (!/^\+[1-9]\d{6,14}$/.test(r.phone.replaceAll(' ', ''))) throw new ShopError('Bitte gib deine Telefonnummer mit Landesvorwahl an, zum Beispiel +4915112345678.');
-    r.phone = r.phone.replaceAll(' ', '');
+    r.phone = r.phone.replace(/[\s()\/-]/g, '');
+    if (r.phone.startsWith('00')) r.phone = `+${r.phone.slice(2)}`;
+    else if (/^0[1-9]/.test(r.phone)) r.phone = `+49${r.phone.slice(1)}`;
+    if (!/^\+[1-9]\d{6,14}$/.test(r.phone) || r.phone.startsWith('+490')) throw new ShopError('Bitte prüfe deine Telefonnummer, zum Beispiel 0172 1234567 oder +49 172 1234567 (nach +49 ohne die erste 0).');
     if (r.country !== 'DE' || !/^\d{5}$/.test(r.postalCode)) throw new ShopError('Wir versenden ausschließlich innerhalb Deutschlands. Bitte prüfe Land und Postleitzahl.');
     return r;
   }

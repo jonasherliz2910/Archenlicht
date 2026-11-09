@@ -4,7 +4,7 @@ export function recipientFields(address = {}, email = '') {
   return `<div class="form-grid">
     <label class="span-two">Vollständiger Name<input name="name" required autocomplete="name" maxlength="150" value="${esc(address.name)}" placeholder="Vor- und Nachname"></label>
     <label class="span-two">E-Mail-Adresse<input type="email" name="email" required autocomplete="email" value="${esc(address.email || email)}" placeholder="du@beispiel.de"></label>
-    <label class="span-two">Telefonnummer mit Landesvorwahl<input type="tel" name="phone" required autocomplete="tel" value="${esc(address.phone)}" placeholder="+4915112345678"><small>Für die Lieferung erforderlich.</small></label>
+    <label class="span-two">Telefonnummer<input type="tel" name="phone" required autocomplete="tel" value="${esc(address.phone)}" placeholder="0172 1234567"><small>Für die Lieferung erforderlich. Zum Beispiel 0172 1234567 oder +49 172 1234567.</small></label>
     <label class="span-two">Straße und Hausnummer<input name="street" required autocomplete="street-address" maxlength="180" value="${esc(address.street)}" placeholder="Musterstraße 12"></label>
     <label>Postleitzahl<input name="postalCode" required pattern="[0-9]{5}" inputmode="numeric" autocomplete="postal-code" maxlength="5" value="${esc(address.postalCode)}" placeholder="10115"></label>
     <label>Ort<input name="city" required autocomplete="address-level2" maxlength="180" value="${esc(address.city)}" placeholder="Berlin"></label>
