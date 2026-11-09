@@ -89,21 +89,29 @@ Status UNAPPROVED, die zugeordnete Druckdatei-URL sowie die unveränderte,
 öffentlich abrufbare PNG-Prüfsumme. Damit ist die Dateizuordnung belegt,
 nicht die physische Druckqualität oder eine bereits erfolgte Verarbeitung.
 
+## Zahlungsquelle zugeordnet
+
+Am 9. November zeigte Jonas zunächst, dass Archenlicht noch `Wallet` mit
+0,00 € Guthaben nutzte und die gespeicherte Karte keinem Store zugeordnet war.
+Nach seiner Änderung zeigt die Payments-Seite beim Store jetzt die gespeicherte
+Mastercard mit `Charged per order` sowie `used by 1 store`.
+Damit ist die Kartenzuordnung im Dashboard bestätigt. Es wurde kein Guthaben
+aufgeladen und keine Testbelastung beauftragt. Ein anschließender lesender
+API-Abgleich bestätigt den bestehenden Testauftrag weiterhin als UNAPPROVED.
+Eine tatsächliche erfolgreiche Kartenbelastung wurde nicht geprüft.
+
 ## Noch offen
 
-1. Aktive Zahlungsquelle in Podbase prüfen. Der Auftrag nennt WALLET; Jonas
-   hatte zuvor eine Karte hinterlegt. Keine Aufladung, Zahlung oder Freigabe
-   ist für diese Prüfung beauftragt.
-2. Weitere Varianten, MagSafe und Mehrstück-/Bundle-Versand kalkulieren;
+1. Weitere Varianten, MagSafe und Mehrstück-/Bundle-Versand kalkulieren;
    die Kosten für die einzelne Standardhülle sind oben belegt. Das `price`-Feld
    im API-Auftrag ist ein Referenz-Verkaufspreis, keine Kostenabfrage.
-3. Reale Auftragsverarbeitung mit bezahlten Livebestellungen verbinden, Test-
+2. Reale Auftragsverarbeitung mit bezahlten Livebestellungen verbinden, Test-
    und Liveaufträge trennen, manuelle Freigabe korrekt anzeigen sowie Ablehnung,
    Abbruch, unbekannte Antworten und Tracking behandeln. Der jetzige Shop-Worker
    verwendet ausdrücklich weiterhin `LocalPodbase`.
-4. Zeitnahe Hintergrundabfragen und echte Versandmails abnehmen. Die API bietet
+3. Zeitnahe Hintergrundabfragen und echte Versandmails abnehmen. Die API bietet
    derzeit GET-Auftragsabfragen, aber keinen dokumentierten Tracking-Webhook.
-5. Fehlende Vorlagen, physische Druckqualität und vereinbarte Produktbeilagen
+4. Fehlende Vorlagen, physische Druckqualität und vereinbarte Produktbeilagen
    vor entsprechender Verkaufsfreigabe klären. Kein physisches Muster wurde bestellt.
 
 Stripe-Livefreigabe und die übrigen Startvoraussetzungen bleiben separate Aufgaben.
