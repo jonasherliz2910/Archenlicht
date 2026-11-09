@@ -80,13 +80,20 @@ Die Kalkulation belegt weder andere Modelle/Hüllenarten noch Mehrstückversand
 oder eine Kartenbeilage. Der Screenshot nennt `WALLET` als Zahlungsart; daraus
 folgt keine bestätigte Abbuchung von der zuvor hinterlegten Karte.
 
-Nächster Sichtabgleich: die dem importierten Produkt zugeordnete Druckdatei
-im Dashboard öffnen. Die winzige Produktminiatur allein ist kein Bildnachweis.
+Jonas zeigte anschließend die leere Liste unter `Products / My Products`.
+Der Weg über diese Liste ermöglicht für den unfreigegebenen API-Testauftrag
+keine Bildprüfung. Der konkrete Grund für den fehlenden Produkteintrag ist
+nicht verifiziert; es wird kein zusätzliches manuelles Produkt angelegt.
+Der direkte erneute API-Abgleich bestätigt weiterhin denselben Auftrag,
+Status UNAPPROVED, die zugeordnete Druckdatei-URL sowie die unveränderte,
+öffentlich abrufbare PNG-Prüfsumme. Damit ist die Dateizuordnung belegt,
+nicht die physische Druckqualität oder eine bereits erfolgte Verarbeitung.
 
 ## Noch offen
 
-1. Druckdatei des bereits im Dashboard bestätigten Testauftrags dort visuell
-   abgleichen, ohne den Auftrag zu bezahlen oder freizugeben.
+1. Aktive Zahlungsquelle in Podbase prüfen. Der Auftrag nennt WALLET; Jonas
+   hatte zuvor eine Karte hinterlegt. Keine Aufladung, Zahlung oder Freigabe
+   ist für diese Prüfung beauftragt.
 2. Weitere Varianten, MagSafe und Mehrstück-/Bundle-Versand kalkulieren;
    die Kosten für die einzelne Standardhülle sind oben belegt. Das `price`-Feld
    im API-Auftrag ist ein Referenz-Verkaufspreis, keine Kostenabfrage.
