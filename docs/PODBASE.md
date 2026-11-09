@@ -59,12 +59,37 @@ nur das ausdrücklich konfigurierte `storeId`-Präfix, erhält die Rohkennung al
 Store-Präfixe und ähnlich endende Kennungen werden nicht zugeordnet. Der spätere
 Live-Worker muss die verifizierte Store-Kennung beim Erzeugen des Adapters übergeben.
 
+## Im Dashboard belegte Kosten
+
+Jonas zeigte am 9. November 2026 die Detailansicht von `PBO-4SQ-2V5-2TK5`.
+Status weiterhin `Unapproved`; Standardhülle iPhone 14 Pro, SKU `IP14P-GL-T`,
+Menge 1, Economy Delivery nach Deutschland. Der Screenshot nennt:
+
+| Position | Betrag |
+| --- | ---: |
+| Hülle / Subtotal, vor Umsatzsteuer | 9,95 € |
+| Shipping & Handling, vor Umsatzsteuer | 3,95 € |
+| Umsatzsteuer gesamt (19 %) | 2,64 € |
+| Grand Total | **16,54 €** |
+
+Die 1,89 € Umsatzsteuer in der Produktzeile sind bereits in den 2,64 €
+Gesamtsteuer enthalten und werden nicht zusätzlich addiert. Beim aktuellen
+Shoppreis von 29,99 € ergibt sich für genau diesen Auftrag eine Differenz von
+13,45 € vor Zahlungsgebühren, weiteren Kosten und möglichen Rückabwicklungen.
+Die Kalkulation belegt weder andere Modelle/Hüllenarten noch Mehrstückversand
+oder eine Kartenbeilage. Der Screenshot nennt `WALLET` als Zahlungsart; daraus
+folgt keine bestätigte Abbuchung von der zuvor hinterlegten Karte.
+
+Nächster Sichtabgleich: die dem importierten Produkt zugeordnete Druckdatei
+im Dashboard öffnen. Die winzige Produktminiatur allein ist kein Bildnachweis.
+
 ## Noch offen
 
-1. Jonas: den per API bereits erfolgreich geprüften Testauftrag auch im
-   Podbase-Dashboard ansehen, ohne ihn zu bezahlen oder freizugeben.
-2. Tatsächliche Anbieterpreise und Versandkosten prüfen. Das `price`-Feld im
-   API-Auftrag ist ein Referenz-Verkaufspreis, keine Kostenabfrage.
+1. Druckdatei des bereits im Dashboard bestätigten Testauftrags dort visuell
+   abgleichen, ohne den Auftrag zu bezahlen oder freizugeben.
+2. Weitere Varianten, MagSafe und Mehrstück-/Bundle-Versand kalkulieren;
+   die Kosten für die einzelne Standardhülle sind oben belegt. Das `price`-Feld
+   im API-Auftrag ist ein Referenz-Verkaufspreis, keine Kostenabfrage.
 3. Reale Auftragsverarbeitung mit bezahlten Livebestellungen verbinden, Test-
    und Liveaufträge trennen, manuelle Freigabe korrekt anzeigen sowie Ablehnung,
    Abbruch, unbekannte Antworten und Tracking behandeln. Der jetzige Shop-Worker
