@@ -129,7 +129,7 @@ test('Druckgrenzen, Metadaten, verfügbare Varianten und ausschließlich DE werd
   (await shop.s.run('UPDATE variants SET available=1 WHERE model_id=? AND design_id=?', fixed.modelId, fixed.designId));
   assert.equal((await c.call('/api/checkout', 'POST', { recipient: { ...recipient, country: 'AT' }, method: 'card' })).status, 400);
   assert.equal((await c.call('/api/checkout', 'POST', { recipient: { ...recipient, phone: '' }, method: 'card' })).status, 400);
-  assert.equal((await c.call('/api/checkout', 'POST', { recipient: { ...recipient, phone: '01511234567' }, method: 'card' })).status, 400);
+  assert.equal((await c.call('/api/checkout', 'POST', { recipient: { ...recipient, phone: '1511234567' }, method: 'card' })).status, 400);
 });
 
 test('Abgebrochene Zahlung und ungeprüfte Rückkehr lösen keinen Druckauftrag aus', async t => {

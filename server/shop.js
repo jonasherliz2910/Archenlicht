@@ -11,6 +11,7 @@ import { PodbaseCatalog } from './podbase-catalog.js';
 import { Payments, TAX_TREATMENT, TAX_NOTICE } from './payments.js';
 import { Mailer } from './mail.js';
 import { Newsletter } from './newsletter.js';
+import { AdminCustomers } from './admin-customers.js';
 import { officialTemplate, productionPrint, previewFromProduction } from './production-print.js';
 import { magneticVariant, catalogVariant, localVariant } from './case-variants.js';
 import { casePrice } from '../public/case-options.js';
@@ -33,6 +34,7 @@ export class Shop {
     Shop.validateMode(config);
     this.config = config; this.s = store; this.podbase = new LocalPodbase(this.s); this.payments = new Payments(config, this.s); this.mailer = new Mailer(config, this.s);
     this.newsletter = new Newsletter(config, this.s, this.mailer);
+    this.adminCustomers = new AdminCustomers(this.s);
     this.podbaseCatalog = config.podbaseMode === 'catalog' ? new PodbaseCatalog({ apiKey: config.podbaseKey, baseUrl: config.podbaseBaseUrl }) : null;
     this.situations = new Map(); this.advisorScenario = 'ok'; this.busy = false;
     this.printLayouts = new Map();
@@ -62,9 +64,10 @@ export class Shop {
     (await this.s.run('INSERT INTO account_profiles VALUES(?,NULL,1,?) ON CONFLICT(user_id) DO UPDATE SET address=NULL,address_version=account_profiles.address_version+1,updated=excluded.updated', user.id, Date.now()));
     return (await this.accountDetails(session));
   }
-  async requireAdmin(session) { if ((await this.user(session))?.role !== 'admin') throw new ShopError('Diese Ansicht ist nur für Jonas zugänglich.', 403); }
+  async requireAdmin(session) { if ((await this.user(session))?.role !== 'admin') throw new ShopError('Diese Ansicht ist nur mit einem Administratorkonto zugänglich.', 403); }
   async cleanup(now = Date.now()) {
     await this.newsletter.cleanup();
+    await this.s.run('DELETE FROM auth_limits WHERE expires<?', now);
     (await this.s.run('DELETE FROM sessions WHERE expires<?', now));
     for (const [id, value] of this.situations) if (value.expires <= now || !(await this.s.get('SELECT id FROM sessions WHERE id=?', id))) this.situations.delete(id);
   }
@@ -166,6 +169,14 @@ export class Shop {
     (await this.track(session, 'cart', c.kind, c.designId)); return (await this.cart(session));
   }
   async removeCart(session, id) { (await this.s.run('DELETE FROM cart WHERE id=? AND session_id=?', id, session.id)); return (await this.cart(session)); }
+  async limitAuthentication(email, address) {
+    const now = Date.now(), duration = 15 * 60000;
+    for (const [value, maximum] of [[`ip:${address}`, 50], [`email:${String(email || '').trim().toLowerCase().slice(0, 180)}`, 15]]) {
+      const id = digest(`auth:${value}`);
+      await this.s.run('INSERT INTO auth_limits VALUES(?,1,?) ON CONFLICT(id) DO UPDATE SET attempts=CASE WHEN auth_limits.expires<=? THEN 1 ELSE auth_limits.attempts+1 END,expires=CASE WHEN auth_limits.expires<=? THEN excluded.expires ELSE auth_limits.expires END', id, now + duration, now, now);
+      if ((await this.s.get('SELECT attempts FROM auth_limits WHERE id=?', id)).attempts > maximum) throw new ShopError('Zu viele Anmeldeversuche. Bitte warte 15 Minuten.', 429);
+    }
+  }
   async authenticate(session, input, register = false) {
     const email = String(input.email || '').trim().toLowerCase(), password = String(input.password || '');
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 180) throw new ShopError('Bitte gib eine gültige E-Mail-Adresse ein.');
@@ -175,17 +186,33 @@ export class Shop {
       if (user) throw new ShopError('Dieses Konto kann nicht angelegt werden. Bitte versuche die Anmeldung.', 409);
       const id = randomUUID(); (await this.s.run('INSERT INTO users VALUES(?,?,?,?,?)', id, email, passwordHash(password), 'customer', Date.now())); user = (await this.s.get('SELECT * FROM users WHERE id=?', id));
     } else if (!user || password.length > 128 || !passwordMatches(password, user.password)) throw new ShopError('E-Mail oder Passwort stimmt nicht.', 401);
-    // Rotate both session cookie and CSRF after authentication; retain the existing cart and visit.
+    return this.rotateSession(session, user);
+  }
+  async rotateSession(session, user, { newPassword } = {}) {
+    // Rotate cookie and CSRF. Recheck the hash under the transaction lock so an
+    // in-flight login cannot restore a session after a password reset.
     const secret = token(), newId = digest(secret), csrf = token();
     (await this.s.tx(async () => {
+      const currentUser = await this.s.get('SELECT password FROM users WHERE id=?', user.id);
+      if (!currentUser || currentUser.password !== user.password || !(await this.s.get('SELECT id FROM sessions WHERE id=? AND expires>?', session.id, Date.now()))) throw new ShopError('Die Anmeldung hat sich geändert. Bitte melde dich erneut an.', 401);
+      if (newPassword) await this.s.run('UPDATE users SET password=? WHERE id=?', newPassword, user.id);
       (await this.s.run('INSERT INTO sessions VALUES(?,?,?,?,?,?)', newId, csrf, user.id, session.visit_id, session.expires, session.created));
       (await this.s.run('UPDATE cart SET session_id=? WHERE session_id=?', newId, session.id));
       (await this.s.run('UPDATE orders SET session_id=? WHERE session_id=?', newId, session.id));
       (await this.s.run('UPDATE order_access SET session_id=? WHERE session_id=?', newId, session.id));
       (await this.s.run('DELETE FROM sessions WHERE id=?', session.id));
+      if (newPassword) await this.s.run('DELETE FROM sessions WHERE user_id=? AND id<>?', user.id, newId);
     }));
     const current = this.situations.get(session.id); if (current) { this.situations.set(newId, current); this.situations.delete(session.id); }
     return { secret, session: (await this.s.get('SELECT * FROM sessions WHERE id=?', newId)) };
+  }
+  async changePassword(session, input) {
+    const identity = await this.requireUser(session), user = await this.s.get('SELECT * FROM users WHERE id=?', identity.id);
+    const current = String(input.currentPassword || ''), next = String(input.newPassword || '');
+    if (current.length > 128 || !passwordMatches(current, user.password)) throw new ShopError('Das aktuelle Passwort stimmt nicht.', 401);
+    if (next.length < 12 || next.length > 128) throw new ShopError('Bitte verwende ein neues Passwort mit 12 bis 128 Zeichen.');
+    if (next === current) throw new ShopError('Bitte wähle ein anderes neues Passwort.');
+    return this.rotateSession(session, user, { newPassword: passwordHash(next) });
   }
   advise(session, description) {
     const situation = String(description || '').trim();

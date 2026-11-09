@@ -94,6 +94,7 @@ export async function createApp(config = defaultConfig()) {
         if (path === '/api/advisor' && method === 'GET') return send(res, 200, { situation: shop.situations.get(session.id)?.text || '', expires: session.expires });
         if (path === '/api/advisor' && method === 'DELETE') { shop.situations.delete(session.id); return send(res, 200, { ok: true }); }
         if (['/api/auth/login', '/api/auth/register'].includes(path) && method === 'POST') {
+          await shop.limitAuthentication(body.email, config.serverless ? String(req.headers['x-forwarded-for'] || req.socket.remoteAddress).split(',')[0].trim() : req.socket.remoteAddress);
           const now = Date.now(), attempts = authLimits.get(session.id) || { n: 0, until: now + 900000 };
           if (attempts.until < now) attempts.n = 0;
           if (++attempts.n > 10) throw new ShopError('Zu viele Anmeldeversuche. Bitte warte 15 Minuten.', 429);
@@ -102,6 +103,12 @@ export async function createApp(config = defaultConfig()) {
         }
         if (path === '/api/auth/logout' && method === 'POST') { shop.situations.delete(session.id); (await shop.s.run('DELETE FROM sessions WHERE id=?', session.id)); const current = (await shop.createSession()); setSession(current.secret); return send(res, 200, (await shop.publicState(current.session))); }
         if (path === '/api/checkout' && method === 'POST') return send(res, 201, await shop.checkout(session, body, { returnOrigin: req.headers.origin || new URL(config.baseUrl).origin }));
+        if (path === '/api/account/password' && method === 'POST') {
+          const user = await shop.requireUser(session);
+          await shop.limitAuthentication(user.email, config.serverless ? String(req.headers['x-forwarded-for'] || req.socket.remoteAddress).split(',')[0].trim() : req.socket.remoteAddress);
+          const current = await shop.changePassword(session, body); setSession(current.secret);
+          return send(res, 200, await shop.publicState(current.session));
+        }
         if (path === '/api/account/address') {
           (await shop.requireUser(session));
           if (method === 'GET') return send(res, 200, (await shop.accountDetails(session)));
@@ -153,6 +160,9 @@ export async function createApp(config = defaultConfig()) {
         if (path === '/api/feedback' && method === 'POST') { if (!['Preis', 'Fehlendes Modell', 'Gestaltung', 'Keine Angabe'].includes(body.reason)) throw new ShopError('Bitte wähle einen Grund aus.'); (await shop.s.run('INSERT INTO feedback VALUES(?,?,?,?)', crypto.randomUUID(), session.visit_id, body.reason, Date.now())); return send(res, 200, { ok: true }); }
         if (path.startsWith('/api/admin/')) {
           (await shop.requireAdmin(session));
+          if (path === '/api/admin/customers' && method === 'GET') return send(res, 200, await shop.adminCustomers.list({ search: url.searchParams.get('search') || '', page: url.searchParams.get('page'), filter: url.searchParams.get('filter') || 'all' }));
+          const customerMatch = /^\/api\/admin\/customers\/([^/]+)$/.exec(path);
+          if (customerMatch && method === 'GET') return send(res, 200, await shop.adminCustomers.detail(decodeURIComponent(customerMatch[1]), url.searchParams.get('page')));
           if (path === '/api/admin/podbase' && method === 'GET') {
             const snapshot = await shop.podbaseCatalog?.snapshot({ force: true });
             return send(res, 200, { ...(shop.podbaseCatalog?.summary(snapshot) || { mode: 'local', connected: false, fulfillmentMode: 'simulated', orderSubmissionEnabled: false }), models: snapshot?.models || [] });
@@ -184,7 +194,7 @@ export async function createApp(config = defaultConfig()) {
       }
       let html = await readFile(join(root, 'public/index.html'), 'utf8');
       const product = /^\/kollektion\/([a-z-]+)$/.exec(path), design = product && DESIGNS.find(d => d.id === product[1]);
-      const valid = ['/', '/newsletter', '/newsletter/bestaetigen', '/newsletter/abmelden', '/kollektion', '/bundle', '/gestalten', '/warenkorb', '/kasse', '/konto', '/auswertung', '/ueber-uns', '/faq', '/impressum', '/datenschutz', '/agb', '/widerruf', '/versand'].includes(path) || design || /^\/(bestellung|testzahlung|zahlungsrueckkehr)\/[a-f0-9-]{36}$/.test(path);
+      const valid = ['/', '/admin', '/admin/kunden', '/admin/sicherheit', '/newsletter', '/newsletter/bestaetigen', '/newsletter/abmelden', '/kollektion', '/bundle', '/gestalten', '/warenkorb', '/kasse', '/konto', '/auswertung', '/ueber-uns', '/faq', '/impressum', '/datenschutz', '/agb', '/widerruf', '/versand'].includes(path) || design || /^\/(bestellung|testzahlung|zahlungsrueckkehr)\/[a-f0-9-]{36}$/.test(path);
       html = html.replace('<!--PAGE_TITLE-->', design ? `${design.title} · ${design.reference} | Archenlicht` : 'Archenlicht · Ein Vers für deinen Alltag');
       return send(res, valid ? 200 : 404, html, mime['.html']);
     } catch (e) {

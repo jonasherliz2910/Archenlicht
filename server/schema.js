@@ -8,6 +8,7 @@ export const TABLES = [
   "CREATE TABLE IF NOT EXISTS newsletter_consents(id TEXT PRIMARY KEY,subscriber_id TEXT NOT NULL REFERENCES newsletter_subscribers(id) ON DELETE CASCADE,action TEXT NOT NULL,version TEXT NOT NULL,consent_text TEXT NOT NULL,created INTEGER NOT NULL)",
   "CREATE TABLE IF NOT EXISTS newsletter_limits(id TEXT PRIMARY KEY,attempts INTEGER NOT NULL,expires INTEGER NOT NULL)",
   "CREATE TABLE IF NOT EXISTS users(id TEXT PRIMARY KEY,email TEXT UNIQUE NOT NULL,password TEXT NOT NULL,role TEXT NOT NULL DEFAULT 'customer',created INTEGER NOT NULL)",
+  "CREATE TABLE IF NOT EXISTS auth_limits(id TEXT PRIMARY KEY,attempts INTEGER NOT NULL,expires INTEGER NOT NULL)",
   "CREATE TABLE IF NOT EXISTS account_profiles(user_id TEXT PRIMARY KEY REFERENCES users(id),address TEXT,address_version INTEGER NOT NULL DEFAULT 0,updated INTEGER NOT NULL)",
   "CREATE TABLE IF NOT EXISTS payment_customers(user_id TEXT NOT NULL REFERENCES users(id),provider TEXT NOT NULL,customer_id TEXT UNIQUE NOT NULL,PRIMARY KEY(user_id,provider))",
   "CREATE TABLE IF NOT EXISTS local_payment_methods(id TEXT PRIMARY KEY,user_id TEXT NOT NULL REFERENCES users(id),brand TEXT NOT NULL,last4 TEXT NOT NULL,exp_month INTEGER NOT NULL,exp_year INTEGER NOT NULL,created INTEGER NOT NULL)",
