@@ -24,7 +24,7 @@ test('Bestellmail erst nach Zahlung, mit identischen Positionen, Betreiber und p
   assert.equal(calls.length,1);const p=calls[0].payload;
   assert.deepEqual(p.to,['info@archenlicht.de']);assert.equal(p.from,'Archenlicht <info@archenlicht.de>');assert.equal(p.reply_to,'info@archenlicht.de');
   assert.match(p.subject,/\[TEST\]/);assert.match(p.text,/Herzly Marketing GbR/);assert.match(p.text,/Julian Isaak und Laura Herliz/);assert.match(p.text,/Stettiner Straße 27/);
-  assert.match(p.text,/34,90/);assert.match(p.text,/iPhone 18 Pro Max/);assert.match(p.text,/Schwarz/);assert.match(p.text,/Für Anna/);assert.match(p.text,/§ 19 UStG/);
+  assert.match(p.text,/34,99/);assert.match(p.text,/iPhone 18 Pro Max/);assert.match(p.text,/Schwarz/);assert.match(p.text,/Für Anna/);assert.match(p.text,/§ 19 UStG/);
   assert.match(p.text,new RegExp(`https://www.archenlicht.de/bestellung/${order.id}#token=[A-Za-z0-9_-]{43}`));
   assert.equal((await shop.s.get('SELECT state FROM mail_deliveries')).state,'accepted');
 });
@@ -77,7 +77,7 @@ test('Resend-Webhook ist ohne Sitzung erreichbar, verlangt aber die korrekte Sig
 });
 
 test('Mailvorlagen maskieren HTML, zeigen simuliertes Tracking und senden Adminhinweise an Archenlicht',()=>{
-  const order={mode:'test',number:'AL-TEST',amount:2990,recipient:JSON.stringify({...recipient,name:'<script>alert(1)</script>'}),items:JSON.stringify([{quantity:1,title:'Getragen',model:'iPhone 15',configuration:{backgroundId:'mint'},printText:'Für <Anna>',unitPrice:2990}])};
+  const order={mode:'test',number:'AL-TEST',amount:2999,recipient:JSON.stringify({...recipient,name:'<script>alert(1)</script>'}),items:JSON.stringify([{quantity:1,title:'Getragen',model:'iPhone 15',configuration:{backgroundId:'mint'},printText:'Für <Anna>',unitPrice:2999}])};
   const p=orderEmail({order,kind:'shipping',statusUrl:'https://www.archenlicht.de/bestellung/test',tracking:'SIM-DE-TEST'});
   assert.ok(!p.html.includes('<script>'));assert.match(p.html,/&lt;script&gt;/);assert.match(p.text,/keine echte Sendung/);assert.match(p.text,/SIM-DE-TEST/);
   const admin=orderEmail({order,kind:'fulfillment-error',statusUrl:'https://www.archenlicht.de/bestellung/test',reason:'Druckpartner nicht erreichbar'});assert.deepEqual(admin.to,['info@archenlicht.de']);assert.match(admin.text,/Druckpartner nicht erreichbar/);

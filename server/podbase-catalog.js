@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { ShopError } from './layout.js';
+import { PODBASE_MAGSAFE_MAP } from './case-variants.js';
 
 export const PODBASE_MODEL_MAP = JSON.parse(readFileSync(new URL('./podbase-model-map.json', import.meta.url), 'utf8'));
 const normalize = name => name.trim().replace(/\s+/g, ' ').toLowerCase();
@@ -35,9 +36,18 @@ export class PodbaseCatalog {
     if (matches.length !== 1 || !Array.isArray(matches[0].variants)) throw unavailable();
     const variants = matches[0].variants;
     if (variants.some(v => typeof v.id !== 'string' || typeof v.name !== 'string' || typeof v.inStock !== 'boolean') || new Set(variants.map(v => v.id)).size !== variants.length) throw unavailable();
+    const magneticModels = PODBASE_MAGSAFE_MAP.products.flatMap(mapping => {
+      const found = products.filter(p => p.id === mapping.productId && p.title === mapping.productName);
+      const variants = found.length === 1 && Array.isArray(found[0].variants) ? found[0].variants : [];
+      const valid = variants.every(v => typeof v.id === 'string' && typeof v.name === 'string' && typeof v.inStock === 'boolean') && new Set(variants.map(v => v.id)).size === variants.length;
+      return mapping.models.map(model => {
+        const variant = valid && variants.find(v => v.id === model.variantId && normalize(v.name) === normalize(model.catalogName));
+        return { ...model, productId: mapping.productId, productName: mapping.productName, matched: Boolean(variant), inStock: variant?.inStock === true, productionApproved: false };
+      });
+    });
     const models = PODBASE_MODEL_MAP.models.map(mapping => {
       const variant = variants.find(v => v.id === mapping.variantId && normalize(v.name) === normalize(mapping.catalogName));
-      return { ...mapping, productId: PODBASE_MODEL_MAP.productId, matched: Boolean(variant), inStock: variant?.inStock === true, productionApproved: false };
+      return { ...mapping, productId: PODBASE_MODEL_MAP.productId, matched: Boolean(variant), inStock: variant?.inStock === true, productionApproved: false, magsafe: magneticModels.find(m => m.modelId === mapping.modelId) || null };
     });
     return { checkedAt: new Date(this.now()).toISOString(), expiresAt: this.now() + 300000, models };
   }

@@ -10,6 +10,9 @@ import { LocalPodbase, podbasePayload } from './podbase.js';
 import { PodbaseCatalog } from './podbase-catalog.js';
 import { Payments, TAX_TREATMENT, TAX_NOTICE } from './payments.js';
 import { Mailer } from './mail.js';
+import { officialTemplate, productionPrint, previewFromProduction } from './production-print.js';
+import { magneticVariant, catalogVariant, localVariant } from './case-variants.js';
+import { casePrice } from '../public/case-options.js';
 
 export class Shop {
   static async create(config) {
@@ -21,6 +24,7 @@ export class Shop {
     if (!['local', 'sandbox'].includes(config.paymentMode)) throw new Error('PAYMENT_MODE muss local oder sandbox sein.');
     if (!['local', 'catalog'].includes(config.podbaseMode)) throw new Error('PODBASE_MODE muss local oder catalog sein. Produktionsaufträge bleiben gesperrt.');
     if (config.podbaseMode === 'catalog') PodbaseCatalog.validate({ apiKey: config.podbaseKey, baseUrl: config.podbaseBaseUrl });
+    if (config.printMode && !['preview', 'podbase'].includes(config.printMode)) throw new Error('PRINT_MODE muss preview oder podbase sein.');
     Mailer.validate(config);
   }
   constructor(config, store) {
@@ -28,6 +32,7 @@ export class Shop {
     this.config = config; this.s = store; this.podbase = new LocalPodbase(this.s); this.payments = new Payments(config, this.s); this.mailer = new Mailer(config, this.s);
     this.podbaseCatalog = config.podbaseMode === 'catalog' ? new PodbaseCatalog({ apiKey: config.podbaseKey, baseUrl: config.podbaseBaseUrl }) : null;
     this.situations = new Map(); this.advisorScenario = 'ok'; this.busy = false;
+    this.printLayouts = new Map();
     if (!store.remote) mkdirSync(join(config.dataDir, 'prints'), { recursive: true });
   }
   async createSession(source = 'unbekannt', campaign = null) {
@@ -61,24 +66,40 @@ export class Shop {
   }
   async publicState(session) {
     const snapshot = await this.podbaseCatalog?.snapshot();
-    const variants = (await this.s.all('SELECT * FROM variants')).map(v => this.podbaseCatalog ? { ...v, available: v.available && snapshot?.models.some(m => m.modelId === v.model_id && m.inStock) ? 1 : 0 } : v);
+    const variants = (await this.s.all('SELECT * FROM variants')).map(v => {
+      const ready = Boolean(v.available && v.print_approved && v.approval_mode === this.config.shopMode);
+      const inStock = magsafe => this.podbaseCatalog ? catalogVariant(snapshot, { modelId: v.model_id, magsafe })?.inStock : !magsafe || Boolean(magneticVariant(v.model_id));
+      const printable = magsafe => this.config.printMode !== 'podbase' || Boolean(officialTemplate(v.model_id, magsafe));
+      return { ...v, available: ready && inStock(false) && printable(false) ? 1 : 0, magsafe_available: ready && inStock(true) && printable(true) ? 1 : 0 };
+    });
     const models = MODELS.map(m => this.podbaseCatalog ? { ...m, podbase: snapshot?.models.find(v => v.modelId === m.id) || null } : m);
-    return { brand: BRAND, designs: DESIGNS, models, verses: VERSES, variants, podbase: this.podbaseCatalog?.summary(snapshot) || { mode: 'local', connected: false, fulfillmentMode: 'simulated', orderSubmissionEnabled: false }, mode: 'test', paymentMode: this.config.paymentMode, taxNotice: TAX_NOTICE, csrf: session.csrf, user: (await this.user(session)), account: (await this.accountDetails(session)), cart: (await this.cart(session)), sessionExpires: session.expires, sessionHours: this.config.sessionHours };
+    return { brand: BRAND, designs: DESIGNS, models, verses: VERSES, variants, podbase: this.podbaseCatalog?.summary(snapshot) || { mode: 'local', connected: false, fulfillmentMode: 'simulated', orderSubmissionEnabled: false }, mode: 'test', printMode: this.config.printMode || 'preview', paymentMode: this.config.paymentMode, taxNotice: TAX_NOTICE, csrf: session.csrf, user: (await this.user(session)), account: (await this.accountDetails(session)), cart: (await this.cart(session)), sessionExpires: session.expires, sessionHours: this.config.sessionHours };
   }
   async track(session, type, kind, designId) {
     if (!['view', 'cart'].includes(type) || !['fixed', 'custom'].includes(kind) || !findDesign(designId)) throw new ShopError('Ungültiges Ereignis.');
     (await this.s.run('INSERT OR IGNORE INTO events VALUES(?,?,?,?,?)', session.visit_id, type, kind, designId, Date.now()));
   }
   async assertAvailable(c) {
+    if (c.magsafe && !magneticVariant(c.modelId)) throw new ShopError('Für dieses Handymodell ist keine MagSafe-kompatible Hülle verfügbar. Entferne den Haken oder wähle ein anderes Modell.', 409);
+    if (this.config.printMode === 'podbase' && !officialTemplate(c.modelId, c.magsafe)) throw new ShopError('Für diese Hülle fehlt noch eine vollständige Druckvorlage. Bitte wähle ein anderes Modell oder eine andere Hüllenart.', 409);
     const variant = (await this.s.get('SELECT * FROM variants WHERE model_id=? AND design_id=?', c.modelId, c.designId));
     if (!variant?.available || !variant.print_approved || variant.approval_mode !== this.config.shopMode) throw new ShopError('Dieses Motiv ist für dein Handymodell gerade nicht verfügbar. Bitte wähle ein anderes Modell oder Motiv.', 409);
     if (this.podbaseCatalog) {
       const snapshot = await this.podbaseCatalog.snapshot({ strict: true });
-      if (!snapshot.models.some(m => m.modelId === c.modelId && m.inStock)) throw new ShopError('Dein Handymodell ist beim Druckpartner gerade nicht verfügbar. Bitte wähle ein anderes Modell.', 409);
+      if (!catalogVariant(snapshot, c)?.inStock) throw new ShopError('Die gewählte Hüllenart ist für dein Modell beim Druckpartner gerade nicht verfügbar. Bitte wähle eine andere Hülle.', 409);
     }
   }
-  async preview(input) {
-    const layout = renderLayout(input, { allowEmptyCustomText: true });
+  async preview(input, { printMode = this.config.printMode } = {}) {
+    let layout = renderLayout(input, { allowEmptyCustomText: true });
+    if (printMode === 'podbase') {
+      const key = layout.hash;
+      if (!this.printLayouts.has(key)) {
+        if (this.printLayouts.size >= 24) this.printLayouts.delete(this.printLayouts.keys().next().value);
+        const pending = productionPrint(layout, findModel(layout.configuration.modelId));
+        this.printLayouts.set(key, pending); pending.catch(() => this.printLayouts.delete(key));
+      }
+      layout = await this.printLayouts.get(key);
+    }
     let svg = layout.svg;
     if (this.s.remote) {
       const artwork = designAsset(layout.configuration.designId);
@@ -86,7 +107,7 @@ export class Shop {
       svg = svg.replace(artwork.renderDataUrl, `artwork-sha256:${artwork.renderHash}`);
     }
     (await this.s.run('INSERT OR IGNORE INTO assets VALUES(?,?,?,?,?)', layout.hash, JSON.stringify(layout.configuration), layout.printText, svg, Date.now()));
-    return { configuration: layout.configuration, hash: layout.hash, svgUrl: `/prints/${layout.hash}.svg`, pngUrl: `/prints/${layout.hash}.png`, printText: layout.printText, camera: layout.camera, layoutVersion: layout.configuration.layoutVersion, productionApproved: layout.productionApproved, sourcePixels: layout.sourcePixels, simulated: true };
+    return { configuration: layout.configuration, hash: layout.hash, svgUrl: `/prints/${layout.hash}${layout.officialPrintTemplate ? '.preview' : ''}.svg`, pngUrl: `/prints/${layout.hash}.png`, printText: layout.printText, camera: layout.camera, layoutVersion: layout.configuration.layoutVersion, productionApproved: layout.productionApproved, sourcePixels: layout.sourcePixels, officialPrintTemplate: Boolean(layout.officialPrintTemplate), simulated: true };
   }
   async printFile(hash, format) {
     const asset = (await this.s.get('SELECT * FROM assets WHERE hash=?', hash));
@@ -98,7 +119,7 @@ export class Shop {
         if (!artwork) throw new ShopError('Die gespeicherte Motivdatei ist gerade nicht verfügbar.', 503);
         asset.svg = asset.svg.replace(marker[0], artwork.data_url);
       }
-      if (format === 'svg') return asset.svg;
+      if (format === 'svg' || format === 'preview.svg') return format === 'svg' ? asset.svg : previewFromProduction(asset.svg, JSON.parse(asset.configuration));
       let cached = await this.s.get('SELECT content FROM print_files WHERE hash=?', hash);
       if (!cached) {
         const content = (await rasterize(asset.svg)).toString('base64');
@@ -107,7 +128,7 @@ export class Shop {
       }
       return Buffer.from(cached.content, 'base64');
     }
-    if (format === 'svg') return asset.svg;
+    if (format === 'svg' || format === 'preview.svg') return format === 'svg' ? asset.svg : previewFromProduction(asset.svg, JSON.parse(asset.configuration));
     const path = join(this.config.dataDir, 'prints', `${hash}.png`);
     if (!existsSync(path)) { const buffer = await rasterize(asset.svg); try { writeFileSync(path, buffer, { flag: 'wx' }); } catch (e) { if (e.code !== 'EEXIST') throw e; } }
     return readFileSync(path);
@@ -115,9 +136,16 @@ export class Shop {
   async cart(session) {
     const snapshot = await this.podbaseCatalog?.snapshot();
     return (await Promise.all((await this.s.all('SELECT * FROM cart WHERE session_id=? ORDER BY created', session.id)).map(async row => {
-      const c = JSON.parse(row.configuration), p = (await this.preview(c)), model = findModel(c.modelId), d = findDesign(c.designId), variant = (await this.s.get('SELECT * FROM variants WHERE model_id=? AND design_id=?', c.modelId, c.designId));
-      const remote = snapshot?.models.find(m => m.modelId === c.modelId);
-      return { id: row.id, configuration: c, ...p, title: c.kind === 'custom' ? `Dein Wunschvers · ${d.title}` : d.title, model: model.name, quantity: row.quantity, unitPrice: c.kind === 'custom' ? BRAND.customPrice : BRAND.fixedPrice, productId: remote?.productId || model.productId, variantId: remote?.variantId || model.variantId, available: Boolean(variant?.available && variant.print_approved && variant.approval_mode === 'test' && (!this.podbaseCatalog || remote?.inStock)) };
+      const c = JSON.parse(row.configuration), model = findModel(c.modelId), d = findDesign(c.designId), variant = (await this.s.get('SELECT * FROM variants WHERE model_id=? AND design_id=?', c.modelId, c.designId));
+      let p, printable = true;
+      try { p = await this.preview(c); }
+      catch (error) {
+        if (this.config.printMode !== 'podbase' || !(error instanceof ShopError) || error.status !== 409) throw error;
+        // Existing carts must remain viewable/removable after tightening print requirements.
+        printable = false; p = await this.preview(c, { printMode: 'preview' });
+      }
+      const remote = catalogVariant(snapshot, c), provider = this.podbaseCatalog ? remote : localVariant(model, c);
+      return { id: row.id, configuration: c, ...p, title: c.kind === 'custom' ? `Dein Wunschvers · ${d.title}` : d.title, model: model.name, quantity: row.quantity, unitPrice: casePrice(BRAND, c), productId: provider?.productId || null, variantId: provider?.variantId || null, available: Boolean(printable && (!c.magsafe || magneticVariant(c.modelId)) && variant?.available && variant.print_approved && variant.approval_mode === 'test' && (!this.podbaseCatalog || remote?.inStock)) };
     })));
   }
   async saveCart(session, input, existingId) {
@@ -180,10 +208,11 @@ export class Shop {
   async checkout(session, input, { returnOrigin = this.config.baseUrl } = {}) {
     const items = (await this.cart(session)); if (!items.length) throw new ShopError('Dein Warenkorb ist noch leer.');
     for (const i of items) (await this.assertAvailable(i.configuration));
+    if (items.some(i => !i.available)) throw new ShopError('Bitte bearbeite oder entferne die nicht verfügbaren Hüllen im Warenkorb.', 409);
     if (this.podbaseCatalog) {
       const snapshot = await this.podbaseCatalog.snapshot({ force: true, strict: true });
       for (const item of items) {
-        const model = snapshot.models.find(m => m.modelId === item.configuration.modelId);
+        const model = catalogVariant(snapshot, item.configuration);
         if (!model?.inStock) throw new ShopError('Dein Handymodell ist im aktuellen Druckpartner-Katalog nicht bestellbar. Bitte bearbeite den Warenkorb.', 409);
         item.productId = model.productId; item.variantId = model.variantId;
       }

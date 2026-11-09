@@ -6,7 +6,7 @@ test('Stripe bestätigt nur den richtigen steuerfreien Test-Checkout und lehnt u
   const original = globalThis.fetch; t.after(() => { globalThis.fetch = original; });
   const payments = new Payments({ paymentMode: 'sandbox', stripeKey: 'rk_test_fixture' });
   const order = { id: 'order-fixture', payment_id: 'cs_test_fixture' };
-  const session = { id: order.payment_id, client_reference_id: order.id, livemode: false, mode: 'payment', status: 'complete', payment_status: 'paid', amount_total: 2990, currency: 'eur', metadata: { order_id: order.id, tax_treatment: TAX_TREATMENT }, automatic_tax: { enabled: false }, total_details: { amount_tax: 0 } };
+  const session = { id: order.payment_id, client_reference_id: order.id, livemode: false, mode: 'payment', status: 'complete', payment_status: 'paid', amount_total: 2999, currency: 'eur', metadata: { order_id: order.id, tax_treatment: TAX_TREATMENT }, automatic_tax: { enabled: false }, total_details: { amount_tax: 0 } };
   for (const [change, valid] of [[{},true], [{ total_details:{amount_tax:477}},false], [{automatic_tax:{enabled:true}},false], [{metadata:{order_id:'foreign-order',tax_treatment:TAX_TREATMENT}},false], [{metadata:{order_id:order.id,tax_treatment:'different'}},false], [{mode:'subscription'},false], [{id:'cs_test_foreign'},false]]) {
     globalThis.fetch = async () => Response.json({ ...session, ...change });
     assert.equal((await payments.verify(order)).completed, valid);

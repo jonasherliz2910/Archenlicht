@@ -21,6 +21,7 @@ export function normalizeConfiguration(input, { allowEmptyCustomText = false } =
   const design = findDesign(input.designId), model = findModel(input.modelId);
   if (!design || !model) fail('Bitte wähle ein vorhandenes Motiv und dein genaues Handymodell.');
   const kind = input.kind === 'custom' ? 'custom' : input.kind === 'fixed' ? 'fixed' : fail('Ungültige Produktart.');
+  if (input.magsafe !== undefined && typeof input.magsafe !== 'boolean') fail('Bitte wähle MagSafe mit dem Häkchen aus.');
   const dedication = kind === 'custom' ? String(input.dedication || '').trim().normalize('NFC') : '';
   if (dedication.length > 32 || /[<>\r\n\x00-\x1f]/.test(dedication)) fail('Kürze die Widmung auf höchstens 32 Zeichen ohne Zeilenumbruch.');
   const freeText = kind === 'custom' && Object.hasOwn(input, 'customText');
@@ -38,7 +39,7 @@ export function normalizeConfiguration(input, { allowEmptyCustomText = false } =
   const asset = designAsset(design.id);
   const background = caseColor(input.backgroundId);
   if (!background) fail('Bitte wähle eine der angebotenen Hintergrundfarben.');
-  return { kind, designId: design.id, modelId: model.id, backgroundId: background.id, verseId: verse?.id || null, dedication, layoutVersion: freeText ? 'archenlicht-free-text-v1' : LAYOUT_VERSION, templateVersion: model.templateVersion, artworkVersion: asset.version, artworkHash: asset.hash, renderHash: asset.renderHash, maskHash: asset.maskHash, fontVersion: FONT_VERSION, verseReference: freeText ? '' : verse?.reference || design.reference, verseExcerpt: freeText ? '' : verse?.quote || '', ...(freeText ? { customText } : {}), productionApproved: false };
+  return { kind, magsafe: input.magsafe === true, designId: design.id, modelId: model.id, backgroundId: background.id, verseId: verse?.id || null, dedication, layoutVersion: freeText ? 'archenlicht-free-text-v1' : LAYOUT_VERSION, templateVersion: model.templateVersion, artworkVersion: asset.version, artworkHash: asset.hash, renderHash: asset.renderHash, maskHash: asset.maskHash, fontVersion: FONT_VERSION, verseReference: freeText ? '' : verse?.reference || design.reference, verseExcerpt: freeText ? '' : verse?.quote || '', ...(freeText ? { customText } : {}), productionApproved: false };
 }
 
 const glyphBounds = (text, size) => font.getPath(text, 0, 0, size).getBoundingBox();

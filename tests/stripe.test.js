@@ -12,11 +12,11 @@ test('Karte und PayPal verwenden ausschließlich Stripe Checkout mit serverseiti
   t.after(() => { globalThis.fetch = original; });
   const p = new Payments({ paymentMode: 'sandbox', stripeKey: 'sk_test_fixture', baseUrl: 'http://localhost:3000' });
   for (const method of ['card', 'paypal']) {
-    const order = { id: `order-${method}`, payment_method: method, amount: 6480, recipient: JSON.stringify({ email: 'test@example.test' }), items: JSON.stringify([{ title: 'Unter seinen Flügeln', model: 'iPhone 15', unitPrice: 2990, quantity: 1 }, { title: 'Wunschvers', model: 'Samsung Galaxy S24', unitPrice: 3490, quantity: 1 }]) };
+    const order = { id: `order-${method}`, payment_method: method, amount: 6498, recipient: JSON.stringify({ email: 'test@example.test' }), items: JSON.stringify([{ title: 'Unter seinen Flügeln', model: 'iPhone 15', unitPrice: 2999, quantity: 1 }, { title: 'Wunschvers', model: 'Samsung Galaxy S24', unitPrice: 3499, quantity: 1 }]) };
     const result = await p.create(order), request = requests.at(-1), params = request.options.body;
     assert.equal(result.id, 'cs_test_fixture'); assert.equal(request.url, 'https://api.stripe.com/v1/checkout/sessions');
     assert.equal(params.has('payment_method_types[0]'), false); assert.equal(params.get('automatic_tax[enabled]'), 'false'); assert.equal(params.get('adaptive_pricing[enabled]'), 'false'); assert.equal(params.get('line_items[0][price_data][tax_behavior]'), 'inclusive'); assert.equal(new Headers(request.options.headers).get('Stripe-Version'), STRIPE_API_VERSION); assert.equal(params.get('client_reference_id'), order.id);
-    assert.equal(params.get('line_items[0][price_data][unit_amount]'), '2990'); assert.equal(params.get('line_items[1][price_data][unit_amount]'), '3490'); assert.equal(params.get('line_items[1][quantity]'), '1');
+    assert.equal(params.get('line_items[0][price_data][unit_amount]'), '2999'); assert.equal(params.get('line_items[1][price_data][unit_amount]'), '3499'); assert.equal(params.get('line_items[1][quantity]'), '1');
     assert.equal(params.get('line_items[0][price_data][currency]'), 'eur'); assert.equal(params.get('locale'), 'de');
     assert.equal(new Headers(request.options.headers).get('Idempotency-Key'), `checkout-${order.id}`);
     assert.equal(new Headers(request.options.headers).get('Authorization'), 'Bearer sk_test_fixture');
@@ -27,8 +27,8 @@ test('Stripe-Rückprüfung erfordert paid, complete und Testmodus; Live-Schlüss
   const original = globalThis.fetch; t.after(() => { globalThis.fetch = original; });
   const p = new Payments({ paymentMode: 'sandbox', stripeKey: 'sk_test_fixture' }), order = { id: 'order-123', payment_id: 'cs_test_fixture', payment_method: 'paypal' };
   for (const [paid, status, live, valid] of [['paid', 'complete', false, true], ['unpaid', 'complete', false, false], ['paid', 'open', false, false], ['paid', 'complete', true, false]]) {
-    globalThis.fetch = async () => Response.json({ id: 'cs_test_fixture', client_reference_id: 'order-123', amount_total: 3490, currency: 'eur', mode: 'payment', metadata: { order_id: order.id, tax_treatment: TAX_TREATMENT }, automatic_tax: { enabled: false }, total_details: { amount_tax: 0 }, payment_status: paid, status, livemode: live });
-    const result = await p.verify(order); assert.equal(result.completed, valid); assert.equal(result.amount, 3490); assert.equal(result.orderId, 'order-123');
+    globalThis.fetch = async () => Response.json({ id: 'cs_test_fixture', client_reference_id: 'order-123', amount_total: 3499, currency: 'eur', mode: 'payment', metadata: { order_id: order.id, tax_treatment: TAX_TREATMENT }, automatic_tax: { enabled: false }, total_details: { amount_tax: 0 }, payment_status: paid, status, livemode: live });
+    const result = await p.verify(order); assert.equal(result.completed, valid); assert.equal(result.amount, 3499); assert.equal(result.orderId, 'order-123');
   }
   assert.throws(() => new Payments({ paymentMode: 'sandbox', stripeKey: 'sk_live_not-allowed' }).client, /Sandbox/);
 });
@@ -38,7 +38,7 @@ test('Stripe-Kartenspeicherung bleibt freiwillig; derselbe Kunde erhält bestehe
   globalThis.fetch = async (url, options) => { if (String(url).startsWith('https://api.stripe.com/')) options = { ...options, body: new URLSearchParams(options.body) }; calls.push({ url, options }); return Response.json({ livemode: false, id: 'cs_test_saved', url: 'https://checkout.stripe.com/c/pay/cs_test_saved' }); };
   t.after(() => { globalThis.fetch = original; });
   const p = new Payments({ paymentMode: 'sandbox', stripeKey: 'sk_test_fixture', baseUrl: 'http://localhost:3000' });
-  const order = { id: 'saved-card-order', payment_method: 'card', recipient: JSON.stringify({ email: 'recipient@example.test' }), items: JSON.stringify([{ title: 'Hülle', model: 'iPhone 15', unitPrice: 2990, quantity: 1 }]) };
+  const order = { id: 'saved-card-order', payment_method: 'card', recipient: JSON.stringify({ email: 'recipient@example.test' }), items: JSON.stringify([{ title: 'Hülle', model: 'iPhone 15', unitPrice: 2999, quantity: 1 }]) };
   await p.create(order, { customerId: 'cus_owner' });
   const params = calls[0].options.body;
   assert.equal(params.get('customer'), 'cus_owner'); assert.equal(params.has('customer_email'), false);
@@ -61,7 +61,7 @@ test('Stripe-Kundenbindung, sichere Kartenanzeige und Entfernen prüfen Eigentü
       return Response.json(customers.get(key));
     }
     if (path === '/v1/checkout/sessions') {
-      checkoutSession = { id: 'cs_test_owner', client_reference_id: params.get('client_reference_id'), amount_total: 2990, currency: 'eur', mode: 'payment', metadata: { order_id: params.get('client_reference_id'), tax_treatment: TAX_TREATMENT }, automatic_tax: { enabled: false }, total_details: { amount_tax: 0 }, payment_intent: 'pi_fixture', payment_status: 'paid', status: 'complete', livemode: false, customer: params.get('customer') };
+      checkoutSession = { id: 'cs_test_owner', client_reference_id: params.get('client_reference_id'), amount_total: 2999, currency: 'eur', mode: 'payment', metadata: { order_id: params.get('client_reference_id'), tax_treatment: TAX_TREATMENT }, automatic_tax: { enabled: false }, total_details: { amount_tax: 0 }, payment_intent: 'pi_fixture', payment_status: 'paid', status: 'complete', livemode: false, customer: params.get('customer') };
       return Response.json({ livemode: false, id: checkoutSession.id, url: 'https://checkout.stripe.com/c/pay/cs_test_owner' });
     }
     if (path === '/v1/checkout/sessions/cs_test_owner') return Response.json(checkoutSession);
@@ -89,7 +89,7 @@ test('Stripe-Kundenbindung, sichere Kartenanzeige und Entfernen prüfen Eigentü
   const result = await shop.checkout(session, { method: 'card', customerId: 'cus_someone_else', recipient: { name: 'Empfänger', email: 'recipient@example.test', phone: '+4915112345678', street: 'Weg 12', postalCode: '10115', city: 'Berlin', country: 'DE' } });
   assert.equal(checkoutSession.customer, ids[0]);
   const order = (await shop.s.get('SELECT * FROM orders WHERE id=?', result.orderId));
-  checkoutSession.customer = 'cus_someone_else'; (await assert.rejects(async () => (await shop.acceptPayment({ id: 'evt_wrong_customer', orderId: order.id, paymentId: order.payment_id, amount: 2990, currency: 'EUR', customerId: checkoutSession.customer, completed: true })), /Stripe-Kundenkonto/));
+  checkoutSession.customer = 'cus_someone_else'; (await assert.rejects(async () => (await shop.acceptPayment({ id: 'evt_wrong_customer', orderId: order.id, paymentId: order.payment_id, amount: 2999, currency: 'EUR', customerId: checkoutSession.customer, completed: true })), /Stripe-Kundenkonto/));
   assert.equal((await shop.s.get('SELECT COUNT(*) AS n FROM fulfillment')).n, 0);
   checkoutSession.customer = ids[0]; (await shop.acceptPayment(await shop.payments.verify(order)));
   assert.equal((await shop.s.get('SELECT COUNT(*) AS n FROM fulfillment')).n, 1);
@@ -100,7 +100,7 @@ test('Stripe-Webhook: Signatur + unabhängiger API-Abgleich für PayPal; Replay 
   let remote;
   globalThis.fetch = async (url, options) => { if (String(url).startsWith('https://api.stripe.com/')) options = { ...options, body: new URLSearchParams(options.body) };
     if (String(url).startsWith('https://api.stripe.com/')) {
-      if (options.method === 'POST') { remote = { id: 'cs_test_paypal', client_reference_id: options.body.get('client_reference_id'), amount_total: 2990, currency: 'eur', mode: 'payment', metadata: { order_id: options.body.get('client_reference_id'), tax_treatment: TAX_TREATMENT }, automatic_tax: { enabled: false }, total_details: { amount_tax: 0 }, payment_intent: 'pi_fixture', payment_status: 'unpaid', status: 'open', livemode: false }; return Response.json({ livemode: false, id: remote.id, url: 'https://checkout.stripe.com/c/pay/cs_test_paypal' }); }
+      if (options.method === 'POST') { remote = { id: 'cs_test_paypal', client_reference_id: options.body.get('client_reference_id'), amount_total: 2999, currency: 'eur', mode: 'payment', metadata: { order_id: options.body.get('client_reference_id'), tax_treatment: TAX_TREATMENT }, automatic_tax: { enabled: false }, total_details: { amount_tax: 0 }, payment_intent: 'pi_fixture', payment_status: 'unpaid', status: 'open', livemode: false }; return Response.json({ livemode: false, id: remote.id, url: 'https://checkout.stripe.com/c/pay/cs_test_paypal' }); }
       return Response.json(remote);
     }
     return original(url, options);
@@ -121,7 +121,7 @@ test('Stripe-Webhook: Signatur + unabhängiger API-Abgleich für PayPal; Replay 
   remote.payment_status = 'paid'; remote.status = 'complete';
   assert.equal((await webhook(sig)).status, 200); assert.equal((await webhook(sig)).status, 200);
   await app.shop.tick(); assert.equal((await app.shop.s.get('SELECT COUNT(*) AS n FROM provider_orders')).n, 1); assert.equal((await app.shop.s.get('SELECT COUNT(*) AS n FROM payment_events')).n, 1);
-  assert.equal((await app.shop.s.get('SELECT amount FROM orders')).amount, 2990); // Amount comes from Stripe API, never forged webhook fields.
+  assert.equal((await app.shop.s.get('SELECT amount FROM orders')).amount, 2999); // Amount comes from Stripe API, never forged webhook fields.
   const record = await app.shop.s.get('SELECT * FROM stripe_payments WHERE order_id=?', checkout.data.orderId);
   assert.equal(record.tax_treatment, TAX_TREATMENT); assert.equal(record.tax_amount, 0); assert.equal(record.payment_intent_id, 'pi_fixture'); assert.ok(record.verified_at);
   remote.status = 'expired'; remote.payment_status = 'unpaid';

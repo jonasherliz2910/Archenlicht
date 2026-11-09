@@ -42,7 +42,7 @@ test('Beide vollständigen Kaufwege, identische Druckdatei, Konto, Gastlink, Ver
   await guest.call('/api/bootstrap?source=tiktok&campaign=fluegel');
   await guest.call('/api/events', 'POST', { type: 'view', kind: 'fixed', designId: fixed.designId });
   const fixedCart = await putCart(guest, fixed);
-  assert.equal(fixedCart[0].printText, 'Psalm 91,4'); assert.equal(fixedCart[0].unitPrice, 2990);
+  assert.equal(fixedCart[0].printText, 'Psalm 91,4'); assert.equal(fixedCart[0].unitPrice, 2999);
   const first = await checkout(guest);
   await guest.call(`/api/orders/${first.orderId}`); // Returning to status never fulfills.
   assert.equal((await shop.s.get('SELECT COUNT(*) AS n FROM provider_orders')).n, 0);
@@ -93,7 +93,7 @@ test('Beide vollständigen Kaufwege, identische Druckdatei, Konto, Gastlink, Ver
   const admin = client(); await admin.call('/api/bootstrap');
   assert.equal((await admin.call('/api/auth/login', 'POST', { email: 'jonas@archenlicht.test', password: 'Nur-Test-Admin-2026!' })).status, 200);
   const a = (await admin.call('/api/admin/analytics')).data;
-  assert.equal(a.paidOrders, 2); assert.equal(a.units, 2); assert.equal(a.revenue, 6480); assert.equal(a.sources.find(s => s.source === 'tiktok').paidOrders, 1); assert.equal(a.sources.find(s => s.source === 'gemeinde').paidOrders, 1);
+  assert.equal(a.paidOrders, 2); assert.equal(a.units, 2); assert.equal(a.revenue, 6498); assert.equal(a.sources.find(s => s.source === 'tiktok').paidOrders, 1); assert.equal(a.sources.find(s => s.source === 'gemeinde').paidOrders, 1);
   assert.equal(a.products.find(p => p.id === 'fixed').cartVisits, 1); assert.equal(a.products.find(p => p.id === 'custom').cartVisits, 1);
   assert.equal(a.purposes.find(p => p.purpose === 'Als Geschenk').orders, 1);
   for (const name of ['orders', 'events', 'mail_outbox', 'visits', 'sessions', 'users', 'assets', 'provider_orders', 'feedback', 'account_profiles', 'payment_customers', 'local_payment_methods', 'checkout_preferences']) assert.equal(JSON.stringify((await shop.s.all(`SELECT * FROM ${name}`))).includes('PRIVATE-SITUATION-8891'), false, `Situation leaked into ${name}`);
@@ -201,7 +201,7 @@ test('Ein Fulfillmentauftrag enthält alle Warenkorbpositionen und deren Stückz
   const { shop, client } = await setup(t), c = client(); await c.call('/api/bootstrap'); await putCart(c, fixed, 2); await putCart(c, custom, 3); const o = await checkout(c);
   await c.call(`/api/orders/${o.orderId}/confirm`, 'POST', {});
   const provider = (await shop.s.all('SELECT * FROM provider_orders')); assert.equal(provider.length, 1); const payload = JSON.parse(provider[0].payload);
-  assert.equal(payload.items.length, 2); assert.deepEqual(payload.items.map(i => i.quantity), [2, 3]); assert.equal((await shop.s.get('SELECT amount FROM orders WHERE id=?', o.orderId)).amount, 16450);
+  assert.equal(payload.items.length, 2); assert.deepEqual(payload.items.map(i => i.quantity), [2, 3]); assert.equal((await shop.s.get('SELECT amount FROM orders WHERE id=?', o.orderId)).amount, 16495);
 });
 
 test('CSRF, geschützte Adminaktionen, fremde Positionen und private Dateien', async t => {
@@ -252,7 +252,7 @@ test('Google Pixel: Modellwahl, Kameravorschau, Warenkorbbearbeitung und beide H
   assert.equal((await c.call('/api/checkout', 'POST', { recipient, method: 'card' })).status, 409);
   (await shop.s.run('UPDATE variants SET available=1 WHERE model_id=? AND design_id=?', 'google-pixel-10a', custom.designId));
   const result = await checkout(c, 'card'), paid = await c.call(`/api/orders/${result.orderId}/confirm`, 'POST', {});
-  assert.equal(paid.status, 200); assert.equal(paid.data.amount, 9970);
+  assert.equal(paid.status, 200); assert.equal(paid.data.amount, 9997);
   const provider = (await shop.s.get('SELECT * FROM provider_orders WHERE external_id=?', result.orderId)), payload = JSON.parse(provider.payload);
   assert.equal(payload.items.length, 2); assert.deepEqual(payload.items.map(i => i.quantity), [1, 2]);
   assert.deepEqual(payload.items.map(i => i.variantId), ['SIM-VARIANT-38', 'SIM-VARIANT-48']);
@@ -285,7 +285,7 @@ test('Aktuelle Apple-, Samsung- und Google-Modelle funktionieren gemeinsam bis z
     assert.equal((await c.call('/api/cart', 'POST', { ...fixed, modelId: unsupported })).status, 400);
   }
   const result = await checkout(c, 'paypal'), paid = await c.call(`/api/orders/${result.orderId}/confirm`, 'POST', {});
-  assert.equal(paid.status, 200); assert.equal(paid.data.amount, 19440);
+  assert.equal(paid.status, 200); assert.equal(paid.data.amount, 19494);
   assert.deepEqual(paid.data.items.map(i => i.configuration.modelId), choices.map(c => c.modelId));
   assert.deepEqual(paid.data.items.map(i => i.hash), previews.map(p => p.hash));
   const payload = JSON.parse((await shop.s.get('SELECT payload FROM provider_orders WHERE external_id=?', result.orderId)).payload);

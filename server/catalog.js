@@ -1,7 +1,7 @@
 import { designAsset, DESIGN_PACKAGE } from './design-assets.js';
 import { caseColor } from '../public/case-colors.js';
 
-export const BRAND = { name: 'Archenlicht', logo: '/assets/archenlicht-logo.png', collection: 'Ruhe und Geborgenheit', currency: 'EUR', fixedPrice: 2990, customPrice: 3490, colors: { paper: '#FCF8EF', sage: '#A6B99B', forest: '#163E29' } };
+export const BRAND = { name: 'Archenlicht', logo: '/assets/archenlicht-logo.png', collection: 'Ruhe und Geborgenheit', currency: 'EUR', fixedPrice: 2999, customPrice: 3499, magsafeSurcharge: 500, colors: { paper: '#FCF8EF', sage: '#A6B99B', forest: '#163E29' } };
 export const DESIGNS = [
   { id: 'unter-seinen-fluegeln', title: 'Unter seinen Flügeln', reference: 'Psalm 91,4', art: 'wing', color: '#dfe5d8', ink: '#63775f', note: 'Ein stiller Ort. Ganz nah bei dir.', label: 'Geborgenheit', draft: true },
   { id: 'nach-dem-sturm', title: 'Nach dem Sturm', reference: 'Markus 4,39', art: 'boat', color: '#e5e8e6', ink: '#637b7e', note: 'Auch die Wellen werden wieder still.', label: 'Zuversicht', draft: true },

@@ -27,7 +27,7 @@ export function filterModels(models, { brand, query = '' } = {}) {
 }
 export function modelAvailable(variants, modelId, designId, mode = 'test') {
   const variant = variants.find(v => v.model_id === modelId && v.design_id === designId);
-  return Boolean(variant?.available && variant.print_approved && variant.approval_mode === mode);
+  return Boolean((variant?.available || variant?.magsafe_available) && variant.print_approved && variant.approval_mode === mode);
 }
 export function modelTriggerContent(model) {
   return `${device(model?.brand)}<span class="model-trigger-copy"><small>DEIN HANDYMODELL</small><strong>${esc(model?.name || 'Modell auswählen')}</strong></span><span class="model-trigger-change">Ändern <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></span>`;

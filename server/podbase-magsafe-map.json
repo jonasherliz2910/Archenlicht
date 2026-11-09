@@ -1,0 +1,253 @@
+{
+  "sourceDate": "2026-11-09",
+  "source": "https://open-api.podbase.com/catalog",
+  "products": [
+    {
+      "productId": "PBP-37-2FY-223Z",
+      "productName": "MagSafe Tough Phone Case",
+      "models": [
+        {
+          "modelId": "iphone-12",
+          "variantId": "PBV-37-2SA-22DG",
+          "catalogName": "iPhone 12"
+        },
+        {
+          "modelId": "iphone-12-pro",
+          "variantId": "PBV-37-2XY-22EC",
+          "catalogName": "iPhone 12 Pro"
+        },
+        {
+          "modelId": "iphone-12-pro-max",
+          "variantId": "PBV-37-2SF-22F5",
+          "catalogName": "iPhone 12 Pro Max"
+        },
+        {
+          "modelId": "iphone-13",
+          "variantId": "PBV-37-2S3-227T",
+          "catalogName": "iPhone 13"
+        },
+        {
+          "modelId": "iphone-13-mini",
+          "variantId": "PBV-37-2T2-22CM",
+          "catalogName": "iPhone 13 Mini"
+        },
+        {
+          "modelId": "iphone-13-pro",
+          "variantId": "PBV-37-2OY-22A4",
+          "catalogName": "iPhone 13 Pro"
+        },
+        {
+          "modelId": "iphone-13-pro-max",
+          "variantId": "PBV-37-2FP-22BW",
+          "catalogName": "iPhone 13 Pro Max"
+        },
+        {
+          "modelId": "iphone-14",
+          "variantId": "PBV-37-22B-223G",
+          "catalogName": "iPhone 14"
+        },
+        {
+          "modelId": "iphone-14-plus",
+          "variantId": "PBV-37-2X7-226H",
+          "catalogName": "iPhone 14 Plus"
+        },
+        {
+          "modelId": "iphone-14-pro",
+          "variantId": "PBV-37-2QE-224U",
+          "catalogName": "iPhone 14 Pro"
+        },
+        {
+          "modelId": "iphone-14-pro-max",
+          "variantId": "PBV-37-24G-225Z",
+          "catalogName": "iPhone 14 Pro Max"
+        },
+        {
+          "modelId": "iphone-15",
+          "variantId": "PBV-3OP-2H5-227S",
+          "catalogName": "iPhone 15"
+        },
+        {
+          "modelId": "iphone-15-plus",
+          "variantId": "PBV-3OP-2UZ-22CV",
+          "catalogName": "iPhone 15 Plus"
+        },
+        {
+          "modelId": "iphone-15-pro",
+          "variantId": "PBV-3OP-2XR-22A3",
+          "catalogName": "iPhone 15 Pro"
+        },
+        {
+          "modelId": "iphone-15-pro-max",
+          "variantId": "PBV-3OP-2KW-22BO",
+          "catalogName": "iPhone 15 Pro Max"
+        },
+        {
+          "modelId": "iphone-16",
+          "variantId": "PBV-3ZV-22R-22JN",
+          "catalogName": "iPhone 16"
+        },
+        {
+          "modelId": "iphone-16-plus",
+          "variantId": "PBV-3ZV-2RM-22M4",
+          "catalogName": "iPhone 16 Plus"
+        },
+        {
+          "modelId": "iphone-16-pro",
+          "variantId": "PBV-3ZV-2ZA-22K4",
+          "catalogName": "iPhone 16 Pro"
+        },
+        {
+          "modelId": "iphone-16-pro-max",
+          "variantId": "PBV-3ZV-2CE-22LF",
+          "catalogName": "iPhone 16 Pro Max"
+        },
+        {
+          "modelId": "iphone-16e",
+          "variantId": "PBV-4KV-25K-226R",
+          "catalogName": "iPhone 16e"
+        },
+        {
+          "modelId": "iphone-17",
+          "variantId": "PBV-4EY-2VR-22FL",
+          "catalogName": "iPhone 17"
+        },
+        {
+          "modelId": "iphone-air",
+          "variantId": "PBV-4EY-27H-22GA",
+          "catalogName": "iPhone 17 Air"
+        },
+        {
+          "modelId": "iphone-17e",
+          "variantId": "PBV-4KV-2VG-225G",
+          "catalogName": "iPhone 17e"
+        },
+        {
+          "modelId": "iphone-17-pro",
+          "variantId": "PBV-4EY-2YT-22H7",
+          "catalogName": "iPhone 17 Pro"
+        },
+        {
+          "modelId": "iphone-17-pro-max",
+          "variantId": "PBV-4EY-25U-22IT",
+          "catalogName": "iPhone 17 Pro Max"
+        },
+        {
+          "modelId": "iphone-18-pro",
+          "variantId": "PBV-4QL-2RI-227W",
+          "catalogName": "iPhone 18 Pro"
+        },
+        {
+          "modelId": "iphone-18-pro-max",
+          "variantId": "PBV-4QL-2C2-22AB",
+          "catalogName": "iPhone 18 Pro Max"
+        }
+      ]
+    },
+    {
+      "productId": "PBP-4HU-2II-223I",
+      "productName": "Magnetic Tough Phone Case",
+      "models": [
+        {
+          "modelId": "samsung-galaxy-s22",
+          "variantId": "PBV-4HU-277-22DT",
+          "catalogName": "Samsung Galaxy S22 5G"
+        },
+        {
+          "modelId": "samsung-galaxy-s22-ultra",
+          "variantId": "PBV-4HU-2R4-22FN",
+          "catalogName": "Samsung Galaxy S22 Ultra 5G"
+        },
+        {
+          "modelId": "samsung-galaxy-s23-ultra",
+          "variantId": "PBV-4HU-2A2-22CY",
+          "catalogName": "Samsung Galaxy S23 Ultra 5G"
+        },
+        {
+          "modelId": "samsung-galaxy-s24",
+          "variantId": "PBV-4HU-2FJ-226H",
+          "catalogName": "Samsung Galaxy S24"
+        },
+        {
+          "modelId": "samsung-galaxy-s24-ultra",
+          "variantId": "PBV-4HU-2J4-22AI",
+          "catalogName": "Samsung Galaxy S24 Ultra"
+        },
+        {
+          "modelId": "samsung-galaxy-s25",
+          "variantId": "PBV-4HU-2ES-223G",
+          "catalogName": "Samsung Galaxy S25"
+        },
+        {
+          "modelId": "samsung-galaxy-s25-ultra",
+          "variantId": "PBV-4HU-2K6-225J",
+          "catalogName": "Samsung Galaxy S25 Ultra"
+        },
+        {
+          "modelId": "google-pixel-10",
+          "variantId": "PBV-4HU-2GG-22GY",
+          "catalogName": "Google Pixel 10 / 10 Pro"
+        },
+        {
+          "modelId": "google-pixel-10-pro",
+          "variantId": "PBV-4HU-2GG-22GY",
+          "catalogName": "Google Pixel 10 / 10 Pro"
+        },
+        {
+          "modelId": "google-pixel-10-pro-xl",
+          "variantId": "PBV-4HU-2YW-22HB",
+          "catalogName": "Google Pixel 10 Pro XL"
+        },
+        {
+          "modelId": "google-pixel-10a",
+          "variantId": "PBV-4PS-2XB-225I",
+          "catalogName": "Google Pixel 10A"
+        },
+        {
+          "modelId": "samsung-galaxy-s25-plus",
+          "variantId": "PBV-4HU-23P-224Z",
+          "catalogName": "Samsung Galaxy S25 Plus"
+        },
+        {
+          "modelId": "samsung-galaxy-s26",
+          "variantId": "PBV-4KJ-2FH-2265",
+          "catalogName": "Samsung Galaxy S26"
+        },
+        {
+          "modelId": "samsung-galaxy-s26-plus",
+          "variantId": "PBV-4KJ-2LT-227C",
+          "catalogName": "Samsung Galaxy S26 Plus"
+        },
+        {
+          "modelId": "samsung-galaxy-s26-ultra",
+          "variantId": "PBV-4KJ-2BU-22AU",
+          "catalogName": "Samsung Galaxy S26 Ultra"
+        },
+        {
+          "modelId": "samsung-galaxy-s26-fe",
+          "variantId": "PBV-4RB-2XY-22GA",
+          "catalogName": "Samsung Galaxy S26 Fe"
+        },
+        {
+          "modelId": "samsung-galaxy-z-flip8",
+          "variantId": "PBV-4RB-2IM-22HJ",
+          "catalogName": "Samsung Galaxy Z Flip 8"
+        },
+        {
+          "modelId": "google-pixel-11",
+          "variantId": "PBV-4RB-2RL-22IV",
+          "catalogName": "Google Pixel 11"
+        },
+        {
+          "modelId": "google-pixel-11-pro",
+          "variantId": "PBV-4RB-2YD-22JN",
+          "catalogName": "Google Pixel 11 Pro"
+        },
+        {
+          "modelId": "google-pixel-11-pro-xl",
+          "variantId": "PBV-4RB-2HW-22K2",
+          "catalogName": "Google Pixel 11 Pro XL"
+        }
+      ]
+    }
+  ]
+}

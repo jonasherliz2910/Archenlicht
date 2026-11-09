@@ -34,7 +34,7 @@ Auf einem anderen Rechner: **Node.js 24 oder neuer**, dann `npm install`, `npm r
 Das hinzugekommene [CI-Book](Archenlicht-CI-Book.pdf) wurde berücksichtigt: Original-Logo Nr. 2 unverändert im Seitenverhältnis 2:1, Warmweiß `#FCF8EF`, Salbei `#A6B99B`, Waldgrün `#163E29`, lesbare Fließtexte und vorgeschaltete Modellwahl auf dem Handy. Der Originalschriftzug wird als PNG eingesetzt; Karten- und Profil-SVG betten dieselbe Bilddatei ein. Eine Vektorfassung des Logos wird damit nicht vorgetäuscht.
 
 - Sechs stabile Produktseiten, mobil gestaltete Oberfläche, ein Tough-Hüllentyp und 74 iPhone-, Samsung-Galaxy- und Google-Pixel-Modelle. Optionaler echter Podbase-Katalog mit Bestandsprüfung; Druckschablonen und Produktion bleiben im Testbetrieb.
-- Kollektion: **29,90 €**; Wunschvers: **34,90 €**, jeweils als Test-Endpreis einschließlich Deutschlandversand und fester Geschenkkarte.
+- Kollektion: **29,99 €**, mit MagSafe **34,99 €**; Wunschvers: **34,99 €**, mit MagSafe **39,99 €**, jeweils als Test-Endpreis einschließlich Deutschlandversand und fester Geschenkkarte.
 - Gestalter mit zwei Textwegen: geprüften Vers auswählen (auch mit situationsbezogenen Vorschlägen) oder eigenen Spruch, Vers bzw. Bibelstelle eingeben. Dazu Motiv, Farbe, Modell und optionale Widmung.
 - Sechs unveränderte Blankomotive aus dem gelieferten Designpaket. Eigener Text und optionale Widmung werden mit der mitgelieferten Caveat-Schrift gemessen, zentriert und gerade eingesetzt. Schriftgröße und Zeilenumbrüche passen sich innerhalb lesbarer Grenzen an; Überlauf verhindert den Warenkorbzugang.
 - Vorschau und unveränderlicher PNG-Testexport aus demselben Layout; aktuell 1.200 × 2.400 px / 300 dpi auf **simulierten** Geräteschablonen. Schrift ist in Pfade umgewandelt. Die neuen farbigen Ausgangsmotive messen je nach Motiv 962 × 1.634 oder 1.635 px; Hochskalieren ergänzt keine Bilddetails. Hüllen ohne Markenaufdruck, `productionApproved: false`.
@@ -70,6 +70,20 @@ Freitextgestaltungen öffnen das eigene Textfeld. Bereits gespeicherte Druckdate
 und feste Kollektionstexte bleiben unverändert.
 
 ## Podbase verbinden, ohne einen Auftrag auszulösen
+
+Das optionale MagSafe-Häkchen wählt die eigene magnetische Produkt-/Modellvariante
+aus dem Podbase-Katalog. Der Aufpreis beträgt 5,00 €; alle Gestaltungsangaben
+bleiben erhalten. Nicht verfügbare Kombinationen sind gesperrt.
+Details: [MagSafe-Option und Prüfungen](docs/MAGSAFE.md).
+
+`PRINT_MODE=podbase` aktiviert die Original-Druckvorlagen für 63 belegte Modelle.
+Die exportierte PNG ist vollflächig 2000 × 3400 Pixel groß (300 dpi); Sicherheits-
+und Kamerakurven werden aus der offiziellen PSD extrahiert. Jeder sichtbare
+Motiv-/Schriftpixel wird gegen diese Flächen geprüft. Vorschau und Druckdatei
+verwenden dieselbe gespeicherte Komposition. Elf Modelle ohne vollständige
+Nachweise bleiben in diesem Modus nicht bestellbar. Die Standardkonfiguration
+`PRINT_MODE=preview` erhält die bisherigen lokalen Tests. Details und offene
+Schritte: [Startvorbereitung vom 9. November](docs/STARTVORBEREITUNG-2026-11-09.md).
 
 `PODBASE_MODE=catalog` und der serverseitige `PODBASE_API_KEY` verbinden den Shop
 mit dem vorhandenen Podbase-Store. `PODBASE_MODE=local` behält den bisherigen

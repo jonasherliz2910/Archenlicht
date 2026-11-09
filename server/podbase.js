@@ -1,19 +1,30 @@
 import { token } from './store.js';
 import { MODELS } from './catalog.js';
+import { officialTemplate } from './production-print.js';
+import { magneticVariant, localVariant } from './case-variants.js';
 
-export function podbasePayload(order, baseUrl) {
+export function podbasePayload(order, baseUrl, { requireOfficialPrint = false } = {}) {
   const r = JSON.parse(order.recipient);
+  const items = JSON.parse(order.items);
+  if (requireOfficialPrint) {
+    if (order.mode !== 'live' || !order.paid_at) throw new Error('Nur bezahlte Livebestellungen dürfen an Podbase übergeben werden.');
+    if (!/^https:\/\/(www\.)?archenlicht\.de$/.test(baseUrl)) throw new Error('Die öffentliche Druckdatei-Adresse fehlt.');
+    for (const item of items) {
+      const template = officialTemplate(item.configuration.modelId, item.configuration.magsafe), print = item.configuration.productionPrint;
+      if (!template || !print || print.templateHash !== template.hash || item.variantId !== template.variantId || item.productId !== template.productId || print.validation?.unsafePixels !== 0 || print.validation?.outsideCanvasPixels !== 0 || !/^[a-f0-9]{64}$/.test(item.hash)) throw new Error('Produkt, Variante und geprüfte Druckdatei stimmen nicht überein.');
+    }
+  }
   return {
     externalOrderId: order.id,
     buyerInfo: { name: r.name, phone: r.phone, email: r.email },
     deliveryAddress: { line1: r.street, ...(r.line2 ? { line2: r.line2 } : {}), city: r.city, postalCode: r.postalCode, country: 'DE' },
     shippingTypeId: 'PBS-F7-7ZH-223S',
-    items: JSON.parse(order.items).map(i => ({ productId: i.productId, variantId: i.variantId, quantity: i.quantity, printFile: `${baseUrl}/prints/${i.hash}.png`, externalProductId: `${i.configuration.designId}-${i.configuration.modelId}-${i.hash}`, title: i.title, price: i.unitPrice }))
+    items: items.map(i => ({ productId: i.productId, variantId: i.variantId, quantity: i.quantity, printFile: `${baseUrl}/prints/${i.hash}.png`, externalProductId: `${i.configuration.designId}-${i.configuration.modelId}-${i.hash}`, title: i.title }))
   };
 }
 export class LocalPodbase {
   constructor(store) { this.s = store; this.scenario = 'ok'; }
-  async catalog() { return [{ id: 'SIM-TOUGH', title: 'Tough standard · SIMULIERT', variants: MODELS.map(m => ({ id: m.variantId, name: m.name, inStock: true })) }]; }
+  async catalog() { return [{ id: 'SIM-TOUGH', title: 'Tough standard · SIMULIERT', variants: MODELS.map(m => ({ id: m.variantId, name: m.name, inStock: true })) }, { id: 'SIM-MAGSAFE', title: 'Magnetische Tough-Hülle · SIMULIERT', variants: MODELS.filter(m => magneticVariant(m.id)).map(m => ({ id: localVariant(m, { magsafe: true }).variantId, name: m.name, inStock: true })) }]; }
   async find(externalId) { const row = (await this.s.get('SELECT * FROM provider_orders WHERE external_id=?', externalId)); return row && { orderId: row.id, externalOrderId: row.external_id, status: row.status, trackingNumber: row.tracking, trackingUrl: null }; }
   async create(payload) {
     const existing = await this.find(payload.externalOrderId);
@@ -33,9 +44,12 @@ export class LocalPodbase {
 // Official schema snapshot: docs/podbase-openapi-2026-11-03.json.
 // Instantiation is intentionally absent from the test server: Podbase has no free sandbox.
 export class PodbaseAPI {
-  constructor({ apiKey, baseUrl = 'https://open-api.podbase.com', productionApproved = false }) { this.apiKey = apiKey; this.baseUrl = baseUrl; this.approved = productionApproved; }
+  constructor({ apiKey, baseUrl = 'https://open-api.podbase.com', productionApproved = false }) {
+    if (baseUrl !== 'https://open-api.podbase.com' || !apiKey || /\s/.test(apiKey)) throw new Error('Ungültige Podbase-Verbindung.');
+    this.apiKey = apiKey; this.baseUrl = baseUrl; this.approved = productionApproved;
+  }
   async request(path, method = 'GET', body) {
-    const res = await fetch(`${this.baseUrl}${path}`, { method, headers: { 'x-api-key': this.apiKey, 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined, signal: AbortSignal.timeout(15000) });
+    const res = await fetch(`${this.baseUrl}${path}`, { method, headers: { 'x-api-key': this.apiKey, 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined, redirect: 'error', signal: AbortSignal.timeout(15000) });
     if (!res.ok) { const e = new Error(`Podbase-Anfrage fehlgeschlagen (HTTP ${res.status}).`); e.rejected = [400, 403, 422].includes(res.status); throw e; }
     return res.json();
   }
@@ -44,6 +58,7 @@ export class PodbaseAPI {
   async find(externalId) {
     for (let page = 0; page < 1000; page++) {
       const result = await this.request(`/orders?page=${page}&limit=100`);
+      if (!Array.isArray(result.orders) || typeof result.pagination?.hasNextPage !== 'boolean') throw new Error('Podbase-Auftragsabgleich lieferte keine vollständige Antwort.');
       const matches = result.orders.filter(o => o.externalOrderId === externalId);
       if (matches.length > 1) throw new Error('Mehrere Podbase-Aufträge zur externen ID gefunden. Manuelle Klärung nötig.');
       if (matches[0]) return matches[0];
@@ -51,5 +66,9 @@ export class PodbaseAPI {
     }
     throw new Error('Podbase-Abgleich unvollständig. Kein neuer Auftrag wird gesendet.');
   }
-  create(payload) { if (!this.approved) throw new Error('Kostenpflichtige Podbase-Produktion ist gesperrt. Musterfreigabe fehlt.'); return this.request('/orders', 'POST', payload); }
+  create(payload) {
+    if (!this.approved) throw new Error('Kostenpflichtige Podbase-Produktion ist gesperrt. Produktionsfreigabe fehlt.');
+    if (!payload.externalOrderId || !payload.items?.length || payload.items.some(i => !/^PBP-/.test(i.productId) || !/^PBV-/.test(i.variantId) || !Number.isInteger(i.quantity) || i.quantity < 1 || !/^https:\/\/(www\.)?archenlicht\.de\/prints\/[a-f0-9]{64}\.png$/.test(i.printFile))) throw new Error('Podbase-Auftrag enthält keine gültigen Produktionsdaten.');
+    return this.request('/orders', 'POST', payload);
+  }
 }

@@ -1,5 +1,6 @@
 import Stripe from 'stripe';
 import { ShopError } from './layout.js';
+import { caseLabel } from '../public/case-options.js';
 import { BRAND } from './catalog.js';
 import { digest } from './store.js';
 
@@ -9,9 +10,12 @@ export const TAX_NOTICE = 'Kein Umsatzsteuerausweis aufgrund der Kleinunternehme
 
 export class Payments {
   constructor(config, store = null) { this.config = config; this.store = store; }
-  get provider() { return this.config.paymentMode === 'local' ? 'local' : 'stripe_test'; }
+  get live() { return this.config.paymentMode === 'live'; }
+  get provider() { return this.config.paymentMode === 'local' ? 'local' : this.live ? 'stripe_live' : 'stripe_test'; }
   get client() {
-    if (!/^(sk|rk)_test_[A-Za-z0-9_]+$/.test(this.config.stripeKey || '')) throw new ShopError('Für Stripe fehlen die Sandbox-Zugangsdaten.', 503);
+    const pattern = this.live ? /^(sk|rk)_live_[A-Za-z0-9_]+$/ : /^(sk|rk)_test_[A-Za-z0-9_]+$/;
+    if (!pattern.test(this.config.stripeKey || '')) throw new ShopError(this.live ? 'Für Stripe fehlen die Live-Zugangsdaten.' : 'Für Stripe fehlen die Sandbox-Zugangsdaten.', 503);
+    if (this.live && this.config.shopMode !== 'live') throw new ShopError('Livezahlungen sind im Testshop gesperrt.', 503);
     return this.sdk ||= new Stripe(this.config.stripeKey, { apiVersion: STRIPE_API_VERSION, timeout: 15000, maxNetworkRetries: 1, httpClient: Stripe.createFetchHttpClient((...args) => globalThis.fetch(...args)), appInfo: { name: 'Archenlicht', version: '0.1.0', url: 'https://archenlicht.de' } });
   }
   async request(operation) {
@@ -29,7 +33,7 @@ export class Payments {
     const customer = this.config.paymentMode === 'local'
       ? { id: `SIM-CUSTOMER-${digest(user.id).slice(0, 24)}` }
       : await this.request(client => client.customers.create({ email: user.email, metadata: { shop_user_id: user.id } }, { idempotencyKey: `customer-${digest(user.id)}` }));
-    if (!customer.id || (this.config.paymentMode !== 'local' && customer.livemode !== false)) throw new ShopError('Das Stripe-Testkundenkonto konnte nicht eingerichtet werden.', 502);
+    if (!customer.id || (this.config.paymentMode !== 'local' && customer.livemode !== this.live)) throw new ShopError('Das Stripe-Kundenkonto konnte nicht eingerichtet werden.', 502);
     await this.store.run('INSERT OR IGNORE INTO payment_customers VALUES(?,?,?)', user.id, this.provider, customer.id);
     return this.storedCustomer(user);
   }
@@ -39,7 +43,7 @@ export class Payments {
     const cards = []; let cursor;
     for (let page = 0; page < 10; page++) {
       const result = await this.request(client => client.paymentMethods.list({ customer: customerId, type: 'card', allow_redisplay: 'always', limit: 100, ...(cursor ? { starting_after: cursor } : {}) }));
-      for (const method of result.data) if (method.customer === customerId && method.type === 'card' && method.allow_redisplay === 'always' && method.livemode === false) cards.push({ id: method.id, brand: method.card.brand, last4: method.card.last4, expMonth: method.card.exp_month, expYear: method.card.exp_year, simulated: false });
+      for (const method of result.data) if (method.customer === customerId && method.type === 'card' && method.allow_redisplay === 'always' && method.livemode === this.live) cards.push({ id: method.id, brand: method.card.brand, last4: method.card.last4, expMonth: method.card.exp_month, expYear: method.card.exp_year, simulated: false });
       if (!result.has_more) return cards;
       cursor = result.data.at(-1)?.id; if (!cursor) break;
     }
@@ -53,12 +57,13 @@ export class Payments {
     } else {
       if (!/^pm_[A-Za-z0-9_]{1,120}$/.test(id)) throw new ShopError('Karte nicht gefunden.', 404);
       const method = await this.request(client => client.paymentMethods.retrieve(id));
-      if (method.customer !== customerId || method.type !== 'card' || method.livemode !== false) throw new ShopError('Karte nicht gefunden.', 404);
+      if (method.customer !== customerId || method.type !== 'card' || method.livemode !== this.live) throw new ShopError('Karte nicht gefunden.', 404);
       await this.request(client => client.paymentMethods.detach(id));
     }
   }
   async create(order, { customerId = null, returnOrigin = this.config.baseUrl } = {}) {
     if (this.config.paymentMode === 'local') return { id: `SIM-${order.payment_method}-${order.id}`, url: `/testzahlung/${order.id}`, simulated: true };
+    if (this.live && order.mode !== 'live' || !this.live && order.mode === 'live') throw new ShopError('Bestellung und Zahlungsumgebung stimmen nicht überein.', 409);
     const base = returnOrigin, recipient = JSON.parse(order.recipient);
     const params = {
       mode: 'payment', locale: 'de', client_reference_id: order.id,
@@ -70,19 +75,21 @@ export class Payments {
       success_url: `${base}/zahlungsrueckkehr/${order.id}`, cancel_url: `${base}/warenkorb?zahlung=abgebrochen`,
       ...(customerId ? { customer: customerId, saved_payment_method_options: { payment_method_save: 'enabled', payment_method_remove: 'enabled', allow_redisplay_filters: ['always'] } } : { customer_email: recipient.email }),
       ...(this.config.stripePaymentConfiguration ? { payment_method_configuration: this.config.stripePaymentConfiguration } : {}),
-      line_items: JSON.parse(order.items).map(item => ({ quantity: item.quantity, price_data: { currency: 'eur', unit_amount: item.unitPrice, tax_behavior: 'inclusive', product_data: { name: `${BRAND.name} · ${item.title} · ${item.model}` } } }))
+      line_items: JSON.parse(order.items).map(item => ({ quantity: item.quantity, price_data: { currency: 'eur', unit_amount: item.unitPrice, tax_behavior: 'inclusive', product_data: { name: `${BRAND.name} · ${item.title} · ${item.model} · ${caseLabel(item.configuration)}` } } }))
     };
     // The shop validates and snapshots the German delivery address before checkout.
     // No duplicate shipping form or automatic customer-address persistence at Stripe.
     const data = await this.request(client => client.checkout.sessions.create(params, { idempotencyKey: `checkout-${order.id}` }));
-    if (data.livemode !== false || !/^cs_test_[A-Za-z0-9]+$/.test(data.id || '') || !/^https:\/\/checkout\.stripe\.com\//.test(data.url || '')) throw new ShopError('Die Stripe-Testzahlung konnte nicht eingerichtet werden.', 502);
+    const sessionId = this.live ? /^cs_live_[A-Za-z0-9]+$/ : /^cs_test_[A-Za-z0-9]+$/;
+    if (data.livemode !== this.live || !sessionId.test(data.id || '') || !/^https:\/\/checkout\.stripe\.com\//.test(data.url || '')) throw new ShopError('Die Stripe-Zahlung konnte nicht eingerichtet werden.', 502);
     return { id: data.id, url: data.url, simulated: false };
   }
   async verify(order) {
     if (this.config.paymentMode === 'local') throw new ShopError('Lokale Zahlungsereignisse müssen separat bestätigt werden.', 400);
+    if (this.live && order.mode !== 'live' || !this.live && order.mode === 'live') throw new ShopError('Bestellung und Zahlungsumgebung stimmen nicht überein.', 409);
     const session = await this.request(client => client.checkout.sessions.retrieve(order.payment_id));
     const taxAmount = session.total_details?.amount_tax;
-    const completed = session.id === order.payment_id && session.mode === 'payment' && session.payment_status === 'paid' && session.status === 'complete' && session.livemode === false && session.metadata?.order_id === order.id && session.metadata?.tax_treatment === TAX_TREATMENT && session.automatic_tax?.enabled === false && taxAmount === 0;
+    const completed = session.id === order.payment_id && session.mode === 'payment' && session.payment_status === 'paid' && session.status === 'complete' && session.livemode === this.live && session.metadata?.order_id === order.id && session.metadata?.tax_treatment === TAX_TREATMENT && session.automatic_tax?.enabled === false && taxAmount === 0;
     return { id: `stripe-${session.id}`, paymentId: session.id, orderId: session.client_reference_id, amount: session.amount_total, currency: session.currency?.toUpperCase(), customerId: typeof session.customer === 'object' ? session.customer?.id : session.customer, paymentIntentId: typeof session.payment_intent === 'object' ? session.payment_intent?.id : session.payment_intent, taxTreatment: session.metadata?.tax_treatment, taxAmount, completed, status: session.status };
   }
   verifyStripeSignature(raw, signature) {
