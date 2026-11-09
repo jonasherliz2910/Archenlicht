@@ -44,9 +44,10 @@ export class LocalPodbase {
 // Official schema snapshot: docs/podbase-openapi-2026-11-03.json.
 // Instantiation is intentionally absent from the test server: Podbase has no free sandbox.
 export class PodbaseAPI {
-  constructor({ apiKey, baseUrl = 'https://open-api.podbase.com', productionApproved = false }) {
+  constructor({ apiKey, baseUrl = 'https://open-api.podbase.com', productionApproved = false, storeId }) {
     if (baseUrl !== 'https://open-api.podbase.com' || !apiKey || /\s/.test(apiKey)) throw new Error('Ungültige Podbase-Verbindung.');
-    this.apiKey = apiKey; this.baseUrl = baseUrl; this.approved = productionApproved;
+    if (storeId !== undefined && !/^PUS-[A-Z0-9]+(?:-[A-Z0-9]+)+$/.test(storeId)) throw new Error('Ungültige Podbase-Store-Kennung.');
+    this.apiKey = apiKey; this.baseUrl = baseUrl; this.approved = productionApproved; this.storeId = storeId;
   }
   async request(path, method = 'GET', body) {
     const res = await fetch(`${this.baseUrl}${path}`, { method, headers: { 'x-api-key': this.apiKey, 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined, redirect: 'error', signal: AbortSignal.timeout(15000) });
@@ -54,15 +55,25 @@ export class PodbaseAPI {
     return res.json();
   }
   catalog() { return this.request('/catalog'); }
-  get(id) { return this.request(`/orders/${encodeURIComponent(id)}`); }
+  normalizeOrder(order) {
+    // The real API prefixes imported external IDs with its store ID. Only strip
+    // the explicitly configured store, never an arbitrary matching suffix.
+    const prefix = this.storeId && `${this.storeId}-`, externalId = order?.externalOrderId;
+    return prefix && typeof externalId === 'string' && externalId.startsWith(prefix)
+      ? { ...order, providerExternalOrderId: externalId, externalOrderId: externalId.slice(prefix.length) }
+      : order;
+  }
+  async get(id) { return this.normalizeOrder(await this.request(`/orders/${encodeURIComponent(id)}`)); }
   async find(externalId) {
+    let match = null;
     for (let page = 0; page < 1000; page++) {
       const result = await this.request(`/orders?page=${page}&limit=100`);
       if (!Array.isArray(result.orders) || typeof result.pagination?.hasNextPage !== 'boolean') throw new Error('Podbase-Auftragsabgleich lieferte keine vollständige Antwort.');
-      const matches = result.orders.filter(o => o.externalOrderId === externalId);
-      if (matches.length > 1) throw new Error('Mehrere Podbase-Aufträge zur externen ID gefunden. Manuelle Klärung nötig.');
-      if (matches[0]) return matches[0];
-      if (!result.pagination.hasNextPage) return null;
+      if (result.pagination.page !== undefined && result.pagination.page !== page) throw new Error('Podbase-Auftragsabgleich lieferte eine unerwartete Seite.');
+      const matches = result.orders.map(o => this.normalizeOrder(o)).filter(o => o?.externalOrderId === externalId);
+      if (matches.length > 1 || (match && matches.length)) throw new Error('Mehrere Podbase-Aufträge zur externen ID gefunden. Manuelle Klärung nötig.');
+      if (matches[0]) match = matches[0];
+      if (!result.pagination.hasNextPage) return match;
     }
     throw new Error('Podbase-Abgleich unvollständig. Kein neuer Auftrag wird gesendet.');
   }

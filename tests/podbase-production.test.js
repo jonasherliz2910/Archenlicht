@@ -28,3 +28,35 @@ test('Echte Übergabe verlangt bezahlten Liveauftrag, passende Originalvorlage u
   globalThis.fetch = async () => Response.json({ orders: [] });
   await assert.rejects(adapter.find(order.id), /vollständige Antwort/);
 });
+
+test('Podbase-Storepräfix wird exakt zugeordnet; fremde Stores und ähnliche Endungen passen nicht', async t => {
+  const original = globalThis.fetch; t.after(() => { globalThis.fetch = original; });
+  const storeId = 'PUS-AAA-BBB-CCCC', externalOrderId = 'AL-INTEGRATION-20261109-01';
+  const expected = { orderId: 'provider-id', externalOrderId: `${storeId}-${externalOrderId}`, status: 'UNAPPROVED' };
+  globalThis.fetch = async url => Response.json(url.includes('?')
+    ? { orders: [{ ...expected, externalOrderId: `PUS-OTHER-BBB-CCCC-${externalOrderId}` }, { ...expected, externalOrderId: `${storeId}-OTHER-${externalOrderId}` }, expected], pagination: { page: 0, hasNextPage: false } }
+    : expected);
+  const api = new PodbaseAPI({ apiKey: 'fixture', storeId });
+  const found = await api.find(externalOrderId), direct = await api.get('provider-id');
+  assert.equal(found.orderId, 'provider-id'); assert.equal(found.externalOrderId, externalOrderId);
+  assert.equal(found.providerExternalOrderId, expected.externalOrderId); assert.deepEqual(direct, found);
+  assert.equal(await new PodbaseAPI({ apiKey: 'fixture' }).find(externalOrderId), null);
+  assert.throws(() => new PodbaseAPI({ apiKey: 'fixture', storeId: 'wrong-store' }));
+});
+
+test('Abgleich prüft alle Seiten und stoppt bei doppelten, unvollständigen oder verschobenen Antworten', async t => {
+  const original = globalThis.fetch; t.after(() => { globalThis.fetch = original; });
+  const storeId = 'PUS-AAA-BBB-CCCC', api = new PodbaseAPI({ apiKey: 'fixture', storeId });
+  let scenario = 'unique'; const calls = [];
+  globalThis.fetch = async url => {
+    const page = Number(new URL(url).searchParams.get('page')); calls.push(page);
+    if (scenario === 'failed-page' && page === 1) return new Response('', { status: 503 });
+    return Response.json({ orders: page === 0 || scenario === 'duplicate'
+      ? [{ orderId: 'provider-' + page, externalOrderId: storeId + '-shop-order', status: 'UNAPPROVED' }] : [],
+      pagination: { page: scenario === 'wrong-page' ? 8 : page, hasNextPage: page === 0 } });
+  };
+  assert.equal((await api.find('shop-order')).orderId, 'provider-0'); assert.deepEqual(calls, [0, 1]);
+  scenario = 'duplicate'; await assert.rejects(api.find('shop-order'), /Mehrere Podbase/);
+  scenario = 'failed-page'; await assert.rejects(api.find('shop-order'), /HTTP 503/);
+  scenario = 'wrong-page'; await assert.rejects(api.find('shop-order'), /unerwartete Seite/);
+});
