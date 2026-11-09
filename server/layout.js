@@ -9,7 +9,7 @@ import { caseColor } from '../public/case-colors.js';
 import { printExclusions } from '../public/device-preview.js';
 import { MAX_CUSTOM_TEXT } from '../public/custom-text.js';
 
-export const LAYOUT_VERSION = 'archenlicht-package-layout-v7-soft-edges';
+export const LAYOUT_VERSION = 'archenlicht-package-layout-v8-retouched-edges';
 const fontPath = new URL('../public/fonts/Caveat.ttf', import.meta.url);
 const font = opentype.loadSync(fileURLToPath(fontPath));
 export const FONT_VERSION = `Caveat-${createHash('sha256').update(readFileSync(fontPath)).digest('hex')}`;

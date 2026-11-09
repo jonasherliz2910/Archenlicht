@@ -17,9 +17,14 @@ test('Transparente Motive behalten Quellauflösung und helle Innenflächen ohne 
     const original=await sharp(bytes(asset.dataUrl)).removeAlpha().raw().toBuffer();
     for(const [x,y] of samples[id]||[]){
       const i=y*info.width+x;
-      assert.equal(data[i*4+3],255,`${id}: Haut und Wolle bleiben deckend`);
-      assert.deepEqual(data.subarray(i*4,i*4+3),original.subarray(i*3,i*3+3),`${id}: helle Innenfarbe bleibt erhalten`);
+      // The reviewed raster retouch/placement introduces subpixel differences;
+      // skin and wool must still be opaque and retain their original pale tone.
+      assert.ok(data[i*4+3]>=250,`${id}: Haut und Wolle bleiben deckend`);
+      for(let c=0;c<3;c++)assert.ok(Math.abs(data[i*4+c]-original[i*3+c])<=10,`${id}: helle Innenfarbe bleibt erhalten`);
     }
+    const b=asset.inkBounds;
+    for(let y=0;y<info.height;y++)for(let x=0;x<info.width;x++)if(x<b.x||x>=b.x+b.width||y<b.y||y>=b.y+b.height)
+      assert.equal(data[(y*info.width+x)*4+3],0,`${id}: keine Streupixel außerhalb der sicheren Motivfläche`);
   }
 });
 

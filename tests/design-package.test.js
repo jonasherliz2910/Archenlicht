@@ -37,7 +37,9 @@ test('Texte sind mittig, horizontal, proportional und innerhalb von Textbox, Mod
     assert.deepEqual(layout.sourcePixels, source);
     assert.equal(layout.configuration.layoutVersion, LAYOUT_VERSION); assert.equal(layout.productionApproved, false);
     assert.equal(layout.configuration.verseReference, verse.reference); assert.equal(layout.configuration.verseExcerpt, verse.quote);
-    assert.equal(layout.typography.length, 3); assert.equal(/rotate\(|skew|matrix\(/.test(layout.svg), false);
+    // Only inspect SVG markup: arbitrary base64 bytes can contain "skew".
+    const markup = layout.svg.replace(/data:image\/png;base64,[^"]+/g, '');
+    assert.equal(layout.typography.length, 3); assert.equal(/rotate\(|skew|matrix\(/.test(markup), false);
     assert.equal(layout.svg.includes('<text'), false); // All printed text is built from the actual supplied font paths.
     for (const block of layout.typography) {
       const definition = designAsset(design.id).boxes[block.key];

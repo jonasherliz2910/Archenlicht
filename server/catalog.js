@@ -12,7 +12,7 @@ export const DESIGNS = [
 ].map(design => {
   const asset = designAsset(design.id);
   if (asset.reference !== design.reference) throw new Error(`Die feste Versstelle für ${design.id} stimmt nicht mit dem Designpaket überein.`);
-  return { ...design, color: caseColor('white').hex, ink: DESIGN_PACKAGE.ink, blankImageUrl: asset.blankImageUrl, artworkVersion: asset.version, productionApproved: false };
+  return { ...design, color: caseColor('white').hex, ink: DESIGN_PACKAGE.ink, blankImageUrl: asset.blankImageUrl, foregroundImageUrl: `/assets/design-foregrounds-v3/${design.id}.png`, artworkVersion: asset.version, productionApproved: false };
 });
 const iphones = ['iPhone 12', 'iPhone 12 Pro', 'iPhone 12 Pro Max', 'iPhone 13', 'iPhone 13 mini', 'iPhone 13 Pro', 'iPhone 13 Pro Max', 'iPhone 14', 'iPhone 14 Plus', 'iPhone 14 Pro', 'iPhone 14 Pro Max', 'iPhone 15', 'iPhone 15 Plus', 'iPhone 15 Pro', 'iPhone 15 Pro Max', 'iPhone 16', 'iPhone 16 Plus', 'iPhone 16 Pro', 'iPhone 16 Pro Max'];
 const samsungs = ['Samsung Galaxy S21', 'Samsung Galaxy S21 Ultra', 'Samsung Galaxy S22', 'Samsung Galaxy S22 Ultra', 'Samsung Galaxy S23', 'Samsung Galaxy S23 Ultra', 'Samsung Galaxy S24', 'Samsung Galaxy S24 Ultra', 'Samsung Galaxy S25', 'Samsung Galaxy S25 Ultra', 'Samsung Galaxy A54', 'Samsung Galaxy A55'];

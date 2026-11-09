@@ -1,0 +1,176 @@
+{
+  "unter-seinen-fluegeln": {
+    "sourceHash": "48a5f86a347f2f0de235180fbecf52db7f87e79c4ff64fdbeec9daabb5262a02",
+    "renderHash": "34eba9c60f687d8aa70c811b57286217c942a966678878604c0b952b77e238ee",
+    "bounds": {
+      "x": 199,
+      "y": 730,
+      "width": 621,
+      "height": 418
+    },
+    "retouch": {
+      "method": "image_gen",
+      "inputRenderHash": "2b1d3ac251957581068232133d264246f5072e4a537f286612529d9592d0625e",
+      "generatedFile": "exec-abea797d-fdc7-4512-89df-39aa1b5d2804.png",
+      "generatedHash": "0626134d70b0022857bee333f4df484560e1e5b9bab287bdd1488699446ccf21",
+      "crop": {
+        "left": 198,
+        "top": 727,
+        "width": 621,
+        "height": 420
+      },
+      "placement": {
+        "left": 200,
+        "top": 730,
+        "width": 618,
+        "height": 418
+      },
+      "scale": 0.9952380952380953
+    }
+  },
+  "nach-dem-sturm": {
+    "sourceHash": "6f32c1b84ab525742edabe493da358d4840a41f40f57c917a58491c5dcedbc82",
+    "renderHash": "ed41f9b6e36b9108564b8ba3351d30e11eb6ebaf75ac2f0c8411a5c893d1c3e0",
+    "bounds": {
+      "x": 106,
+      "y": 868,
+      "width": 750,
+      "height": 345
+    },
+    "retouch": {
+      "method": "image_gen",
+      "inputRenderHash": "ade8ac06dafc710089122d8e58a6eb23dd5c1ba6766e4f3a4ded6fe4fecf087c",
+      "generatedFile": "exec-ce359db3-e7b9-4379-b311-d355d48757a5.png",
+      "generatedHash": "c4e4b087640093cc329b55f2ae81ea9813c062b6e80d13fd424040919d696e80",
+      "crop": {
+        "left": 106,
+        "top": 873,
+        "width": 752,
+        "height": 343
+      },
+      "placement": {
+        "left": 106,
+        "top": 869,
+        "width": 750,
+        "height": 342
+      },
+      "scale": 0.9973404255319149
+    }
+  },
+  "absetzen": {
+    "sourceHash": "352b262da82ef6942313c6d38f680cccd2c8f6cd7ab6100f663db15762373b60",
+    "renderHash": "a64ef57bf3f7cc086c245288b2f854dbf2517e1e8701da89854a02bda9b9f6cb",
+    "bounds": {
+      "x": 149,
+      "y": 760,
+      "width": 665,
+      "height": 540
+    },
+    "retouch": {
+      "method": "image_gen",
+      "inputRenderHash": "0ecf176236e880ff644544cd784d5dccdc5b1a7cb7cb98f260bcfd5badca3eb5",
+      "generatedFile": "exec-e95da443-79e9-4c0f-a718-45100ad0c9dd.png",
+      "generatedHash": "e2c724efa5088ac2e0917bcef6ea9db512e3ea00d2c4af69dc1779033916ab11",
+      "crop": {
+        "left": 151,
+        "top": 738,
+        "width": 678,
+        "height": 548
+      },
+      "placement": {
+        "left": 149,
+        "top": 761,
+        "width": 665,
+        "height": 537
+      },
+      "scale": 0.9808259587020649
+    }
+  },
+  "ganz-nah": {
+    "sourceHash": "8ad0c76c12966a04080e45114e684bc56fb38fbc8bc81dd03133d3c6900f834f",
+    "renderHash": "6381d21eb10a50e1612267f35dce14a5fb94e1ab272ffd38ac33ec453eb7919d",
+    "bounds": {
+      "x": 153,
+      "y": 562,
+      "width": 657,
+      "height": 722
+    },
+    "retouch": {
+      "method": "image_gen",
+      "inputRenderHash": "1cacc60a597d21f33147871d648baf9433d21c5052cd42a0949bf80356fe540b",
+      "generatedFile": "exec-d3d4948a-3372-4bd1-9c78-78e98e1e48bc.png",
+      "generatedHash": "0d411fe1a5111ba33898b47cfc52a8089503adbd2a34586989cf5759fc20cff6",
+      "crop": {
+        "left": 149,
+        "top": 544,
+        "width": 666,
+        "height": 725
+      },
+      "placement": {
+        "left": 153,
+        "top": 565,
+        "width": 657,
+        "height": 715
+      },
+      "scale": 0.9864864864864865
+    }
+  },
+  "im-schatten": {
+    "sourceHash": "21748973d4b045549f0f14b896c7c9c60355a844d24c5a4a2028a09d1afb9fd7",
+    "renderHash": "2301e65287988435062eff61288a429e117d1007e8664ccc80e268f5e7c7e36a",
+    "bounds": {
+      "x": 140,
+      "y": 635,
+      "width": 632,
+      "height": 662
+    },
+    "retouch": {
+      "method": "image_gen",
+      "inputRenderHash": "ff8ed40cc489d85dc02d06fcf10cb1c0ed82ec7ae37641a477d146bc10d32a42",
+      "generatedFile": "exec-eed0e3d0-7446-495a-abca-f49d1848aa7e.png",
+      "generatedHash": "401cf30b96332455691f24fc6b628dc0c038de791d33ae8f1d4fd78a4b9e3cde",
+      "crop": {
+        "left": 142,
+        "top": 619,
+        "width": 633,
+        "height": 667
+      },
+      "placement": {
+        "left": 142,
+        "top": 635,
+        "width": 628,
+        "height": 662
+      },
+      "scale": 0.992503748125937
+    }
+  },
+  "getragen": {
+    "sourceHash": "bcafd39e0b97cac6a3b0164940b63cc8992b1f790a9d986fcf06b1ac58274718",
+    "renderHash": "045c65bb609eff6eccf524055410f072a627dee6efc70e5e0ed85487c78d00bf",
+    "bounds": {
+      "x": 170,
+      "y": 646,
+      "width": 619,
+      "height": 598
+    },
+    "retouch": {
+      "method": "image_gen",
+      "inputRenderHash": "e53f9096068261b900e85b73f9b05613b6f887b939e9e02deb78e391fff58706",
+      "generatedFile": "exec-44c7f15d-f963-4b74-bca2-36ee0b6dff54.png",
+      "generatedHash": "78413beeee7cb43d0847387593c4f9d90289cff409f569b312c07e819c3239c8",
+      "crop": {
+        "left": 170,
+        "top": 638,
+        "width": 619,
+        "height": 609
+      },
+      "placement": {
+        "left": 176,
+        "top": 646,
+        "width": 607,
+        "height": 598
+      },
+      "scale": 0.9819376026272578
+    }
+  }
+}
