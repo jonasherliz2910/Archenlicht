@@ -1,4 +1,4 @@
-export const BUNDLE = Object.freeze({ minimumQuantity: 2, percent: 5, version: 'bundle-5-v1' });
+export const BUNDLE = Object.freeze({ minimumQuantity: 2, percent: 5, higherMinimumQuantity: 4, higherPercent: 10, version: 'bundle-5-10-v2' });
 
 function lineSubtotal(item) {
   if (!Number.isSafeInteger(item.unitPrice) || item.unitPrice < 0 || !Number.isSafeInteger(item.quantity) || item.quantity < 1) throw new Error('Ungültige Preisposition.');
@@ -12,7 +12,7 @@ function lineSubtotal(item) {
 export function priceBundleItems(items) {
   const subtotals = items.map(lineSubtotal), subtotal = subtotals.reduce((a, b) => a + b, 0);
   const quantity = items.reduce((sum, i) => sum + i.quantity, 0);
-  const percent = quantity >= BUNDLE.minimumQuantity ? BUNDLE.percent : 0;
+  const percent = quantity >= BUNDLE.higherMinimumQuantity ? BUNDLE.higherPercent : quantity >= BUNDLE.minimumQuantity ? BUNDLE.percent : 0;
   const discount = Math.floor((subtotal * percent + 50) / 100);
   const shares = subtotals.map(value => subtotal ? Math.floor(discount * value / subtotal) : 0);
   let remainder = discount - shares.reduce((a, b) => a + b, 0);
