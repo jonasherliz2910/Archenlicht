@@ -1,0 +1,32 @@
+.newsletter-dialog{border:1px solid #dce2d8;border-radius:14px;background:#fbf8ef;color:#163e29;width:min(560px,calc(100vw - 32px));max-height:calc(100dvh - 32px);padding:40px 36px 24px;overflow-y:auto;box-sizing:border-box;box-shadow:0 24px 80px #102d2940}
+.newsletter-dialog::backdrop{background:#102d296b;backdrop-filter:blur(3px)}
+.newsletter-open{overflow:hidden}
+.newsletter-dialog h1,.newsletter-page h1{font-size:clamp(30px,4vw,44px);line-height:1.12;margin:16px 0}
+.newsletter-dialog p,.newsletter-page p{line-height:1.55}
+.newsletter-dialog .eyebrow{padding-right:20px}
+.newsletter-close{position:absolute;right:12px;top:10px;width:44px;height:44px;border:0;background:transparent;color:inherit;font-size:30px;cursor:pointer;border-radius:50%}
+.newsletter-close:hover{background:#e9eee5}
+.newsletter-later{display:block;margin:14px auto 0;min-height:44px}
+.newsletter-page{max-width:640px!important;padding-top:70px;padding-bottom:80px}
+#newsletter-form{display:grid;gap:14px;margin-top:22px}
+#newsletter-form label:not(.newsletter-consent){display:grid;gap:6px;font-size:14px}
+#newsletter-form input:not([type=checkbox]){width:100%;min-width:0;box-sizing:border-box;padding:12px;border:1px solid #bac6b5;border-radius:5px;background:#fffef9;font:inherit;font-size:16px;color:#163e29}
+.newsletter-names{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.newsletter-consent{display:flex;align-items:flex-start;gap:10px;font-size:12px;line-height:1.6}
+.newsletter-consent input{flex:none;margin:5px 0 0;width:18px;height:18px;accent-color:#163e29}
+.newsletter-consent a,.newsletter-page a{text-decoration:underline}
+.newsletter-terms,.newsletter-help{font-size:12px;color:#51624b;margin:0}
+.newsletter-honey{position:absolute!important;left:-10000px;width:1px;height:1px;overflow:hidden}
+.newsletter-status{font-size:14px;margin:0;overflow-wrap:anywhere}
+.newsletter-status:empty{display:none}
+.newsletter-success{padding:18px;background:#e9eee5;border-radius:8px}
+.newsletter-code{margin:24px 0;padding:20px;border:1px solid #dce2d8;border-radius:8px;min-width:0}
+.newsletter-code legend{padding:0 8px;font-weight:600}
+.newsletter-code label{display:block;font-size:14px}
+.newsletter-code input:not([type=hidden]){width:100%;box-sizing:border-box;min-width:0;padding:12px;margin:8px 0 12px;font:inherit;font-size:16px;border:1px solid #bac6b5;background:white}
+.newsletter-code-actions{display:flex;flex-wrap:wrap;gap:12px}
+.newsletter-code p{font-size:13px;margin:12px 0 0}
+#newsletter-discount-row:empty{display:none}
+#newsletter-remove[hidden]{display:none}
+@media(max-width:480px){.newsletter-dialog{padding:42px 20px 18px;width:calc(100vw - 24px);max-height:calc(100dvh - 24px)}.newsletter-names{gap:10px}.newsletter-dialog .button{padding-left:12px;padding-right:12px}.newsletter-page{padding-top:40px}.newsletter-code{padding:16px}}
+@media(max-width:350px){.newsletter-names{grid-template-columns:1fr}}

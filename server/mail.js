@@ -11,6 +11,8 @@ const messageId=/^[a-zA-Z0-9_-]{1,200}$/;
 
 export class Mailer {
   static validate(config) {
+    if (config.newsletterMode && !['local','resend'].includes(config.newsletterMode)) throw new Error('NEWSLETTER_MODE muss local oder resend sein.');
+    if (config.newsletterMode === 'resend' && (!/^re_[A-Za-z0-9_-]+$/.test(config.resendKey || '') || !/^whsec_[A-Za-z0-9+/=_-]+$/.test(config.resendWebhook || '') || !/^https:\/\/(www\.)?archenlicht\.de$/.test(config.mailPublicUrl || ''))) throw new Error('Für den Newsletter fehlen Resend-Zugangsdaten oder die öffentliche Shopadresse.');
     if(!['local','resend-test'].includes(config.mailMode)) throw new Error('MAIL_MODE muss local oder resend-test sein.');
     if(config.mailMode!=='resend-test') return;
     if(config.shopMode!=='test'||!/^re_[A-Za-z0-9_-]+$/.test(config.resendKey||'')||!/^whsec_[A-Za-z0-9+/=_-]+$/.test(config.resendWebhook||'')) throw new Error('Für den begrenzten Resend-Test fehlen sichere Zugangsdaten.');
@@ -44,18 +46,23 @@ export class Mailer {
     await this.s.run('UPDATE mail_deliveries SET state=?,last_error=?,lease_until=0,lease_token=NULL WHERE mail_id=?',state,error,mailId);
     await this.s.run('UPDATE mail_outbox SET status=? WHERE id=?',`resend-${state}`,mailId);
   }
-  async flush({orderId=null,limit=2}={}) {
-    if(!this.enabled) return;
+  async flush({orderId=null,limit=2,newsletterOnly=false}={}) {
+    if(!this.enabled && this.config.newsletterMode !== 'resend') return;
     const started=Date.now();
-    const jobs=await this.s.all("SELECT d.*,m.order_id FROM mail_deliveries d JOIN mail_outbox m ON m.id=d.mail_id JOIN orders o ON o.id=m.order_id WHERE d.state IN ('queued','sending') AND d.lease_until<? AND d.next_attempt<=? AND o.paid_at IS NOT NULL"+(orderId?' AND o.id=?':'')+' ORDER BY d.created LIMIT 10',started,started,...(orderId?[orderId]:[]));
+    const jobs=await this.s.all("SELECT d.*,m.order_id,m.kind FROM mail_deliveries d JOIN mail_outbox m ON m.id=d.mail_id LEFT JOIN orders o ON o.id=m.order_id WHERE d.state IN ('queued','sending') AND d.lease_until<? AND d.next_attempt<=? AND (o.paid_at IS NOT NULL OR m.kind IN ('newsletter-confirm','newsletter-welcome'))"+(orderId?' AND o.id=?':'')+(newsletterOnly?" AND m.kind IN ('newsletter-confirm','newsletter-welcome')":'')+' ORDER BY d.created LIMIT 10',started,started,...(orderId?[orderId]:[]));
     let processed=0;
     for(const candidate of jobs) {
+      const newsletter = candidate.kind.startsWith('newsletter-');
+      if (newsletter ? this.config.newsletterMode !== 'resend' : !this.enabled) continue;
       if(processed++>=limit||Date.now()-started>20000) break;
       const now=Date.now(),lease=randomUUID();
       const claim=await this.s.run("UPDATE mail_deliveries SET state='sending',lease_until=?,lease_token=? WHERE mail_id=? AND state IN ('queued','sending') AND lease_until<?",now+60000,lease,candidate.mail_id,now);
       if(!claim.changes) continue;
       const job=await this.s.get('SELECT * FROM mail_deliveries WHERE mail_id=?',candidate.mail_id),payload=JSON.parse(job.payload);
-      if(!this.config.mailTestRecipients.includes(payload.to[0].toLowerCase())) {await this.recordState(job.mail_id,'held','Testempfänger nicht mehr freigegeben.');continue;}
+      if (newsletter) {
+        const subscription = await this.s.get('SELECT s.status,s.confirm_hash,s.confirm_expires,n.generation FROM newsletter_mail n JOIN newsletter_subscribers s ON s.id=n.subscriber_id WHERE n.mail_id=?',job.mail_id);
+        if (!subscription || subscription.generation !== subscription.confirm_hash || subscription.status !== (candidate.kind === 'newsletter-confirm' ? 'pending' : 'active') || candidate.kind === 'newsletter-confirm' && subscription.confirm_expires < now) { await this.recordState(job.mail_id,'suppressed','Newsletter-Anmeldung nicht mehr aktuell.'); continue; }
+      } else if(!this.config.mailTestRecipients.includes(payload.to[0].toLowerCase())) {await this.recordState(job.mail_id,'held','Testempfänger nicht mehr freigegeben.');continue;}
       if(await this.s.get('SELECT address_hash FROM mail_suppressions WHERE address_hash=?',digest(payload.to[0].toLowerCase()))) {await this.recordState(job.mail_id,'suppressed','Adresse nach Rückläufer oder Beschwerde gesperrt.');continue;}
       if(job.first_attempt&&now-job.first_attempt>=retryWindow||job.attempts>=6) {await this.recordState(job.mail_id,'held','Versandstatus manuell bei Resend abgleichen; keine automatische Neusendung.');continue;}
       await this.s.run('UPDATE mail_deliveries SET first_attempt=COALESCE(first_attempt,?),attempts=attempts+1 WHERE mail_id=? AND lease_token=?',now,job.mail_id,lease);

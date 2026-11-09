@@ -4,6 +4,9 @@ export const MAIL_TABLES = [
   "CREATE TABLE IF NOT EXISTS mail_suppressions(address_hash TEXT PRIMARY KEY,reason TEXT NOT NULL,created INTEGER NOT NULL)"
 ];
 export const TABLES = [
+  "CREATE TABLE IF NOT EXISTS newsletter_subscribers(id TEXT PRIMARY KEY,email TEXT UNIQUE NOT NULL,first_name TEXT NOT NULL,last_name TEXT NOT NULL,status TEXT NOT NULL,confirm_hash TEXT UNIQUE NOT NULL,confirm_expires INTEGER NOT NULL,unsubscribe_hash TEXT UNIQUE NOT NULL,code TEXT UNIQUE,code_hash TEXT UNIQUE,consent_version TEXT NOT NULL,requested_at INTEGER NOT NULL,confirmed_at INTEGER,unsubscribed_at INTEGER)",
+  "CREATE TABLE IF NOT EXISTS newsletter_consents(id TEXT PRIMARY KEY,subscriber_id TEXT NOT NULL REFERENCES newsletter_subscribers(id) ON DELETE CASCADE,action TEXT NOT NULL,version TEXT NOT NULL,consent_text TEXT NOT NULL,created INTEGER NOT NULL)",
+  "CREATE TABLE IF NOT EXISTS newsletter_limits(id TEXT PRIMARY KEY,attempts INTEGER NOT NULL,expires INTEGER NOT NULL)",
   "CREATE TABLE IF NOT EXISTS users(id TEXT PRIMARY KEY,email TEXT UNIQUE NOT NULL,password TEXT NOT NULL,role TEXT NOT NULL DEFAULT 'customer',created INTEGER NOT NULL)",
   "CREATE TABLE IF NOT EXISTS account_profiles(user_id TEXT PRIMARY KEY REFERENCES users(id),address TEXT,address_version INTEGER NOT NULL DEFAULT 0,updated INTEGER NOT NULL)",
   "CREATE TABLE IF NOT EXISTS payment_customers(user_id TEXT NOT NULL REFERENCES users(id),provider TEXT NOT NULL,customer_id TEXT UNIQUE NOT NULL,PRIMARY KEY(user_id,provider))",
@@ -22,6 +25,8 @@ export const TABLES = [
   "CREATE TABLE IF NOT EXISTS fulfillment(order_id TEXT PRIMARY KEY REFERENCES orders(id),state TEXT NOT NULL,provider_id TEXT UNIQUE,error TEXT,tracking TEXT,tracking_url TEXT,attempts INTEGER NOT NULL DEFAULT 0,lease_until INTEGER NOT NULL DEFAULT 0,updated INTEGER NOT NULL)",
   "CREATE TABLE IF NOT EXISTS provider_orders(id TEXT PRIMARY KEY,external_id TEXT UNIQUE NOT NULL,payload TEXT NOT NULL,status TEXT NOT NULL,tracking TEXT,created INTEGER NOT NULL)",
   "CREATE TABLE IF NOT EXISTS mail_outbox(id TEXT PRIMARY KEY,order_id TEXT REFERENCES orders(id),kind TEXT NOT NULL,recipient TEXT NOT NULL,subject TEXT NOT NULL,body TEXT NOT NULL,status TEXT NOT NULL,created INTEGER NOT NULL,UNIQUE(order_id,kind))",
+  "CREATE TABLE IF NOT EXISTS newsletter_mail(mail_id TEXT PRIMARY KEY REFERENCES mail_outbox(id),subscriber_id TEXT NOT NULL REFERENCES newsletter_subscribers(id) ON DELETE CASCADE,generation TEXT NOT NULL)",
+  "CREATE TABLE IF NOT EXISTS newsletter_redemptions(subscriber_id TEXT NOT NULL REFERENCES newsletter_subscribers(id),mode TEXT NOT NULL,order_id TEXT UNIQUE NOT NULL REFERENCES orders(id),redeemed_at INTEGER,PRIMARY KEY(subscriber_id,mode))",
   "CREATE TABLE IF NOT EXISTS feedback(id TEXT PRIMARY KEY,visit_id TEXT NOT NULL,reason TEXT NOT NULL,created INTEGER NOT NULL)",
   ...MAIL_TABLES
 ];

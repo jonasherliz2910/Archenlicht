@@ -8,7 +8,7 @@ import { DESIGNS, MODELS } from './catalog.js';
 import { digest } from './store.js';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-export const defaultConfig = () => ({ podbaseKey: process.env.PODBASE_API_KEY, podbaseBaseUrl: process.env.PODBASE_BASE_URL || 'https://open-api.podbase.com', shopMode: process.env.SHOP_MODE || 'test', podbaseMode: process.env.PODBASE_MODE || 'local', printMode: process.env.PRINT_MODE || 'preview', mailMode: process.env.MAIL_MODE || 'local', resendKey: process.env.RESEND_API_KEY, resendWebhook: process.env.RESEND_WEBHOOK_SECRET, mailPublicUrl: process.env.MAIL_PUBLIC_URL || 'https://www.archenlicht.de', mailTestRecipients: (process.env.MAIL_TEST_RECIPIENTS || '').split(',').map(v => v.trim().toLowerCase()).filter(Boolean), mailEnabledSince: process.env.MAIL_ENABLED_SINCE, paymentMode: process.env.PAYMENT_MODE || 'local', dataDir: resolve(process.env.DATA_DIR || 'data/test'), adminEmail: process.env.ADMIN_EMAIL || 'jonas@archenlicht.test', adminPassword: process.env.ADMIN_PASSWORD || undefined, sessionHours: Math.min(24, Math.max(1, Number(process.env.SESSION_HOURS) || 2)), baseUrl: process.env.BASE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : `http://localhost:${process.env.PORT || 3000}`), printBaseUrl: process.env.PRINT_BASE_URL || '', stripeKey: process.env.STRIPE_SECRET_KEY, stripeWebhook: process.env.STRIPE_WEBHOOK_SECRET, stripePaymentConfiguration: process.env.STRIPE_PAYMENT_CONFIGURATION, autoShip: true, storageMode: process.env.STORAGE_MODE || (process.env.VERCEL === '1' ? 'postgres' : 'sqlite'), databaseUrl: process.env.DATABASE_URL, databaseSchema: process.env.DATABASE_SCHEMA || 'public', serverless: process.env.VERCEL === '1', workerSecret: process.env.CRON_SECRET, platformOrigins: [process.env.VERCEL_URL, process.env.VERCEL_BRANCH_URL, process.env.VERCEL_PROJECT_PRODUCTION_URL].filter(Boolean).map(host => `https://${host}`).concat((process.env.SHOP_ALLOWED_ORIGINS || '').split(',').map(value => value.trim()).filter(value => /^https:\/\/[^/]+$/.test(value))) });
+export const defaultConfig = () => ({ podbaseKey: process.env.PODBASE_API_KEY, podbaseBaseUrl: process.env.PODBASE_BASE_URL || 'https://open-api.podbase.com', shopMode: process.env.SHOP_MODE || 'test', podbaseMode: process.env.PODBASE_MODE || 'local', printMode: process.env.PRINT_MODE || 'preview', mailMode: process.env.MAIL_MODE || 'local', newsletterMode: process.env.NEWSLETTER_MODE || 'local', resendKey: process.env.RESEND_API_KEY, resendWebhook: process.env.RESEND_WEBHOOK_SECRET, mailPublicUrl: process.env.MAIL_PUBLIC_URL || 'https://www.archenlicht.de', mailTestRecipients: (process.env.MAIL_TEST_RECIPIENTS || '').split(',').map(v => v.trim().toLowerCase()).filter(Boolean), mailEnabledSince: process.env.MAIL_ENABLED_SINCE, paymentMode: process.env.PAYMENT_MODE || 'local', dataDir: resolve(process.env.DATA_DIR || 'data/test'), adminEmail: process.env.ADMIN_EMAIL || 'jonas@archenlicht.test', adminPassword: process.env.ADMIN_PASSWORD || undefined, sessionHours: Math.min(24, Math.max(1, Number(process.env.SESSION_HOURS) || 2)), baseUrl: process.env.BASE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : `http://localhost:${process.env.PORT || 3000}`), printBaseUrl: process.env.PRINT_BASE_URL || '', stripeKey: process.env.STRIPE_SECRET_KEY, stripeWebhook: process.env.STRIPE_WEBHOOK_SECRET, stripePaymentConfiguration: process.env.STRIPE_PAYMENT_CONFIGURATION, autoShip: true, storageMode: process.env.STORAGE_MODE || (process.env.VERCEL === '1' ? 'postgres' : 'sqlite'), databaseUrl: process.env.DATABASE_URL, databaseSchema: process.env.DATABASE_SCHEMA || 'public', serverless: process.env.VERCEL === '1', workerSecret: process.env.CRON_SECRET, platformOrigins: [process.env.VERCEL_URL, process.env.VERCEL_BRANCH_URL, process.env.VERCEL_PROJECT_PRODUCTION_URL].filter(Boolean).map(host => `https://${host}`).concat((process.env.SHOP_ALLOWED_ORIGINS || '').split(',').map(value => value.trim()).filter(value => /^https:\/\/[^/]+$/.test(value))) });
 const mime = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.ttf': 'font/ttf', '.txt': 'text/plain; charset=utf-8' };
 function send(res, status, data, type = 'application/json; charset=utf-8') { res.writeHead(status, { 'Content-Type': type }); res.end(type.startsWith('application/json') ? JSON.stringify(data) : data); }
 async function rawBody(req, limit = 20000) { const chunks = []; let length = 0; for await (const chunk of req) { length += chunk.length; if (length > limit) throw new ShopError('Die Eingabe ist zu groß.', 413); chunks.push(chunk); } return Buffer.concat(chunks).toString('utf8'); }
@@ -26,6 +26,11 @@ export async function createApp(config = defaultConfig()) {
       if (path === '/api/jobs') {
         if (!config.workerSecret || req.headers.authorization !== `Bearer ${config.workerSecret}`) throw new ShopError('Zugriff nicht erlaubt.', 403);
         await shop.tick(); return send(res, 200, { ok: true, simulated: true });
+      }
+      if (path === '/api/newsletter/one-click' && method === 'POST') {
+        const raw = await rawBody(req, 1000);
+        if (new URLSearchParams(raw).get('List-Unsubscribe') !== 'One-Click') throw new ShopError('Ungültige Abmeldung.');
+        return send(res, 200, await shop.newsletter.unsubscribe(url.searchParams.get('token')));
       }
       if (path === '/api/webhooks/resend' && method === 'POST') {
         const raw = await rawBody(req, 256000);
@@ -46,6 +51,7 @@ export async function createApp(config = defaultConfig()) {
         if (!verified.completed) {
           if (event.type === 'checkout.session.expired' && verified.status === 'expired') await shop.s.run("UPDATE orders SET status='expired' WHERE id=? AND paid_at IS NULL", order.id);
           if (event.type === 'checkout.session.async_payment_failed' && verified.status === 'complete') await shop.s.run("UPDATE orders SET status='payment_failed' WHERE id=? AND paid_at IS NULL", order.id);
+          await shop.newsletter.release(order.id);
           return send(res, 200, { pending: true });
         }
         (await shop.acceptPayment({ ...verified, id: `${path}:${event.id}` }));
@@ -69,6 +75,14 @@ export async function createApp(config = defaultConfig()) {
           if (!body || Array.isArray(body) || typeof body !== 'object') throw new ShopError('Ungültige Eingabe.');
         }
         if (path === '/api/bootstrap' && method === 'GET') return send(res, 200, (await shop.publicState(session)));
+        if (path === '/api/newsletter/subscribe' && method === 'POST') return send(res, 200, await shop.newsletter.subscribe(body, session, config.serverless ? String(req.headers['x-forwarded-for'] || req.socket.remoteAddress).split(',')[0].trim() : req.socket.remoteAddress));
+        if (path === '/api/newsletter/confirm' && method === 'POST') return send(res, 200, await shop.newsletter.confirm(body.token));
+        if (path === '/api/newsletter/unsubscribe' && method === 'POST') return send(res, 200, await shop.newsletter.unsubscribe(body.token));
+        if (path === '/api/newsletter/quote' && method === 'POST') {
+          await shop.newsletter.limit('quote:' + session.id, 20, 3600000);
+          const discount = await shop.newsletter.discount(body.code, body.email, await shop.cart(session));
+          return send(res, 200, { items: discount.items });
+        }
         if (path === '/api/preview' && method === 'POST') return send(res, 200, (await shop.preview(body)));
         if (path === '/api/events' && method === 'POST') { (await shop.track(session, body.type, body.kind, body.designId)); return send(res, 200, { ok: true }); }
         if (path === '/api/cart' && method === 'GET') return send(res, 200, (await shop.cart(session)));
@@ -120,7 +134,17 @@ export async function createApp(config = defaultConfig()) {
             if (verified.completed) (await shop.acceptPayment(verified));
             return send(res, 200, (await shop.orderView((await shop.s.get('SELECT * FROM orders WHERE id=?', order.id)), session)));
           }
-          if (method === 'POST' && orderMatch[2] === 'cancel') { if (!order.paid_at) (await shop.s.run("UPDATE orders SET status='cancelled' WHERE id=?", order.id)); return send(res, 200, { ok: true }); }
+          if (method === 'POST' && orderMatch[2] === 'cancel') {
+            if (!order.paid_at && config.paymentMode === 'local') {
+              await shop.s.run("UPDATE orders SET status='cancelled' WHERE id=?", order.id);
+              await shop.newsletter.release(order.id);
+            } else if (!order.paid_at) {
+              await shop.payments.expire(order);
+              await shop.s.run("UPDATE orders SET status='expired' WHERE id=? AND paid_at IS NULL", order.id);
+              await shop.newsletter.release(order.id);
+            }
+            return send(res, 200, { ok: true });
+          }
           if (method === 'POST' && orderMatch[2] === 'purpose') {
             if (!order.paid_at || !['Für mich', 'Als Geschenk', 'Beides', 'Keine Angabe'].includes(body.purpose)) throw new ShopError('Ungültige Angabe.');
             (await shop.s.run('UPDATE orders SET purpose=? WHERE id=?', body.purpose, order.id)); return send(res, 200, { ok: true });
@@ -160,7 +184,7 @@ export async function createApp(config = defaultConfig()) {
       }
       let html = await readFile(join(root, 'public/index.html'), 'utf8');
       const product = /^\/kollektion\/([a-z-]+)$/.exec(path), design = product && DESIGNS.find(d => d.id === product[1]);
-      const valid = ['/', '/kollektion', '/bundle', '/gestalten', '/warenkorb', '/kasse', '/konto', '/auswertung', '/ueber-uns', '/faq', '/impressum', '/datenschutz', '/agb', '/widerruf', '/versand'].includes(path) || design || /^\/(bestellung|testzahlung|zahlungsrueckkehr)\/[a-f0-9-]{36}$/.test(path);
+      const valid = ['/', '/newsletter', '/newsletter/bestaetigen', '/newsletter/abmelden', '/kollektion', '/bundle', '/gestalten', '/warenkorb', '/kasse', '/konto', '/auswertung', '/ueber-uns', '/faq', '/impressum', '/datenschutz', '/agb', '/widerruf', '/versand'].includes(path) || design || /^\/(bestellung|testzahlung|zahlungsrueckkehr)\/[a-f0-9-]{36}$/.test(path);
       html = html.replace('<!--PAGE_TITLE-->', design ? `${design.title} · ${design.reference} | Archenlicht` : 'Archenlicht · Ein Vers für deinen Alltag');
       return send(res, valid ? 200 : 404, html, mime['.html']);
     } catch (e) {

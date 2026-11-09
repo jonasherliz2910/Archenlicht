@@ -10,6 +10,7 @@ import { LocalPodbase, podbasePayload } from './podbase.js';
 import { PodbaseCatalog } from './podbase-catalog.js';
 import { Payments, TAX_TREATMENT, TAX_NOTICE } from './payments.js';
 import { Mailer } from './mail.js';
+import { Newsletter } from './newsletter.js';
 import { officialTemplate, productionPrint, previewFromProduction } from './production-print.js';
 import { magneticVariant, catalogVariant, localVariant } from './case-variants.js';
 import { casePrice } from '../public/case-options.js';
@@ -31,6 +32,7 @@ export class Shop {
   constructor(config, store) {
     Shop.validateMode(config);
     this.config = config; this.s = store; this.podbase = new LocalPodbase(this.s); this.payments = new Payments(config, this.s); this.mailer = new Mailer(config, this.s);
+    this.newsletter = new Newsletter(config, this.s, this.mailer);
     this.podbaseCatalog = config.podbaseMode === 'catalog' ? new PodbaseCatalog({ apiKey: config.podbaseKey, baseUrl: config.podbaseBaseUrl }) : null;
     this.situations = new Map(); this.advisorScenario = 'ok'; this.busy = false;
     this.printLayouts = new Map();
@@ -62,6 +64,7 @@ export class Shop {
   }
   async requireAdmin(session) { if ((await this.user(session))?.role !== 'admin') throw new ShopError('Diese Ansicht ist nur für Jonas zugänglich.', 403); }
   async cleanup(now = Date.now()) {
+    await this.newsletter.cleanup();
     (await this.s.run('DELETE FROM sessions WHERE expires<?', now));
     for (const [id, value] of this.situations) if (value.expires <= now || !(await this.s.get('SELECT id FROM sessions WHERE id=?', id))) this.situations.delete(id);
   }
@@ -207,7 +210,7 @@ export class Shop {
     return r;
   }
   async checkout(session, input, { returnOrigin = this.config.baseUrl } = {}) {
-    const items = (await this.cart(session)); if (!items.length) throw new ShopError('Dein Warenkorb ist noch leer.');
+    let items = (await this.cart(session)); if (!items.length) throw new ShopError('Dein Warenkorb ist noch leer.');
     for (const i of items) (await this.assertAvailable(i.configuration));
     if (items.some(i => !i.available)) throw new ShopError('Bitte bearbeite oder entferne die nicht verfügbaren Hüllen im Warenkorb.', 409);
     if (this.podbaseCatalog) {
@@ -226,6 +229,8 @@ export class Shop {
       }
     }
     const recipient = this.validateRecipient(input.recipient || {});
+    const newsletterDiscount = input.newsletterCode ? await this.newsletter.discount(input.newsletterCode, recipient.email, items) : null;
+    if (newsletterDiscount) items = newsletterDiscount.items;
     if (!(this.config.paymentMode === 'sandbox' ? ['stripe', 'paypal', 'card'] : ['paypal', 'card']).includes(input.method)) throw new ShopError('Bitte wähle eine verfügbare Zahlungsart.');
     const method = this.config.paymentMode === 'sandbox' ? 'stripe' : input.method;
     if (input.saveAddress !== undefined && typeof input.saveAddress !== 'boolean') throw new ShopError('Bitte entscheide, ob du die Lieferdaten speichern möchtest.');
@@ -240,6 +245,7 @@ export class Shop {
     const snapshot = items.map(({ id, configuration, hash, title, model, quantity, unitPrice, pricing, printText, productId, variantId }) => ({ id, configuration, hash, title, model, quantity, unitPrice, pricing, printText, productId, variantId }));
     (await this.s.tx(async () => {
       (await this.s.run('INSERT INTO orders(id,number,session_id,user_id,guest_hash,recipient,items,amount,currency,status,payment_method,source,visit_id,mode,created) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)', id, number, session.id, session.user_id, digest(guestToken), JSON.stringify(recipient), JSON.stringify(snapshot), amount, 'EUR', 'awaiting_payment', method, visit.source, session.visit_id, 'test', now));
+      if (newsletterDiscount) await this.newsletter.reserve(newsletterDiscount.subscriberId, id);
       if (method === 'stripe') await this.s.run('INSERT INTO stripe_payments VALUES(?,NULL,NULL,?,NULL,NULL)', id, TAX_TREATMENT);
       (await this.s.run('INSERT INTO checkout_preferences VALUES(?,?,?,?,?)', id, user?.id || null, saveAddress ? 1 : 0, addressVersion, customerId));
       (await this.mail(id, 'confirmation', recipient.email, `Testbestellung ${number} bestätigt`, `SIMULIERTE E-MAIL · kein echter Versand.\nDeine Testbestellung ${number} ist bezahlt.\nPersönlicher Statuslink: ${this.config.baseUrl}/bestellung/${id}#token=${guestToken}\nGeschenkkarte 10 × 15 cm zum Selbstbeschriften inklusive.`, 'pending-payment'));
@@ -266,11 +272,14 @@ export class Shop {
         if (!payment || payment.tax_treatment !== event.taxTreatment || event.taxAmount !== 0) throw new ShopError('Die steuerliche Behandlung der Zahlung stimmt nicht mit der Bestellung überein.', 409);
       }
       if ((await this.s.get('SELECT id FROM payment_events WHERE id=?', event.id))) return { duplicate: true };
+      if (this.config.paymentMode === 'local' && ['cancelled','expired'].includes(order.status)) throw new ShopError('Diese Testzahlung wurde abgebrochen.', 409);
       (await this.s.run('INSERT INTO payment_events VALUES(?,?,?,?,?)', event.id, order.id, event.paymentId, 'COMPLETED', Date.now()));
       if (order.paid_at) return { duplicate: true };
+      if (summarizePricing(JSON.parse(order.items)).source === 'newsletter' && !(await this.s.get('SELECT order_id FROM newsletter_redemptions WHERE order_id=?', order.id))) throw new ShopError('Der Rabatt ist dieser Zahlung nicht mehr zugeordnet. Bitte kontaktiere info@archenlicht.de.', 409);
       // A deactivated variant after provider handoff is held for manual handling, never sent to production.
       const available = (await Promise.all(JSON.parse(order.items).map(async i => { const v = (await this.s.get('SELECT * FROM variants WHERE model_id=? AND design_id=?', i.configuration.modelId, i.configuration.designId)); return v?.available && v.print_approved && v.approval_mode === 'test'; }))).every(Boolean);
       (await this.s.run("UPDATE orders SET status='paid',paid_at=? WHERE id=?", Date.now(), order.id));
+      await this.s.run('UPDATE newsletter_redemptions SET redeemed_at=? WHERE order_id=? AND redeemed_at IS NULL', Date.now(), order.id);
       if (this.config.paymentMode === 'sandbox') await this.s.run('UPDATE stripe_payments SET payment_intent_id=?,tax_amount=?,verified_at=? WHERE order_id=?', event.paymentIntentId || null, event.taxAmount, Date.now(), order.id);
       if (preferences?.save_address && preferences.user_id === order.user_id) (await this.s.run('UPDATE account_profiles SET address=?,address_version=address_version+1,updated=? WHERE user_id=? AND address_version=?', order.recipient, Date.now(), order.user_id, preferences.address_version));
       if (this.config.paymentMode === 'local' && event.saveCard === true && order.user_id && order.payment_method === 'card') (await this.s.run('INSERT OR IGNORE INTO local_payment_methods VALUES(?,?,?,?,?,?,?)', `SIM-CARD-${digest(order.user_id).slice(0, 24)}`, order.user_id, 'visa', '4242', 12, new Date().getUTCFullYear() + 4, Date.now()));

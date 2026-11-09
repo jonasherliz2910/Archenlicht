@@ -3,7 +3,7 @@ import { mkdirSync, writeFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { randomBytes, createHash, scryptSync, timingSafeEqual } from 'node:crypto';
 import { DESIGNS, MODELS } from './catalog.js';
-import { MAIL_TABLES } from './schema.js';
+import { TABLES } from './schema.js';
 export const token = () => randomBytes(32).toString('base64url');
 export const digest = value => createHash('sha256').update(String(value)).digest('hex');
 export function passwordHash(value) { const salt = randomBytes(16).toString('hex'); return `${salt}:${scryptSync(value, salt, 64).toString('hex')}`; }
@@ -32,7 +32,7 @@ export function openStore(dir, options = {}) {
     CREATE TABLE IF NOT EXISTS mail_outbox(id TEXT PRIMARY KEY,order_id TEXT REFERENCES orders(id),kind TEXT NOT NULL,recipient TEXT NOT NULL,subject TEXT NOT NULL,body TEXT NOT NULL,status TEXT NOT NULL,created INTEGER NOT NULL,UNIQUE(order_id,kind));
     CREATE TABLE IF NOT EXISTS feedback(id TEXT PRIMARY KEY,visit_id TEXT NOT NULL,reason TEXT NOT NULL,created INTEGER NOT NULL);
   `);
-  for (const statement of MAIL_TABLES) db.exec(statement);
+  for (const statement of TABLES) db.exec(statement);
   const run = (sql, ...params) => db.prepare(sql).run(...params);
   const get = (sql, ...params) => db.prepare(sql).get(...params);
   const all = (sql, ...params) => db.prepare(sql).all(...params);

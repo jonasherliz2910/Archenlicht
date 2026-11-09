@@ -73,7 +73,7 @@ export class Payments {
       payment_intent_data: { metadata: { order_id: order.id } },
       adaptive_pricing: { enabled: false }, automatic_tax: { enabled: false },
       custom_text: { submit: { message: TAX_NOTICE } },
-      success_url: `${base}/zahlungsrueckkehr/${order.id}`, cancel_url: `${base}/warenkorb?zahlung=abgebrochen`,
+      success_url: `${base}/zahlungsrueckkehr/${order.id}`, cancel_url: `${base}/warenkorb?zahlung=abgebrochen&bestellung=${order.id}`,
       ...(customerId ? { customer: customerId, saved_payment_method_options: { payment_method_save: 'enabled', payment_method_remove: 'enabled', allow_redisplay_filters: ['always'] } } : { customer_email: recipient.email }),
       ...(this.config.stripePaymentConfiguration ? { payment_method_configuration: this.config.stripePaymentConfiguration } : {}),
       line_items: JSON.parse(order.items).map(item => ({ quantity: item.quantity, price_data: { currency: 'eur', unit_amount: item.unitPrice, tax_behavior: 'inclusive', product_data: { name: `${BRAND.name} · ${item.title} · ${item.model} · ${caseLabel(item.configuration)}` } } }))
@@ -86,9 +86,9 @@ export class Payments {
       // retries use the same idempotency key as the immutable order snapshot.
       const coupon = await this.request(client => client.coupons.create({
         amount_off: pricing.discount, currency: 'eur', duration: 'once', max_redemptions: 1,
-        name: `Bundle-Rabatt ${pricing.percent} %`, metadata: { order_id: order.id }
-      }, { idempotencyKey: `bundle-${order.id}` }));
-      if (!coupon.id || coupon.livemode !== this.live || coupon.amount_off !== pricing.discount || coupon.currency !== 'eur' || coupon.metadata?.order_id !== order.id) throw new ShopError('Der Bundle-Rabatt konnte nicht eingerichtet werden.', 502);
+        name: `${pricing.source === 'newsletter' ? 'Newsletter' : 'Bundle'}-Rabatt ${pricing.percent} %`, metadata: { order_id: order.id }
+      }, { idempotencyKey: `${pricing.source === 'newsletter' ? 'newsletter' : 'bundle'}-${order.id}` }));
+      if (!coupon.id || coupon.livemode !== this.live || coupon.amount_off !== pricing.discount || coupon.currency !== 'eur' || coupon.metadata?.order_id !== order.id) throw new ShopError('Der Rabatt konnte nicht eingerichtet werden.', 502);
       params.discounts = [{ coupon: coupon.id }];
     }
     // The shop validates and snapshots the German delivery address before checkout.
@@ -107,6 +107,15 @@ export class Payments {
     const discountMatches = !pricing?.discount || session.total_details?.amount_discount === pricing.discount && session.amount_subtotal === pricing.subtotal;
     const completed = discountMatches && session.id === order.payment_id && session.mode === 'payment' && session.payment_status === 'paid' && session.status === 'complete' && session.livemode === this.live && session.metadata?.order_id === order.id && session.metadata?.tax_treatment === TAX_TREATMENT && session.automatic_tax?.enabled === false && taxAmount === 0;
     return { id: `stripe-${session.id}`, paymentId: session.id, orderId: session.client_reference_id, amount: session.amount_total, currency: session.currency?.toUpperCase(), customerId: typeof session.customer === 'object' ? session.customer?.id : session.customer, paymentIntentId: typeof session.payment_intent === 'object' ? session.payment_intent?.id : session.payment_intent, taxTreatment: session.metadata?.tax_treatment, taxAmount, completed, status: session.status };
+  }
+  async expire(order) {
+    if (!order.payment_id) throw new ShopError('Der Zahlungsstatus muss zuerst geprüft werden. Bitte wende dich an info@archenlicht.de.', 409);
+    const session = await this.request(client => client.checkout.sessions.retrieve(order.payment_id));
+    if (session.id !== order.payment_id || session.livemode !== this.live || session.metadata?.order_id !== order.id) throw new ShopError('Die Zahlung konnte nicht zugeordnet werden.', 409);
+    if (session.status === 'expired') return;
+    if (session.status !== 'open' || session.payment_status === 'paid') throw new ShopError('Die Zahlung wird bereits verarbeitet. Bitte prüfe den Bestellstatus.', 409);
+    const expired = await this.request(client => client.checkout.sessions.expire(order.payment_id));
+    if (expired.status !== 'expired' || expired.id !== order.payment_id) throw new ShopError('Die Zahlung konnte noch nicht abgebrochen werden.', 409);
   }
   verifyStripeSignature(raw, signature) {
     if (!this.config.stripeWebhook || !signature) return false;

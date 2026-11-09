@@ -1,0 +1,3 @@
+export const NEWSLETTER_CONSENT_VERSION = '2026-11-09-v1';
+export const NEWSLETTER_CONSENT = 'Ich möchte den kostenlosen Archenlicht-Newsletter der Herzly Marketing GbR mit Neuigkeiten zu Produkten, neuen Motiven und Angeboten per E-Mail erhalten. Ich kann meine Einwilligung jederzeit über den Abmeldelink widerrufen.';
+export const NEWSLETTER_TERMS = 'Einmalig 5 % auf nicht reduzierte Hüllen. Nicht mit Bundle-Rabatten, anderen Rabatten oder Aktionen kombinierbar. Persönlicher Code für deine bestätigte E-Mail-Adresse, ohne Mindestbestellwert. Keine Barauszahlung. Eine Abmeldung vom Newsletter lässt den erhaltenen Code unberührt.';

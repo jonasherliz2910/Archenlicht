@@ -23,8 +23,9 @@ export function orderEmail({order,kind,statusUrl,tracking,reason}) {
   const lines=items.map(i=>`${i.quantity} × ${i.title}\n${i.model} · ${caseLabel(i.configuration)} · ${caseColor(i.configuration?.backgroundId)?.name||'Weiß'}\nDrucktext: ${i.printText}\n${money(i.unitPrice*i.quantity)}`);
   const table=items.map(i=>`<tr><td style="padding:18px 0;border-bottom:1px solid #dce2d8"><strong>${escape(i.quantity)} × ${escape(i.title)}</strong><br><span>${escape(i.model)} · ${escape(caseLabel(i.configuration))} · ${escape(caseColor(i.configuration?.backgroundId)?.name||'Weiß')}</span><br><span style="white-space:pre-line">${escape(i.printText)}</span></td><td style="padding:18px 0;border-bottom:1px solid #dce2d8;text-align:right;vertical-align:top;white-space:nowrap">${escape(money(i.unitPrice*i.quantity))}</td></tr>`).join('');
   const pricing=summarizePricing(items);
-  const bundleText=pricing.isBundle ? `Hüllen einzeln: ${money(pricing.subtotal)}\nBundle-Rabatt (${pricing.percent} %): −${money(pricing.discount)}` : '';
-  const bundleHtml=pricing.isBundle ? `<p>Hüllen einzeln: ${escape(money(pricing.subtotal))}<br><strong>Bundle-Rabatt (${pricing.percent} %): −${escape(money(pricing.discount))}</strong></p>` : '';
+  const discountLabel=pricing.source==='newsletter'?'Newsletter-Rabatt':'Bundle-Rabatt';
+  const bundleText=pricing.discount ? `Hüllen einzeln: ${money(pricing.subtotal)}\n${discountLabel} (${pricing.percent} %): −${money(pricing.discount)}` : '';
+  const bundleHtml=pricing.discount ? `<p>Hüllen einzeln: ${escape(money(pricing.subtotal))}<br><strong>${discountLabel} (${pricing.percent} %): −${escape(money(pricing.discount))}</strong></p>` : '';
   const address=`${recipient.name}\n${recipient.street}\n${recipient.postalCode} ${recipient.city}\nDeutschland`;
   const footer=`Archenlicht · ${MAIL_IDENTITY.operator}\nVertreten durch ${MAIL_IDENTITY.representatives}\n${MAIL_IDENTITY.address}\n${MAIL_IDENTITY.replyTo}`;
   const trackingText=kind==='shipping'?`Simulierte Sendungsnummer: ${tracking||'Noch nicht vorhanden'}`:'';
