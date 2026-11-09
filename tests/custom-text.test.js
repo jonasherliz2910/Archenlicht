@@ -5,7 +5,7 @@ import { resolve } from 'node:path';
 import { renderLayout, normalizeConfiguration } from '../server/layout.js';
 import { MODELS, DESIGNS, VERSES } from '../server/catalog.js';
 import { designAsset } from '../server/design-assets.js';
-import { customTextForEditor, MAX_CUSTOM_TEXT } from '../public/custom-text.js';
+import { createTextChoice, applyTextChoice, MAX_CUSTOM_TEXT } from '../public/custom-text.js';
 import { Shop } from '../server/shop.js';
 import { defaultConfig } from '../server/index.js';
 
@@ -50,13 +50,15 @@ test('Kurze und mehrzeilige Wunschtexte passen auf alle 74 Modellprofile und 6 M
   }
 });
 
-test('Bestehende Versgestaltungen bleiben lesbar; Bearbeiten übernimmt deren Wortlaut in das Freitextfeld', () => {
+test('Bestehende Vers- und Freitextgestaltungen öffnen ihren eigenen Textweg ohne Änderung am Drucktext', () => {
   const { customText, ...base } = custom;
   const old = renderLayout({ ...base, verseId: 'ps23-1' }), verse = VERSES.find(v => v.id === 'ps23-1');
   assert.equal(old.printText, `${verse.quote}\n${verse.reference}`);
-  assert.equal(customTextForEditor(old.configuration, VERSES), old.printText);
-  assert.equal(customTextForEditor({ ...old.configuration, customText: '' }, VERSES), '');
-  assert.equal(customTextForEditor(custom), customText);
+  const choice = createTextChoice(old.configuration, VERSES);
+  assert.equal(choice.mode, 'suggested'); assert.equal(choice.verseId, 'ps23-1');
+  assert.equal(renderLayout(applyTextChoice(old.configuration, choice)).hash, old.hash);
+  assert.equal(createTextChoice({ ...old.configuration, customText: '' }, VERSES).mode, 'custom');
+  assert.equal(createTextChoice(custom, VERSES).customText, customText);
   const fixed = renderLayout({ ...base, kind: 'fixed' });
   assert.equal(fixed.printText, 'Markus 4,39');
   assert.equal(renderLayout({ ...base, kind: 'fixed', customText: 'Ignored' }).hash, fixed.hash);

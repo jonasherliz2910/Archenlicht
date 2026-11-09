@@ -35,7 +35,7 @@ Das hinzugekommene [CI-Book](Archenlicht-CI-Book.pdf) wurde berücksichtigt: Ori
 
 - Sechs stabile Produktseiten, mobil gestaltete Oberfläche, ein Tough-Hüllentyp und 74 iPhone-, Samsung-Galaxy- und Google-Pixel-Modelle. Optionaler echter Podbase-Katalog mit Bestandsprüfung; Druckschablonen und Produktion bleiben im Testbetrieb.
 - Kollektion: **29,90 €**; Wunschvers: **34,90 €**, jeweils als Test-Endpreis einschließlich Deutschlandversand und fester Geschenkkarte.
-- Gestalter mit einem freien Textfeld für eigene Sprüche, Verse oder Bibelstellen, Motiv, Farbe, Modell und optionaler Widmung. Keine vorgegebene Versauswahl im Gestalter.
+- Gestalter mit zwei Textwegen: geprüften Vers auswählen (auch mit situationsbezogenen Vorschlägen) oder eigenen Spruch, Vers bzw. Bibelstelle eingeben. Dazu Motiv, Farbe, Modell und optionale Widmung.
 - Sechs unveränderte Blankomotive aus dem gelieferten Designpaket. Eigener Text und optionale Widmung werden mit der mitgelieferten Caveat-Schrift gemessen, zentriert und gerade eingesetzt. Schriftgröße und Zeilenumbrüche passen sich innerhalb lesbarer Grenzen an; Überlauf verhindert den Warenkorbzugang.
 - Vorschau und unveränderlicher PNG-Testexport aus demselben Layout; aktuell 1.200 × 2.400 px / 300 dpi auf **simulierten** Geräteschablonen. Schrift ist in Pfade umgewandelt. Die neuen farbigen Ausgangsmotive messen je nach Motiv 962 × 1.634 oder 1.635 px; Hochskalieren ergänzt keine Bilddetails. Hüllen ohne Markenaufdruck, `productionApproved: false`.
 - Serverseitiger Warenkorb, Bearbeiten derselben Position, Mengen, Gastkauf, freiwilliges Kundenkonto, geschützte Bestellhistorie und Gaststatuslinks.
@@ -44,10 +44,14 @@ Das hinzugekommene [CI-Book](Archenlicht-CI-Book.pdf) wurde berücksichtigt: Ori
 - Simulierte Produktion, Tracking und einmalige Versandnachricht. Testpostfach sowie Herkunfts-, Motiv-, Produktart- und Anlassauswertung nur für Jonas.
 - Vorbereitete Informationsseiten einschließlich Impressum, Datenschutz, AGB und Widerruf, ausdrücklich als Arbeitsentwürfe markiert.
 
-## Eigener Text auf der personalisierten Hülle
+## Textauswahl auf der personalisierten Hülle
 
-Seit dem Auftrag vom 9. November 2026 beginnt `/gestalten` mit einem leeren
-Textfeld statt einer vorgegebenen Versauswahl oder Versberatung. `customText`
+In `/gestalten` stehen „Vers auswählen“ und „Eigenen Text schreiben“ nebeneinander.
+Der Versberater verwendet weiterhin `/api/advisor`: eine regelbasierte lokale
+Auswahl aus dem geprüften Versbestand, keine externe KI. Seine Beschreibung
+bleibt in der Sitzung und wird nicht mit der Bestellung gespeichert.
+Beim Wechseln bleiben der freie Entwurf und der gewählte Vers im Editor erhalten;
+nur die aktive Auswahl geht in Vorschau, Warenkorb und Druckdatei ein. `customText`
 nimmt bis zu 180 Zeichen an, einschließlich eigener Zeilenumbrüche; längere
 Texte, nicht unterstützte Schriftzeichen und geometrischer Überlauf werden
 serverseitig zurückgewiesen. Eine eingegebene Bibelstelle wird nicht automatisch
@@ -61,10 +65,9 @@ Das Motiv wird dadurch nicht über die bisherigen Skalierungsgrenzen vergrößer
 Leere Eingaben zeigen nur das Motiv und können nicht in den Warenkorb.
 
 Das Freitextlayout trägt die Version `archenlicht-free-text-v1`. Bestehende
-Versgestaltungen bleiben rückwärtskompatibel; beim Bearbeiten wird ihr bisheriger
-Wortlaut in das neue Textfeld übernommen. Bereits gespeicherte Druckdateien und
-feste Kollektionstexte bleiben unverändert. Die ursprüngliche Versauswahl aus dem
-Bauauftrag wird durch diesen späteren Nutzerauftrag ersetzt.
+Versgestaltungen bleiben rückwärtskompatibel und öffnen wieder die Versauswahl;
+Freitextgestaltungen öffnen das eigene Textfeld. Bereits gespeicherte Druckdateien
+und feste Kollektionstexte bleiben unverändert.
 
 ## Podbase verbinden, ohne einen Auftrag auszulösen
 
