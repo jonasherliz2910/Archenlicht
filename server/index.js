@@ -160,7 +160,7 @@ export async function createApp(config = defaultConfig()) {
       }
       let html = await readFile(join(root, 'public/index.html'), 'utf8');
       const product = /^\/kollektion\/([a-z-]+)$/.exec(path), design = product && DESIGNS.find(d => d.id === product[1]);
-      const valid = ['/', '/kollektion', '/gestalten', '/warenkorb', '/kasse', '/konto', '/auswertung', '/ueber-uns', '/faq', '/impressum', '/datenschutz', '/agb', '/widerruf', '/versand'].includes(path) || design || /^\/(bestellung|testzahlung|zahlungsrueckkehr)\/[a-f0-9-]{36}$/.test(path);
+      const valid = ['/', '/kollektion', '/bundle', '/gestalten', '/warenkorb', '/kasse', '/konto', '/auswertung', '/ueber-uns', '/faq', '/impressum', '/datenschutz', '/agb', '/widerruf', '/versand'].includes(path) || design || /^\/(bestellung|testzahlung|zahlungsrueckkehr)\/[a-f0-9-]{36}$/.test(path);
       html = html.replace('<!--PAGE_TITLE-->', design ? `${design.title} · ${design.reference} | Archenlicht` : 'Archenlicht · Ein Vers für deinen Alltag');
       return send(res, valid ? 200 : 404, html, mime['.html']);
     } catch (e) {

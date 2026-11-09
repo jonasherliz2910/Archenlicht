@@ -8,10 +8,11 @@ import { TAX_TREATMENT } from '../server/payments.js';
 
 test('Echte Stripe-Sandbox: Gast und Konto erhalten gehosteten EUR-Checkout ohne Umsatzsteuer; ausstehende Zahlungen bleiben offen', { skip: process.env.RUN_STRIPE_SANDBOX_TESTS !== '1' }, async t => {
   assert.match(process.env.STRIPE_SECRET_KEY || '', /^(sk|rk)_test_/);
-  const shop = await Shop.create({ ...defaultConfig(), storageMode: 'sqlite', paymentMode: 'sandbox', dataDir: resolve('test-results', 'stripe-' + randomUUID()), adminPassword: 'Nur-Test-Admin-2026!', autoShip: false, baseUrl: 'https://archenlicht.de' });
-  const sessions = [], customers = [];
+  const shop = await Shop.create({ ...defaultConfig(), shopMode: 'test', mailMode: 'local', podbaseMode: 'local', printMode: 'preview', storageMode: 'sqlite', paymentMode: 'sandbox', dataDir: resolve('test-results', 'stripe-' + randomUUID()), adminPassword: 'Nur-Test-Admin-2026!', autoShip: false, baseUrl: 'https://archenlicht.de' });
+  const sessions = [], customers = [], coupons = [];
   t.after(async () => {
     for (const id of sessions) await shop.payments.request(client => client.checkout.sessions.expire(id));
+    for (const id of coupons) await shop.payments.request(client => client.coupons.del(id));
     for (const id of customers) await shop.payments.request(client => client.customers.del(id));
     await shop.close();
   });
@@ -25,14 +26,15 @@ test('Echte Stripe-Sandbox: Gast und Konto erhalten gehosteten EUR-Checkout ohne
     assert.match(checkout.url, /^https:\/\/checkout\.stripe\.com\//);
     const order = await shop.s.get('SELECT * FROM orders WHERE id=?', checkout.orderId); sessions.push(order.payment_id);
     const remote = await shop.payments.request(client => client.checkout.sessions.retrieve(order.payment_id));
+    for (const discount of remote.discounts || []) if (typeof discount.coupon === 'string') coupons.push(discount.coupon);
     if (remote.customer) customers.push(remote.customer);
-    assert.equal(remote.livemode, false); assert.equal(remote.mode, 'payment'); assert.equal(remote.currency, 'eur'); assert.equal(remote.amount_total, 6498);
+    assert.equal(remote.livemode, false); assert.equal(remote.mode, 'payment'); assert.equal(remote.currency, 'eur'); assert.equal(remote.amount_total, 6173); assert.equal(remote.amount_subtotal, 6498); assert.equal(remote.total_details.amount_discount, 325);
     assert.equal(remote.automatic_tax.enabled, false); assert.equal(remote.total_details.amount_tax, 0); assert.equal(remote.metadata.tax_treatment, TAX_TREATMENT);
     assert.match(remote.custom_text.submit.message, /Kleinunternehmer/); assert.match(remote.success_url, /^https:\/\/archenlicht\.vercel\.app\//);
     assert.equal(Boolean(remote.customer), account);
     if (account) assert.equal(remote.saved_payment_method_options.payment_method_save, 'enabled');
     const items = await shop.payments.request(client => client.checkout.sessions.listLineItems(order.payment_id));
-    assert.deepEqual(items.data.map(item => item.amount_total).sort(), [2999, 3499]);
+    assert.deepEqual(items.data.map(item => item.amount_subtotal).sort(), [2999, 3499]);
     assert.equal((await shop.payments.verify(order)).completed, false);
     assert.equal((await shop.s.get('SELECT COUNT(*) AS n FROM fulfillment')).n, 0);
     assert.equal((await shop.s.get('SELECT tax_treatment FROM stripe_payments WHERE order_id=?', order.id)).tax_treatment, TAX_TREATMENT);

@@ -13,6 +13,7 @@ import { Mailer } from './mail.js';
 import { officialTemplate, productionPrint, previewFromProduction } from './production-print.js';
 import { magneticVariant, catalogVariant, localVariant } from './case-variants.js';
 import { casePrice } from '../public/case-options.js';
+import { priceBundleItems, summarizePricing } from '../public/bundle-pricing.js';
 
 export class Shop {
   static async create(config) {
@@ -135,7 +136,7 @@ export class Shop {
   }
   async cart(session) {
     const snapshot = await this.podbaseCatalog?.snapshot();
-    return (await Promise.all((await this.s.all('SELECT * FROM cart WHERE session_id=? ORDER BY created', session.id)).map(async row => {
+    return priceBundleItems(await Promise.all((await this.s.all('SELECT * FROM cart WHERE session_id=? ORDER BY created,id', session.id)).map(async row => {
       const c = JSON.parse(row.configuration), model = findModel(c.modelId), d = findDesign(c.designId), variant = (await this.s.get('SELECT * FROM variants WHERE model_id=? AND design_id=?', c.modelId, c.designId));
       let p, printable = true;
       try { p = await this.preview(c); }
@@ -233,10 +234,10 @@ export class Shop {
     const customerId = user && ['card', 'stripe'].includes(method) ? await this.payments.customerFor(user) : null;
     if (user) (await this.s.run('INSERT OR IGNORE INTO account_profiles VALUES(?,NULL,0,?)', user.id, Date.now()));
     const addressVersion = (await this.accountDetails(session))?.addressVersion || 0;
-    const id = randomUUID(), guestToken = token(), amount = items.reduce((sum, i) => sum + i.unitPrice * i.quantity, 0), now = Date.now();
+    const id = randomUUID(), guestToken = token(), amount = summarizePricing(items).total, now = Date.now();
     const number = `AL-${new Intl.DateTimeFormat('de', { year: 'numeric', timeZone: 'Europe/Berlin' }).format(now)}-${token().replace(/[-_]/g, '').slice(0, 9).toUpperCase()}`;
     const visit = (await this.s.get('SELECT source FROM visits WHERE id=?', session.visit_id));
-    const snapshot = items.map(({ id, configuration, hash, title, model, quantity, unitPrice, printText, productId, variantId }) => ({ id, configuration, hash, title, model, quantity, unitPrice, printText, productId, variantId }));
+    const snapshot = items.map(({ id, configuration, hash, title, model, quantity, unitPrice, pricing, printText, productId, variantId }) => ({ id, configuration, hash, title, model, quantity, unitPrice, pricing, printText, productId, variantId }));
     (await this.s.tx(async () => {
       (await this.s.run('INSERT INTO orders(id,number,session_id,user_id,guest_hash,recipient,items,amount,currency,status,payment_method,source,visit_id,mode,created) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)', id, number, session.id, session.user_id, digest(guestToken), JSON.stringify(recipient), JSON.stringify(snapshot), amount, 'EUR', 'awaiting_payment', method, visit.source, session.visit_id, 'test', now));
       if (method === 'stripe') await this.s.run('INSERT INTO stripe_payments VALUES(?,NULL,NULL,?,NULL,NULL)', id, TAX_TREATMENT);

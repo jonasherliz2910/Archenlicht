@@ -201,7 +201,7 @@ test('Ein Fulfillmentauftrag enthält alle Warenkorbpositionen und deren Stückz
   const { shop, client } = await setup(t), c = client(); await c.call('/api/bootstrap'); await putCart(c, fixed, 2); await putCart(c, custom, 3); const o = await checkout(c);
   await c.call(`/api/orders/${o.orderId}/confirm`, 'POST', {});
   const provider = (await shop.s.all('SELECT * FROM provider_orders')); assert.equal(provider.length, 1); const payload = JSON.parse(provider[0].payload);
-  assert.equal(payload.items.length, 2); assert.deepEqual(payload.items.map(i => i.quantity), [2, 3]); assert.equal((await shop.s.get('SELECT amount FROM orders WHERE id=?', o.orderId)).amount, 16495);
+  assert.equal(payload.items.length, 2); assert.deepEqual(payload.items.map(i => i.quantity), [2, 3]); assert.equal((await shop.s.get('SELECT amount FROM orders WHERE id=?', o.orderId)).amount, 15670);
 });
 
 test('CSRF, geschützte Adminaktionen, fremde Positionen und private Dateien', async t => {
@@ -252,7 +252,7 @@ test('Google Pixel: Modellwahl, Kameravorschau, Warenkorbbearbeitung und beide H
   assert.equal((await c.call('/api/checkout', 'POST', { recipient, method: 'card' })).status, 409);
   (await shop.s.run('UPDATE variants SET available=1 WHERE model_id=? AND design_id=?', 'google-pixel-10a', custom.designId));
   const result = await checkout(c, 'card'), paid = await c.call(`/api/orders/${result.orderId}/confirm`, 'POST', {});
-  assert.equal(paid.status, 200); assert.equal(paid.data.amount, 9997);
+  assert.equal(paid.status, 200); assert.equal(paid.data.amount, 9497);
   const provider = (await shop.s.get('SELECT * FROM provider_orders WHERE external_id=?', result.orderId)), payload = JSON.parse(provider.payload);
   assert.equal(payload.items.length, 2); assert.deepEqual(payload.items.map(i => i.quantity), [1, 2]);
   assert.deepEqual(payload.items.map(i => i.variantId), ['SIM-VARIANT-38', 'SIM-VARIANT-48']);
@@ -285,7 +285,7 @@ test('Aktuelle Apple-, Samsung- und Google-Modelle funktionieren gemeinsam bis z
     assert.equal((await c.call('/api/cart', 'POST', { ...fixed, modelId: unsupported })).status, 400);
   }
   const result = await checkout(c, 'paypal'), paid = await c.call(`/api/orders/${result.orderId}/confirm`, 'POST', {});
-  assert.equal(paid.status, 200); assert.equal(paid.data.amount, 19494);
+  assert.equal(paid.status, 200); assert.equal(paid.data.amount, 18519);
   assert.deepEqual(paid.data.items.map(i => i.configuration.modelId), choices.map(c => c.modelId));
   assert.deepEqual(paid.data.items.map(i => i.hash), previews.map(p => p.hash));
   const payload = JSON.parse((await shop.s.get('SELECT payload FROM provider_orders WHERE external_id=?', result.orderId)).payload);

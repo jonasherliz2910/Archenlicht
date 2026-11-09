@@ -3,6 +3,7 @@ import { ShopError } from './layout.js';
 import { caseLabel } from '../public/case-options.js';
 import { BRAND } from './catalog.js';
 import { digest } from './store.js';
+import { summarizePricing } from '../public/bundle-pricing.js';
 
 export const STRIPE_API_VERSION = '2026-10-28.endive';
 export const TAX_TREATMENT = 'small_business_de';
@@ -77,6 +78,19 @@ export class Payments {
       ...(this.config.stripePaymentConfiguration ? { payment_method_configuration: this.config.stripePaymentConfiguration } : {}),
       line_items: JSON.parse(order.items).map(item => ({ quantity: item.quantity, price_data: { currency: 'eur', unit_amount: item.unitPrice, tax_behavior: 'inclusive', product_data: { name: `${BRAND.name} · ${item.title} · ${item.model} · ${caseLabel(item.configuration)}` } } }))
     };
+    const pricing = summarizePricing(JSON.parse(order.items));
+    if (order.amount !== undefined && pricing.total !== order.amount) throw new ShopError('Der gespeicherte Bestellbetrag stimmt nicht mit den Positionen überein.', 409);
+    if (pricing.discount) {
+      // A fixed cent amount preserves the exact cart rounding at Stripe. This
+      // coupon is confined to one order, is never a public promotion code, and
+      // retries use the same idempotency key as the immutable order snapshot.
+      const coupon = await this.request(client => client.coupons.create({
+        amount_off: pricing.discount, currency: 'eur', duration: 'once', max_redemptions: 1,
+        name: `Bundle-Rabatt ${pricing.percent} %`, metadata: { order_id: order.id }
+      }, { idempotencyKey: `bundle-${order.id}` }));
+      if (!coupon.id || coupon.livemode !== this.live || coupon.amount_off !== pricing.discount || coupon.currency !== 'eur' || coupon.metadata?.order_id !== order.id) throw new ShopError('Der Bundle-Rabatt konnte nicht eingerichtet werden.', 502);
+      params.discounts = [{ coupon: coupon.id }];
+    }
     // The shop validates and snapshots the German delivery address before checkout.
     // No duplicate shipping form or automatic customer-address persistence at Stripe.
     const data = await this.request(client => client.checkout.sessions.create(params, { idempotencyKey: `checkout-${order.id}` }));
@@ -89,7 +103,9 @@ export class Payments {
     if (this.live && order.mode !== 'live' || !this.live && order.mode === 'live') throw new ShopError('Bestellung und Zahlungsumgebung stimmen nicht überein.', 409);
     const session = await this.request(client => client.checkout.sessions.retrieve(order.payment_id));
     const taxAmount = session.total_details?.amount_tax;
-    const completed = session.id === order.payment_id && session.mode === 'payment' && session.payment_status === 'paid' && session.status === 'complete' && session.livemode === this.live && session.metadata?.order_id === order.id && session.metadata?.tax_treatment === TAX_TREATMENT && session.automatic_tax?.enabled === false && taxAmount === 0;
+    const pricing = order.items ? summarizePricing(JSON.parse(order.items)) : null;
+    const discountMatches = !pricing?.discount || session.total_details?.amount_discount === pricing.discount && session.amount_subtotal === pricing.subtotal;
+    const completed = discountMatches && session.id === order.payment_id && session.mode === 'payment' && session.payment_status === 'paid' && session.status === 'complete' && session.livemode === this.live && session.metadata?.order_id === order.id && session.metadata?.tax_treatment === TAX_TREATMENT && session.automatic_tax?.enabled === false && taxAmount === 0;
     return { id: `stripe-${session.id}`, paymentId: session.id, orderId: session.client_reference_id, amount: session.amount_total, currency: session.currency?.toUpperCase(), customerId: typeof session.customer === 'object' ? session.customer?.id : session.customer, paymentIntentId: typeof session.payment_intent === 'object' ? session.payment_intent?.id : session.payment_intent, taxTreatment: session.metadata?.tax_treatment, taxAmount, completed, status: session.status };
   }
   verifyStripeSignature(raw, signature) {

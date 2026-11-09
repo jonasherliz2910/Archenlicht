@@ -88,7 +88,7 @@ test('Gemischter Warenkorb bleibt nach Bearbeiten, Zahlung und Wiederholung bei 
   await shop.saveCart(session, fixed);
   const checkout = await shop.checkout(session, { method: 'card', recipient });
   const order = await shop.s.get('SELECT * FROM orders WHERE id=?', checkout.orderId), items = JSON.parse(order.items);
-  assert.equal(order.amount, 3999 * 2 + 2999); assert.equal(items[0].configuration.magsafe, true); assert.equal(items[1].configuration.magsafe, false);
+  assert.equal(order.amount, 10447); assert.equal(items[0].configuration.magsafe, true); assert.equal(items[1].configuration.magsafe, false);
   assert.notEqual(items[0].productId, items[1].productId); assert.notEqual(items[0].variantId, items[1].variantId);
   const event = { id: 'magsafe-payment', orderId: order.id, paymentId: order.payment_id, amount: order.amount, currency: 'EUR', completed: true };
   await shop.acceptPayment(event); await shop.acceptPayment(event); await shop.tick(); await shop.tick();
