@@ -78,7 +78,7 @@ export class Shop {
     }
   }
   async preview(input) {
-    const layout = renderLayout(input);
+    const layout = renderLayout(input, { allowEmptyCustomText: true });
     let svg = layout.svg;
     if (this.s.remote) {
       const artwork = designAsset(layout.configuration.designId);

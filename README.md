@@ -35,14 +35,36 @@ Das hinzugekommene [CI-Book](Archenlicht-CI-Book.pdf) wurde berücksichtigt: Ori
 
 - Sechs stabile Produktseiten, mobil gestaltete Oberfläche, ein Tough-Hüllentyp und 74 iPhone-, Samsung-Galaxy- und Google-Pixel-Modelle. Optionaler echter Podbase-Katalog mit Bestandsprüfung; Druckschablonen und Produktion bleiben im Testbetrieb.
 - Kollektion: **29,90 €**; Wunschvers: **34,90 €**, jeweils als Test-Endpreis einschließlich Deutschlandversand und fester Geschenkkarte.
-- Wunschvers-Gestalter mit neun quellenbelegten kurzen Testauszügen, Motiv, Modell und optionaler Widmung. Die lokale regelbasierte Testberatung liefert drei unterschiedliche Stellen oder die sechs Ersatzmotive.
-- Sechs unveränderte Blankomotive aus dem gelieferten Designpaket. Versstelle, Originalauszug und optionale Widmung werden separat mit der mitgelieferten Caveat-Schrift gemessen, zentriert und gerade eingesetzt. Überlauf verhindert den Warenkorbzugang.
+- Gestalter mit einem freien Textfeld für eigene Sprüche, Verse oder Bibelstellen, Motiv, Farbe, Modell und optionaler Widmung. Keine vorgegebene Versauswahl im Gestalter.
+- Sechs unveränderte Blankomotive aus dem gelieferten Designpaket. Eigener Text und optionale Widmung werden mit der mitgelieferten Caveat-Schrift gemessen, zentriert und gerade eingesetzt. Schriftgröße und Zeilenumbrüche passen sich innerhalb lesbarer Grenzen an; Überlauf verhindert den Warenkorbzugang.
 - Vorschau und unveränderlicher PNG-Testexport aus demselben Layout; aktuell 1.200 × 2.400 px / 300 dpi auf **simulierten** Geräteschablonen. Schrift ist in Pfade umgewandelt. Die neuen farbigen Ausgangsmotive messen je nach Motiv 962 × 1.634 oder 1.635 px; Hochskalieren ergänzt keine Bilddetails. Hüllen ohne Markenaufdruck, `productionApproved: false`.
 - Serverseitiger Warenkorb, Bearbeiten derselben Position, Mengen, Gastkauf, freiwilliges Kundenkonto, geschützte Bestellhistorie und Gaststatuslinks.
 - Lokaler PayPal-/Karten-Zahlungssimulator; **Stripe-Checkout-Testintegration mit dynamischen Zahlungsarten**, signierter Webhook und unabhängiger Zahlungsabgleich.
 - Persistente Fulfillment-Warteschlange, einmalige Übergabe aller Positionen, Abgleich bei unklarer Antwort, Wiederaufnahme nach Neustart, Fehlerfall und Adminnachricht.
 - Simulierte Produktion, Tracking und einmalige Versandnachricht. Testpostfach sowie Herkunfts-, Motiv-, Produktart- und Anlassauswertung nur für Jonas.
 - Vorbereitete Informationsseiten einschließlich Impressum, Datenschutz, AGB und Widerruf, ausdrücklich als Arbeitsentwürfe markiert.
+
+## Eigener Text auf der personalisierten Hülle
+
+Seit dem Auftrag vom 9. November 2026 beginnt `/gestalten` mit einem leeren
+Textfeld statt einer vorgegebenen Versauswahl oder Versberatung. `customText`
+nimmt bis zu 180 Zeichen an, einschließlich eigener Zeilenumbrüche; längere
+Texte, nicht unterstützte Schriftzeichen und geometrischer Überlauf werden
+serverseitig zurückgewiesen. Eine eingegebene Bibelstelle wird nicht automatisch
+mit einem Vers ergänzt. Die Widmung bleibt separat und freiwillig.
+
+Kurze Texte verwenden die bisherige Stelle zwischen den Dekorzweigen, längere
+die breitere Textfläche darunter. Es werden maximal drei Zeilen gesetzt;
+Schriftgröße und Zeilenumbrüche passen sich innerhalb der vorgesehenen Flächen
+an. Vorschau, Warenkorb, Bestellsnapshot und PNG verwenden denselben Text.
+Das Motiv wird dadurch nicht über die bisherigen Skalierungsgrenzen vergrößert.
+Leere Eingaben zeigen nur das Motiv und können nicht in den Warenkorb.
+
+Das Freitextlayout trägt die Version `archenlicht-free-text-v1`. Bestehende
+Versgestaltungen bleiben rückwärtskompatibel; beim Bearbeiten wird ihr bisheriger
+Wortlaut in das neue Textfeld übernommen. Bereits gespeicherte Druckdateien und
+feste Kollektionstexte bleiben unverändert. Die ursprüngliche Versauswahl aus dem
+Bauauftrag wird durch diesen späteren Nutzerauftrag ersetzt.
 
 ## Podbase verbinden, ohne einen Auftrag auszulösen
 

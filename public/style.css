@@ -381,6 +381,9 @@ body.choosing-model{overflow:hidden}
 .preview-slide{position:relative;flex:0 0 100%;min-width:0;height:100%;display:grid;place-items:center;scroll-snap-align:start;scroll-snap-stop:always}
 .preview-slide:nth-child(2){background:radial-gradient(ellipse at 55% 35%,#e1e7d8,#eef0e7 75%)}
 .preview-device{height:calc(var(--gallery-height) - 108px);width:100%;display:flex;align-items:center;justify-content:center;min-width:0;min-height:0}
+.preview-placeholder{max-width:260px;padding:24px;text-align:center;color:var(--muted);font-size:14px;line-height:1.6}
+#custom-text{width:100%;min-height:132px;resize:vertical;font-size:16px;line-height:1.6}
+#custom-text-count{flex-shrink:0;white-space:nowrap}
 .preview-device .phone.model-mockup{width:auto;height:100%;max-width:65%;transform:none}
 .preview-gallery .preview-tag{left:22px;right:22px;top:22px;font-size:10px;line-height:1.5;pointer-events:none}
 .preview-gallery .preview-subtitle{bottom:22px;left:18px;right:18px;font-size:12px;line-height:1.5;text-align:center;pointer-events:none}
