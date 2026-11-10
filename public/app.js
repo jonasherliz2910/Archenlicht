@@ -139,15 +139,16 @@ function syncCaseSelection() {
 }
 function colorChoice() {
   const selected = caseColor(config.backgroundId);
-  return `<fieldset class="color-choice"><legend>Dein Hintergrund: <strong data-color-name>${esc(selected.name)}</strong></legend><div class="color-options">${CASE_COLORS.map(color => `<button type="button" class="color-option" data-background="${color.id}" aria-pressed="${color.id === selected.id}"><span class="color-swatch" style="--swatch:${color.hex}" aria-hidden="true"></span><span>${esc(color.name)}</span></button>`).join('')}</div></fieldset>`;
+  return `<fieldset class="color-choice"><legend>Dein Hintergrund: <strong data-color-name>${esc(selected.name)}</strong></legend><div class="color-options">${CASE_COLORS.map(color => `<button type="button" class="color-option" data-background="${color.id}" title="${esc(color.name)}" aria-pressed="${color.id === selected.id}"><span class="color-swatch" style="--swatch:${color.hex}" aria-hidden="true"></span><span>${esc(color.name)}</span></button>`).join('')}</div></fieldset>`;
 }
-function previewPanel() {
+function previewPanel({ product = false } = {}) {
   const d = state.designs.find(d => d.id === config.designId), model = state.models.find(m => m.id === config.modelId);
   const labels=['Hülle am Handy','Hülle mit offener Kameraaussparung','Lifestyle-Foto in einer Hand','Lifestyle-Foto auf einem Tisch'];
   const slides = [false, true].map((caseOnly, index) => `<div class="preview-slide" role="group" aria-roledescription="Bild" aria-label="${index + 1} von 4: ${labels[index]}"><span class="preview-tag">${caseOnly ? 'DEINE HÜLLE · OFFENE AUSSPARUNG' : 'DEINE HÜLLE AM HANDY'}</span><div id="${caseOnly ? 'case-phone' : 'live-phone'}" class="preview-device">${config.kind === 'custom' && !currentPreview ? '<p class="preview-placeholder">Deine Vorschau wird erstellt …</p>' : phone(d.id, { url: currentPreview?.svgUrl, cls: 'detail-phone', model: model.name, caseOnly, backgroundId: config.backgroundId })}</div><span class="preview-subtitle" data-preview-model>${esc(model.name)}</span></div>`).join('');
   const photos=[0,1].map(view=>`<div class="preview-slide lifestyle-slide" data-lifestyle-view="${view}" role="group" aria-roledescription="Bild" aria-label="${view+3} von 4: ${labels[view+2]}" aria-busy="true"><canvas role="img" aria-label="${labels[view+2]}" hidden></canvas><p class="preview-placeholder" data-photo-status>Dein Foto wird vorbereitet …</p><span class="lifestyle-caption">Designbeispiel · iPhone 14 Pro</span></div>`).join('');
   const dots=labels.map((label,index)=>`<button type="button" data-preview-slide="${index}" aria-label="Bild ${index+1}: ${label}" aria-pressed="${index===0}"><span aria-hidden="true"></span></button>`).join('');
-  return `<div class="preview-panel"><section class="preview-stage preview-gallery" aria-label="Hüllenansichten" aria-roledescription="Karussell" style="--card-bg:${d.color}"><div class="preview-track" tabindex="0" aria-label="Hüllenansichten: mit Pfeiltasten oder Wischen wechseln">${slides}${photos}</div><div class="preview-controls"><div class="preview-tabs" role="group" aria-label="Ansicht wählen">${dots}</div></div><span class="visually-hidden" data-preview-status aria-live="polite">1 von 4: ${labels[0]}</span></section></div>`;
+  const thumbnails = product ? `<div class="preview-thumbnails" role="group" aria-label="Ansicht wählen">${labels.map((label, index) => `<button type="button" data-preview-slide="${index}" aria-label="Bild ${index + 1}: ${label}" aria-pressed="${index === 0}">${index < 2 ? `<span class="preview-thumb-device" data-preview-thumb-device="${index}">${phone(d.id, { url: currentPreview?.svgUrl, model: model.name, caseOnly: index === 1, backgroundId: config.backgroundId })}</span>` : `<canvas data-lifestyle-thumbnail="${index - 2}" aria-hidden="true" hidden></canvas><span data-thumbnail-status="${index - 2}" aria-hidden="true">0${index + 1}</span>`}</button>`).join('')}</div>` : '';
+  return `<div class="preview-panel"><section class="preview-stage preview-gallery ${product ? 'product-gallery' : ''}" aria-label="Hüllenansichten" aria-roledescription="Karussell" style="--card-bg:${d.color}">${thumbnails}<div class="preview-main"><div class="preview-track" tabindex="0" aria-label="Hüllenansichten: mit Pfeiltasten oder Wischen wechseln">${slides}${photos}</div>${product ? `<div class="preview-arrows"><button type="button" data-preview-previous aria-label="Vorheriges Bild">${icon('back')}</button><button type="button" data-preview-next aria-label="Nächstes Bild">${icon('right')}</button></div>` : ''}</div>${product ? '' : `<div class="preview-controls"><div class="preview-tabs" role="group" aria-label="Ansicht wählen">${dots}</div></div>`}<span class="visually-hidden" data-preview-status aria-live="polite">1 von 4: ${labels[0]}</span></section></div>`;
 }
 
 function productVerse(design) {
@@ -156,7 +157,36 @@ function productVerse(design) {
   return `<section class="product-verse" aria-label="Bibelvers und Erklärung zu ${esc(verse.reference)}"><blockquote cite="${esc(verse.source)}"><p>„${esc(verse.quote)}“</p></blockquote><p class="product-verse-source">Luther 1912 <span aria-hidden="true">·</span> <a href="${esc(verse.source)}" target="_blank" rel="noopener noreferrer" aria-label="${esc(verse.reference)} im Zusammenhang lesen (öffnet einen neuen Tab)">Im Zusammenhang lesen ${icon('arrow')}</a></p><div class="product-verse-explanation"><h2>Einfach erklärt</h2><p>${esc(verse.explanation)}</p></div></section>`;
 }
 function fixedProduct(d) {
-  return `<div class="section-wrap detail-page"><a href="/kollektion" class="back-link">${icon('back')} Zur Kollektion</a><div class="product-layout">${previewPanel()}<div class="product-copy"><span class="eyebrow">RUHE UND GEBORGENHEIT · 0${state.designs.indexOf(d) + 1}/06</span><h1>${esc(d.title)}</h1><p class="verse-title handwritten">${esc(d.reference)}</p>${productVerse(d)}<div class="price-line"><strong data-config-price aria-live="polite">${money(casePrice(state.brand, config))}</strong><span>Endpreis inkl. Versand in DE & Geschenkkarte</span></div><p class="bundle-product-note">Ab zwei Hüllen 5 %, ab vier Hüllen 10 % sparen – automatisch im Warenkorb. <a href="/bundle">Entdecke unsere beiden Dreier-Sets.</a></p><div class="divider"></div>${modelChoice()}<p class="field-help">Du findest dein genaues Modell unter Einstellungen → Geräteinformationen.</p>${magsafeChoice()}${colorChoice()}<div class="case-type">${icon('shield')}<div><strong data-case-label>${caseLabel(config)}</strong><span>Schützende Doppelschicht</span></div></div><div id="preview-error" class="form-error" role="alert"></div><button class="button primary full" id="add-cart" data-action="add-cart">${new URLSearchParams(location.search).has('bearbeiten') ? 'Änderung im Warenkorb speichern' : 'In den Warenkorb'} ${icon('bag')}</button><div class="purchase-notes"><span>${icon('truck')} Deutschland · Versand inklusive</span><span>${icon('gift')} 10 × 15 cm Geschenkkarte inklusive</span></div><div class="product-story"><h3>Eine leise Erinnerung für jeden Tag.</h3><p>Eine feine Illustration und eine handschriftliche Versstelle. Ohne Markenaufdruck. Damit das im Mittelpunkt steht, was dir etwas bedeutet.</p></div><a href="/gestalten?motiv=${d.id}" class="underlined">Lieber mit deinem eigenen Wunschvers? ${icon('arrow')}</a></div></div></div><section class="section-wrap related"><span class="eyebrow">AUCH DAS KÖNNTE DICH BEGLEITEN</span><h2>Andere Worte. Dieselbe Hoffnung.</h2><div class="product-grid">${state.designs.filter(x => x.id !== d.id).slice(0, 3).map(productCard).join('')}</div></section>`;
+  return `<div class="section-wrap detail-page product-detail-page">
+    <a href="/kollektion" class="back-link">${icon('back')} Zur Kollektion</a>
+    <div class="product-layout">
+      ${previewPanel({ product: true })}
+      <div class="product-copy">
+        <header class="product-heading"><span class="eyebrow">RUHE UND GEBORGENHEIT · 0${state.designs.indexOf(d) + 1}/06</span><h1>${esc(d.title)}</h1><p class="verse-title handwritten">${esc(d.reference)}</p></header>
+        <details class="product-disclosure product-verse-disclosure"><summary>Bibelvers lesen & verstehen ${icon('chevron')}</summary>${productVerse(d)}</details>
+        <div class="product-highlights" aria-label="Deine Hülle auf einen Blick">
+          <div>${icon('shield')}<span>Schützende<br>Doppelschicht</span></div>
+          <div>${icon('truck')}<span>Versand in DE<br>inklusive</span></div>
+          <div>${icon('gift')}<span>Geschenkkarte<br>inklusive</span></div>
+        </div>
+        <div class="product-configuration">
+          ${modelChoice()}<p class="field-help">Du findest dein genaues Modell unter Einstellungen → Geräteinformationen.</p>
+          ${colorChoice()}${magsafeChoice()}
+        </div>
+        <div class="product-purchase">
+          <div class="case-type">${icon('shield')}<div><strong data-case-label>${caseLabel(config)}</strong><span>Schützende Doppelschicht</span></div></div>
+          <div class="price-line"><strong data-config-price aria-live="polite">${money(casePrice(state.brand, config))}</strong><span>Endpreis inkl. Versand in DE & Geschenkkarte</span></div>
+          <div id="preview-error" class="form-error" role="alert"></div>
+          <button class="button primary full" id="add-cart" data-action="add-cart">${new URLSearchParams(location.search).has('bearbeiten') ? 'Änderung im Warenkorb speichern' : 'In den Warenkorb'} ${icon('bag')}</button>
+          <p class="bundle-product-note">Ab zwei Hüllen 5 %, ab vier Hüllen 10 % sparen – automatisch im Warenkorb. <a href="/bundle">Entdecke unsere beiden Dreier-Sets.</a></p>
+        </div>
+      </div>
+    </div>
+    <div class="product-information">
+      <details class="product-disclosure"><summary>Versand & Geschenkkarte ${icon('chevron')}</summary><div class="product-information-body"><div class="purchase-notes"><span>${icon('truck')} Deutschland · Versand inklusive</span><span>${icon('gift')} 10 × 15 cm Geschenkkarte inklusive</span></div><a class="underlined" href="/versand">Mehr zu Versand & Geschenkkarte ${icon('arrow')}</a></div></details>
+      <details class="product-disclosure"><summary>Über deine Hülle ${icon('chevron')}</summary><div class="product-information-body"><div class="product-story"><h3>Eine leise Erinnerung für jeden Tag.</h3><p>Eine feine Illustration und eine handschriftliche Versstelle. Ohne Markenaufdruck. Damit das im Mittelpunkt steht, was dir etwas bedeutet.</p></div><a href="/gestalten?motiv=${d.id}" class="underlined">Lieber mit deinem eigenen Wunschvers? ${icon('arrow')}</a></div></details>
+    </div>
+  </div><section class="section-wrap related"><span class="eyebrow">AUCH DAS KÖNNTE DICH BEGLEITEN</span><h2>Andere Worte. Dieselbe Hoffnung.</h2><div class="product-grid">${state.designs.filter(x => x.id !== d.id).slice(0, 3).map(productCard).join('')}</div></section>`;
 }
 function recommendationCards() {
   if (!advisorResults) return '';
@@ -190,6 +220,7 @@ async function updatePreview() {
     const d = state.designs.find(d => d.id === config.designId), model = state.models.find(m => m.id === config.modelId);
     if ($('#live-phone')) $('#live-phone').innerHTML = phone(d.id, { url: preview.svgUrl, cls: 'detail-phone', model: model.name, backgroundId: preview.configuration.backgroundId });
     if ($('#case-phone')) $('#case-phone').innerHTML = phone(d.id, { url: preview.svgUrl, cls: 'detail-phone', model: model.name, caseOnly: true, backgroundId: preview.configuration.backgroundId });
+    $$('[data-preview-thumb-device]').forEach(thumb => { thumb.innerHTML = phone(d.id, { url: preview.svgUrl, model: model.name, caseOnly: thumb.dataset.previewThumbDevice === '1', backgroundId: preview.configuration.backgroundId }); });
     if ($('.preview-stage')) $('.preview-stage').style.setProperty('--card-bg', d.color);
     $$('[data-preview-model]').forEach(label => { label.textContent = model.name; });
     photoGallery?.update(preview,model,d);

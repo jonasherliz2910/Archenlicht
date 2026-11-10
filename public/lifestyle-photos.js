@@ -66,10 +66,10 @@ export async function renderLifestylePhoto({sceneId,imageUrl,model,backgroundId,
 
 export function mountLifestylePhotos(root) {
   if(!root)return;
-  const entries=[...root.querySelectorAll('[data-lifestyle-view]')].map(slide=>({slide,canvas:slide.querySelector('canvas'),status:slide.querySelector('[data-photo-status]'),visible:false,rendered:0}));
+  const entries=[...root.querySelectorAll('[data-lifestyle-view]')].map(slide=>({slide,canvas:slide.querySelector('canvas'),status:slide.querySelector('[data-photo-status]'),thumbnail:root.querySelector(`[data-lifestyle-thumbnail="${slide.dataset.lifestyleView}"]`),thumbnailStatus:root.querySelector(`[data-thumbnail-status="${slide.dataset.lifestyleView}"]`),visible:false,rendered:0}));
   let revision=0,current=null,disposed=false;
   async function draw(entry) {
-    if(!current||!entry.visible||entry.rendered===revision||disposed)return;
+    if(!current||(!entry.visible&&!entry.thumbnail)||entry.rendered===revision||disposed)return;
     const ticket=revision, snapshot=current;entry.rendered=ticket;
     const view=Number(entry.slide.dataset.lifestyleView), sceneId=lifestyleScenes(snapshot.preview.configuration.designId)[view];
     try{
@@ -80,6 +80,12 @@ export function mountLifestylePhotos(root) {
       entry.canvas.setAttribute('aria-label',`${snapshot.design.title}, ${caseColor(snapshot.preview.configuration.backgroundId).name}, ${view?'auf einem Tisch':'in einer Hand'} – Designbeispiel am iPhone 14 Pro`);
       entry.canvas.dataset.printHash=snapshot.preview.hash;
       entry.canvas.dataset.scene=sceneId;entry.canvas.hidden=false;entry.status.hidden=true;
+      if(entry.thumbnail){
+        entry.thumbnail.width=160;entry.thumbnail.height=Math.round(160*result.height/result.width);
+        entry.thumbnail.getContext('2d').drawImage(result,0,0,entry.thumbnail.width,entry.thumbnail.height);
+        entry.thumbnail.dataset.printHash=snapshot.preview.hash;entry.thumbnail.hidden=false;
+        if(entry.thumbnailStatus)entry.thumbnailStatus.hidden=true;
+      }
       entry.slide.setAttribute('aria-busy','false');
     }catch{
       if(disposed||ticket!==revision)return;
@@ -92,7 +98,7 @@ export function mountLifestylePhotos(root) {
   entries.forEach(e=>observer.observe(e.slide));
   function invalidate(message='Dein Foto wird vorbereitet …') {
     revision++;current=null;
-    for(const e of entries){e.canvas.hidden=true;e.canvas.removeAttribute('data-print-hash');e.status.hidden=false;e.status.textContent=message;e.slide.setAttribute('aria-busy','true');}
+    for(const e of entries){e.canvas.hidden=true;e.canvas.removeAttribute('data-print-hash');e.status.hidden=false;e.status.textContent=message;e.slide.setAttribute('aria-busy','true');if(e.thumbnail){e.thumbnail.hidden=true;e.thumbnail.removeAttribute('data-print-hash');if(e.thumbnailStatus)e.thumbnailStatus.hidden=false;}}
   }
   return {
     invalidate,

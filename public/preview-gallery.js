@@ -7,7 +7,10 @@ export function mountPreviewGallery(root) {
   let selected = 0, frame;
   function update(index) {
     selected = Math.max(0,Math.min(last,index));
-    buttons.forEach((b,i)=>b.setAttribute('aria-pressed',String(i===selected)));
+    buttons.forEach(b=>b.setAttribute('aria-pressed',String(Number(b.dataset.previewSlide)===selected)));
+    const previous=root.querySelector('[data-preview-previous]'),next=root.querySelector('[data-preview-next]');
+    if(previous)previous.disabled=selected===0;
+    if(next)next.disabled=selected===last;
     root.querySelector('[data-preview-status]').textContent = slides[selected].getAttribute('aria-label');
   }
   function go(index) {
