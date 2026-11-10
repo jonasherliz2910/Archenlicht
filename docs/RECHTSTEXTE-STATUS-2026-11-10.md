@@ -2,6 +2,8 @@
 
 Stand: 10. November 2026. Technisch umgesetzt und getestet; keine anwaltliche Freigabe. Checkout und Podbase-Auftragsübergabe bleiben geschlossen.
 
+Veröffentlicht: Code-Commit `3230e00`, Deployment `dpl_5SbSvPLyJ53Uz8H2iLhMWuKB6iYf`, https://archenlicht-a0pioj4bh-jonas-4eb6.vercel.app, auf https://www.archenlicht.de hochgestuft. 11 geschützte Deployment-Prüfungen bestanden, anschließend 10 öffentliche Browserprüfungen bei 390/1440 Pixeln. Öffentlich ausgelieferte Textquelle stimmt mit dem Commit überein; kein Telefonlink im Impressum, Checkout und Produktionsübergabe weiterhin geschlossen. Bei diesen Prüfungen wurden keine Widerrufserklärungen oder echten E-Mails ausgelöst.
+
 ## Bestätigte Entscheidungen
 
 - Anbieter: Herzly Marketing GbR, vertreten durch Julian Isaak und Laura Herliz, Stettiner Straße 27, 36251 Bad Hersfeld. Archenlicht ist das Shopangebot dieses Betreibers.
