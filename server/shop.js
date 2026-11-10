@@ -18,6 +18,7 @@ import { magneticVariant, catalogVariant, localVariant } from './case-variants.j
 import { casePrice } from '../public/case-options.js';
 import { priceBundleItems, summarizePricing } from '../public/bundle-pricing.js';
 import { fixedBundleConfigurations } from '../public/fixed-bundles.js';
+import { monthlyProductInterest } from './product-interest.js';
 
 export class Shop {
   static async create(config) {
@@ -94,6 +95,8 @@ export class Shop {
     for (const [id, value] of this.situations) if (value.expires <= now || !(await this.s.get('SELECT id FROM sessions WHERE id=?', id))) this.situations.delete(id);
   }
   async publicState(session) {
+    // Optional aggregate information must never block shopping if analytics fail.
+    const productInterest = await monthlyProductInterest(this.s, { mode: this.config.shopMode, excludeVisitId: session.visit_id }).catch(() => ({}));
     const snapshot = await this.podbaseCatalog?.snapshot();
     const variants = (await this.s.all('SELECT * FROM variants')).map(v => {
       const ready = Boolean(v.available && v.print_approved && v.approval_mode === this.variantMode);
@@ -102,7 +105,7 @@ export class Shop {
       return { ...v, available: ready && inStock(false) && printable(false) ? 1 : 0, magsafe_available: ready && inStock(true) && printable(true) ? 1 : 0 };
     });
     const models = MODELS.map(m => this.podbaseCatalog ? { ...m, podbase: snapshot?.models.find(v => v.modelId === m.id) || null } : m);
-    return { brand: BRAND, designs: DESIGNS, models, verses: VERSES, variants, podbase: { ...(this.podbaseCatalog?.summary(snapshot) || { mode: 'local', connected: false }), fulfillmentMode: this.config.shopMode === 'live' ? 'podbase' : 'simulated', orderSubmissionEnabled: this.config.shopMode === 'live' && this.config.podbaseSubmissionEnabled === true }, mode: this.config.shopMode, checkoutEnabled: this.checkoutEnabled, printMode: this.config.printMode || 'preview', paymentMode: this.config.paymentMode, taxNotice: TAX_NOTICE, csrf: session.csrf, user: (await this.user(session)), account: (await this.accountDetails(session)), cart: (await this.cart(session)), sessionExpires: session.expires, sessionHours: this.config.sessionHours };
+    return { brand: BRAND, designs: DESIGNS, models, verses: VERSES, variants, productInterest, podbase: { ...(this.podbaseCatalog?.summary(snapshot) || { mode: 'local', connected: false }), fulfillmentMode: this.config.shopMode === 'live' ? 'podbase' : 'simulated', orderSubmissionEnabled: this.config.shopMode === 'live' && this.config.podbaseSubmissionEnabled === true }, mode: this.config.shopMode, checkoutEnabled: this.checkoutEnabled, printMode: this.config.printMode || 'preview', paymentMode: this.config.paymentMode, taxNotice: TAX_NOTICE, csrf: session.csrf, user: (await this.user(session)), account: (await this.accountDetails(session)), cart: (await this.cart(session)), sessionExpires: session.expires, sessionHours: this.config.sessionHours };
   }
   async track(session, type, kind, designId) {
     if (!['view', 'cart'].includes(type) || !['fixed', 'custom'].includes(kind) || !findDesign(designId)) throw new ShopError('Ungültiges Ereignis.');

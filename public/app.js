@@ -9,6 +9,7 @@ import { CASE_COLORS, caseColor } from './case-colors.js';
 import { caseLabel, casePrice, caseAvailable } from './case-options.js';
 import { mountPreviewGallery } from './preview-gallery.js';
 import { mountLifestylePhotos } from './lifestyle-photos.js';
+import { mountStudioPhotos } from './studio-photos.js';
 import { PRODUCT_VERSES } from './product-verses.js';
 import { modelTrigger, createModelPicker } from './model-picker.js';
 import { recipientFields, accountSettings, localCardOptions } from './account-ui.js';
@@ -28,7 +29,7 @@ let state, config, currentPreview, previewSequence = 0, previewTimer, previewPen
 let textChoice, advisorResults, situation = '', adviceOpen = false, advisorPending = false;
 const textIsReady = () => hasConfiguredText(config, state.verses);
 const caps = new Map();
-let expiresTimer, modelPicker, galleryCleanup, photoGallery, newsletterUI, fixedBundleUI;
+let expiresTimer, modelPicker, galleryCleanup, photoGallery, studioGallery, newsletterUI, fixedBundleUI;
 function armExpiry(data) {
   if (!data?.csrf || !data.sessionExpires) return;
   clearTimeout(expiresTimer);
@@ -144,7 +145,7 @@ function colorChoice() {
 function previewPanel({ product = false } = {}) {
   const d = state.designs.find(d => d.id === config.designId), model = state.models.find(m => m.id === config.modelId);
   const labels=['Hülle am Handy','Hülle mit offener Kameraaussparung','Lifestyle-Foto in einer Hand','Lifestyle-Foto auf einem Tisch'];
-  const slides = [false, true].map((caseOnly, index) => `<div class="preview-slide" role="group" aria-roledescription="Bild" aria-label="${index + 1} von 4: ${labels[index]}"><span class="preview-tag">${caseOnly ? 'DEINE HÜLLE · OFFENE AUSSPARUNG' : 'DEINE HÜLLE AM HANDY'}</span><div id="${caseOnly ? 'case-phone' : 'live-phone'}" class="preview-device">${config.kind === 'custom' && !currentPreview ? '<p class="preview-placeholder">Deine Vorschau wird erstellt …</p>' : phone(d.id, { url: currentPreview?.svgUrl, cls: 'detail-phone', model: model.name, caseOnly, backgroundId: config.backgroundId })}</div><span class="preview-subtitle" data-preview-model>${esc(model.name)}</span></div>`).join('');
+  const slides = [false, true].map((caseOnly, index) => `<div class="preview-slide ${product ? 'studio-slide' : ''}" ${product ? `data-studio-view="${index}" data-studio-ready="false" aria-busy="true"` : ''} role="group" aria-roledescription="Bild" aria-label="${index + 1} von 4: ${labels[index]}"><span class="preview-tag">${caseOnly ? 'DEINE HÜLLE · OFFENE AUSSPARUNG' : 'DEINE HÜLLE AM HANDY'}</span><div id="${caseOnly ? 'case-phone' : 'live-phone'}" class="preview-device">${config.kind === 'custom' && !currentPreview ? '<p class="preview-placeholder">Deine Vorschau wird erstellt …</p>' : phone(d.id, { url: currentPreview?.svgUrl, cls: 'detail-phone', model: model.name, caseOnly, backgroundId: config.backgroundId })}</div><span class="preview-subtitle">${product ? 'Studiovorschau · ' : ''}<span data-preview-model>${esc(model.name)}</span></span></div>`).join('');
   const photos=[0,1].map(view=>`<div class="preview-slide lifestyle-slide" data-lifestyle-view="${view}" role="group" aria-roledescription="Bild" aria-label="${view+3} von 4: ${labels[view+2]}" aria-busy="true"><canvas role="img" aria-label="${labels[view+2]}" hidden></canvas><p class="preview-placeholder" data-photo-status>Dein Foto wird vorbereitet …</p><span class="lifestyle-caption">Designbeispiel · iPhone 14 Pro</span></div>`).join('');
   const dots=labels.map((label,index)=>`<button type="button" data-preview-slide="${index}" aria-label="Bild ${index+1}: ${label}" aria-pressed="${index===0}"><span aria-hidden="true"></span></button>`).join('');
   const thumbnails = product ? `<div class="preview-thumbnails" role="group" aria-label="Ansicht wählen">${labels.map((label, index) => `<button type="button" data-preview-slide="${index}" aria-label="Bild ${index + 1}: ${label}" aria-pressed="${index === 0}">${index < 2 ? `<span class="preview-thumb-device" data-preview-thumb-device="${index}">${phone(d.id, { url: currentPreview?.svgUrl, model: model.name, caseOnly: index === 1, backgroundId: config.backgroundId })}</span>` : `<canvas data-lifestyle-thumbnail="${index - 2}" aria-hidden="true" hidden></canvas><span data-thumbnail-status="${index - 2}" aria-hidden="true">0${index + 1}</span>`}</button>`).join('')}</div>` : '';
@@ -156,6 +157,10 @@ function productVerse(design) {
   if (!verse) return `<p class="product-poem">${esc(design.note)}</p>`;
   return `<section class="product-verse" aria-label="Bibelvers und Erklärung zu ${esc(verse.reference)}"><blockquote cite="${esc(verse.source)}"><p>„${esc(verse.quote)}“</p></blockquote><p class="product-verse-source">Luther 1912 <span aria-hidden="true">·</span> <a href="${esc(verse.source)}" target="_blank" rel="noopener noreferrer" aria-label="${esc(verse.reference)} im Zusammenhang lesen (öffnet einen neuen Tab)">Im Zusammenhang lesen ${icon('arrow')}</a></p><div class="product-verse-explanation"><h2>Einfach erklärt</h2><p>${esc(verse.explanation)}</p></div></section>`;
 }
+function productInterest(d) {
+  const views = state.productInterest?.[d.id];
+  return Number.isSafeInteger(views) && views >= 100 ? `<p class="product-interest" title="Produktansichten mit Statistik-Einwilligung, einmal je Besuch. Mehrere Besuche können von derselben Person stammen.">${icon('heart')} <span>In <strong>${Math.floor(views / 100) * 100}+ Besuchen</strong> diesen Monat angesehen.</span></p>` : '';
+}
 function fixedProduct(d) {
   return `<div class="section-wrap detail-page product-detail-page">
     <a href="/kollektion" class="back-link">${icon('back')} Zur Kollektion</a>
@@ -164,11 +169,13 @@ function fixedProduct(d) {
       <div class="product-copy">
         <header class="product-heading"><span class="eyebrow">RUHE UND GEBORGENHEIT · 0${state.designs.indexOf(d) + 1}/06</span><h1>${esc(d.title)}</h1><p class="verse-title handwritten">${esc(d.reference)}</p></header>
         <details class="product-disclosure product-verse-disclosure"><summary>Bibelvers lesen & verstehen ${icon('chevron')}</summary>${productVerse(d)}</details>
-        <div class="product-highlights" aria-label="Deine Hülle auf einen Blick">
-          <div>${icon('shield')}<span>Schützende<br>Doppelschicht</span></div>
-          <div>${icon('truck')}<span>Versand in DE<br>inklusive</span></div>
-          <div>${icon('gift')}<span>Geschenkkarte<br>inklusive</span></div>
-        </div>
+        ${productInterest(d)}
+        <ul class="product-features" aria-label="Die Eigenschaften deiner Hülle">
+          <li>${icon('check')}<span>Schützende Doppelschicht</span></li>
+          <li>${icon('check')}<span>Dein Motiv ohne Markenaufdruck</span></li>
+          <li>${icon('check')}<span>Versand innerhalb Deutschlands inklusive</span></li>
+          <li>${icon('check')}<span>10 × 15 cm Geschenkkarte zum Selbstbeschriften inklusive</span></li>
+        </ul>
         <div class="product-configuration">
           ${modelChoice()}<p class="field-help">Du findest dein genaues Modell unter Einstellungen → Geräteinformationen.</p>
           ${colorChoice()}${magsafeChoice()}
@@ -211,6 +218,7 @@ function customizer() {
 async function updatePreview() {
   const seq = ++previewSequence; previewPending = true;
   photoGallery?.invalidate();
+  studioGallery?.invalidate();
   const add = $('#add-cart'); if (add) add.disabled = true;
   try {
     const preview = await post('/api/preview', config);
@@ -224,6 +232,7 @@ async function updatePreview() {
     if ($('.preview-stage')) $('.preview-stage').style.setProperty('--card-bg', d.color);
     $$('[data-preview-model]').forEach(label => { label.textContent = model.name; });
     photoGallery?.update(preview,model,d);
+    studioGallery?.update(preview,model,d);
     const available = state.variants.find(v => v.model_id === config.modelId && v.design_id === config.designId);
     const error = !textIsReady() ? 'Bitte gib deinen eigenen Text ein oder wähle einen Vers aus.' : !caseAvailable(available, config) ? (config.magsafe ? 'MagSafe ist für diese Kombination gerade nicht verfügbar. Entferne den Haken oder wähle ein anderes Modell.' : 'Diese Kombination ist gerade nicht verfügbar. Bitte wähle ein anderes Modell oder Motiv.') : '';
     if ($('#preview-error')) $('#preview-error').textContent = error;
@@ -351,9 +360,11 @@ async function render({ scroll = true } = {}) {
   if (sequence !== routeSequence) return;
   galleryCleanup?.();
   photoGallery?.dispose();
+  studioGallery?.dispose();
   $('#inhalt').innerHTML = html;
   galleryCleanup = mountPreviewGallery($('.preview-gallery'));
   photoGallery = mountLifestylePhotos($('.preview-gallery'));
+  studioGallery = mountStudioPhotos($('.preview-gallery'));
   newsletterUI?.mount();
   fixedBundleUI?.mount();
   window.dispatchEvent(new Event('archenlicht:page-ready'));

@@ -605,3 +605,17 @@ body.choosing-model{overflow:hidden}
   .product-information .purchase-notes{flex-direction:column}
   .product-verse-disclosure .product-verse{padding:16px}
 }
+
+/* Verified benefits and model-specific studio stills; the page layout stays intact. */
+.product-features{list-style:none;margin:22px 0 26px;padding:0;display:grid;gap:12px}
+.product-features li{display:flex;align-items:flex-start;gap:11px;font-size:14px;line-height:1.6}
+.product-features .icon{width:21px;height:21px;margin-top:1px;color:#368456;stroke-width:2;flex-shrink:0}
+.product-interest{display:flex;align-items:flex-start;gap:9px;margin:18px 0 0;font-size:12px;line-height:1.7;color:#52644f}
+.product-interest .icon{width:17px;height:17px;margin-top:2px}
+.product-gallery .studio-slide{background:#fff}
+.studio-canvas{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:contain}
+.studio-slide[data-studio-ready=true] .preview-device{visibility:hidden}
+.studio-slide[data-studio-ready=false]::after{content:'Studiovorschau wird vorbereitet …';position:absolute;bottom:50px;left:20px;right:20px;text-align:center;font-size:11px;color:var(--muted)}
+.studio-slide .preview-tag,.studio-slide .preview-subtitle{z-index:1}
+.preview-thumb-device>canvas{width:100%;height:100%;object-fit:contain;background:white}
+@media(max-width:600px){.product-features{margin:20px 0 24px;gap:11px}.product-features li{font-size:13px}}
