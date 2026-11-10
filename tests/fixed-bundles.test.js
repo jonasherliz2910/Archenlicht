@@ -64,6 +64,11 @@ test('Retrying a bundle request is idempotent and the cart limit applies to the 
 test('The bundle endpoint requires CSRF and returns exactly three correctly priced cases', async t => {
   const app = await createApp(configuration()); await new Promise(r => app.server.listen(0, '127.0.0.1', r)); t.after(() => new Promise(r => app.server.close(r)));
   const base = `http://127.0.0.1:${app.server.address().port}`, bootstrap = await fetch(base + '/api/bootstrap'), state = await bootstrap.json();
+  for (const bundle of FIXED_BUNDLES) {
+    const page = await fetch(base + '/bundle/' + bundle.id); assert.equal(page.status, 200);
+    assert.ok((await page.text()).includes(`${bundle.title} · Dreier-Bundle | Archenlicht`));
+  }
+  assert.equal((await fetch(base + '/bundle/unknown')).status, 404);
   const headers = { Cookie: bootstrap.headers.get('set-cookie').split(';')[0], 'Content-Type': 'application/json' }, body = JSON.stringify(selection());
   assert.equal((await fetch(base + '/api/cart/bundle', { method: 'POST', headers, body })).status, 403);
   const response = await fetch(base + '/api/cart/bundle', { method: 'POST', headers: { ...headers, 'X-CSRF-Token': state.csrf }, body });

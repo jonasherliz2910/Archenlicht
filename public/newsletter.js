@@ -34,7 +34,7 @@ export function createNewsletterUI({ post }) {
     dialog.addEventListener('click', event => { if (event.target === dialog) { const r = dialog.getBoundingClientRect(); if (event.clientX < r.left || event.clientX > r.right || event.clientY < r.top || event.clientY > r.bottom) close(); } });
     dialog.showModal(); document.body.classList.add('newsletter-open'); dialog.querySelector('.newsletter-close').focus({preventScroll:true});
   }
-  function eligible() { return /^\/(?:kollektion(?:\/[a-z-]+)?|gestalten|bundle)?$/.test(location.pathname); }
+  function eligible() { return /^\/(?:kollektion(?:\/[a-z-]+)?|gestalten|bundle(?:\/[a-z-]+)?)?$/.test(location.pathname); }
   function page() {
     if (location.pathname === '/newsletter') return `<section class="section-wrap newsletter-page">${signup()}</section>`;
     const confirm = location.pathname === '/newsletter/bestaetigen';
