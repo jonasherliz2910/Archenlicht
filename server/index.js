@@ -8,7 +8,7 @@ import { DESIGNS, MODELS } from './catalog.js';
 import { digest } from './store.js';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-export const defaultConfig = () => ({ podbaseKey: process.env.PODBASE_API_KEY, podbaseBaseUrl: process.env.PODBASE_BASE_URL || 'https://open-api.podbase.com', shopMode: process.env.SHOP_MODE || 'test', podbaseMode: process.env.PODBASE_MODE || 'local', printMode: process.env.PRINT_MODE || 'preview', mailMode: process.env.MAIL_MODE || 'local', newsletterMode: process.env.NEWSLETTER_MODE || 'local', resendKey: process.env.RESEND_API_KEY, resendWebhook: process.env.RESEND_WEBHOOK_SECRET, mailPublicUrl: process.env.MAIL_PUBLIC_URL || 'https://www.archenlicht.de', mailTestRecipients: (process.env.MAIL_TEST_RECIPIENTS || '').split(',').map(v => v.trim().toLowerCase()).filter(Boolean), mailEnabledSince: process.env.MAIL_ENABLED_SINCE, paymentMode: process.env.PAYMENT_MODE || 'local', dataDir: resolve(process.env.DATA_DIR || 'data/test'), adminEmail: process.env.ADMIN_EMAIL || 'jonas@archenlicht.test', adminPassword: process.env.ADMIN_PASSWORD || undefined, sessionHours: Math.min(24, Math.max(1, Number(process.env.SESSION_HOURS) || 2)), baseUrl: process.env.BASE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : `http://localhost:${process.env.PORT || 3000}`), printBaseUrl: process.env.PRINT_BASE_URL || '', stripeKey: process.env.STRIPE_SECRET_KEY, stripeWebhook: process.env.STRIPE_WEBHOOK_SECRET, stripePaymentConfiguration: process.env.STRIPE_PAYMENT_CONFIGURATION, autoShip: true, storageMode: process.env.STORAGE_MODE || (process.env.VERCEL === '1' ? 'postgres' : 'sqlite'), databaseUrl: process.env.DATABASE_URL, databaseSchema: process.env.DATABASE_SCHEMA || 'public', serverless: process.env.VERCEL === '1', workerSecret: process.env.CRON_SECRET, platformOrigins: [process.env.VERCEL_URL, process.env.VERCEL_BRANCH_URL, process.env.VERCEL_PROJECT_PRODUCTION_URL].filter(Boolean).map(host => `https://${host}`).concat((process.env.SHOP_ALLOWED_ORIGINS || '').split(',').map(value => value.trim()).filter(value => /^https:\/\/[^/]+$/.test(value))) });
+export const defaultConfig = () => ({ checkoutEnabled: process.env.CHECKOUT_ENABLED === undefined ? undefined : process.env.CHECKOUT_ENABLED === 'true', podbaseSubmissionEnabled: process.env.PODBASE_SUBMISSION_ENABLED === 'true', podbaseStoreId: process.env.PODBASE_STORE_ID, podbaseKey: process.env.PODBASE_API_KEY, podbaseBaseUrl: process.env.PODBASE_BASE_URL || 'https://open-api.podbase.com', shopMode: process.env.SHOP_MODE || 'test', podbaseMode: process.env.PODBASE_MODE || 'local', printMode: process.env.PRINT_MODE || 'preview', mailMode: process.env.MAIL_MODE || 'local', newsletterMode: process.env.NEWSLETTER_MODE || 'local', resendKey: process.env.RESEND_API_KEY, resendWebhook: process.env.RESEND_WEBHOOK_SECRET, mailPublicUrl: process.env.MAIL_PUBLIC_URL || 'https://www.archenlicht.de', mailTestRecipients: (process.env.MAIL_TEST_RECIPIENTS || '').split(',').map(v => v.trim().toLowerCase()).filter(Boolean), mailEnabledSince: process.env.MAIL_ENABLED_SINCE, paymentMode: process.env.PAYMENT_MODE || 'local', dataDir: resolve(process.env.DATA_DIR || 'data/test'), adminEmail: process.env.ADMIN_EMAIL || 'jonas@archenlicht.test', adminPassword: process.env.ADMIN_PASSWORD || undefined, sessionHours: Math.min(24, Math.max(1, Number(process.env.SESSION_HOURS) || 2)), baseUrl: process.env.BASE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : `http://localhost:${process.env.PORT || 3000}`), printBaseUrl: process.env.PRINT_BASE_URL || '', stripeKey: process.env.STRIPE_SECRET_KEY, stripeWebhook: process.env.STRIPE_WEBHOOK_SECRET, stripePaymentConfiguration: process.env.STRIPE_PAYMENT_CONFIGURATION, autoShip: true, storageMode: process.env.STORAGE_MODE || (process.env.VERCEL === '1' ? 'postgres' : 'sqlite'), databaseUrl: process.env.DATABASE_URL, databaseSchema: process.env.DATABASE_SCHEMA || 'public', serverless: process.env.VERCEL === '1', workerSecret: process.env.CRON_SECRET, platformOrigins: [process.env.VERCEL_URL, process.env.VERCEL_BRANCH_URL, process.env.VERCEL_PROJECT_PRODUCTION_URL].filter(Boolean).map(host => `https://${host}`).concat((process.env.SHOP_ALLOWED_ORIGINS || '').split(',').map(value => value.trim()).filter(value => /^https:\/\/[^/]+$/.test(value))) });
 const mime = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.ttf': 'font/ttf', '.txt': 'text/plain; charset=utf-8' };
 function send(res, status, data, type = 'application/json; charset=utf-8') { res.writeHead(status, { 'Content-Type': type }); res.end(type.startsWith('application/json') ? JSON.stringify(data) : data); }
 async function rawBody(req, limit = 20000) { const chunks = []; let length = 0; for await (const chunk of req) { length += chunk.length; if (length > limit) throw new ShopError('Die Eingabe ist zu groß.', 413); chunks.push(chunk); } return Buffer.concat(chunks).toString('utf8'); }
@@ -16,16 +16,24 @@ function readCookie(req, name) { return (req.headers.cookie || '').split(';').ma
 const capability = req => /^Bearer ([A-Za-z0-9_-]{43})$/.exec(req.headers.authorization || '')?.[1];
 export async function createApp(config = defaultConfig()) {
   const shop = (await Shop.create(config)); const authLimits = new Map();
+  let orderWork = Promise.resolve();
+  const continueOrder = async orderId => {
+    // A second paid order must not disappear behind the current worker's busy
+    // flag. Persisted jobs still provide recovery if the process is interrupted.
+    const task = orderWork.then(() => shop.tick({ orderId, limit: 1 })).catch(() => { console.error('Bestellverarbeitung unterbrochen; dauerhafter Auftrag bleibt erhalten.'); });
+    orderWork = task;
+    if (config.background) config.background(task); else await task;
+  };
   const handler = async (req, res) => {
     res.setHeader('X-Content-Type-Options', 'nosniff'); res.setHeader('Referrer-Policy', 'no-referrer'); res.setHeader('X-Frame-Options', 'DENY'); res.setHeader('Cache-Control', 'no-store');
     res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
     res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'");
     try {
       const url = new URL(req.url, config.baseUrl), path = url.pathname, method = req.method;
-      if (path === '/api/health') return send(res, 200, { ok: true, mode: 'test', simulatedPayments: config.paymentMode === 'local', simulatedFulfillment: true, podbaseMode: config.podbaseMode, podbaseOrderSubmissionEnabled: false });
+      if (path === '/api/health') return send(res, 200, { ok: true, mode: config.shopMode, checkoutEnabled: shop.checkoutEnabled, simulatedPayments: config.paymentMode !== 'live', simulatedFulfillment: config.podbaseMode !== 'production', podbaseMode: config.podbaseMode, podbaseOrderSubmissionEnabled: config.podbaseSubmissionEnabled === true });
       if (path === '/api/jobs') {
         if (!config.workerSecret || req.headers.authorization !== `Bearer ${config.workerSecret}`) throw new ShopError('Zugriff nicht erlaubt.', 403);
-        await shop.tick(); return send(res, 200, { ok: true, simulated: true });
+        await shop.tick(); return send(res, 200, { ok: true, simulated: config.shopMode === 'test' });
       }
       if (path === '/api/newsletter/one-click' && method === 'POST') {
         const raw = await rawBody(req, 1000);
@@ -37,16 +45,16 @@ export async function createApp(config = defaultConfig()) {
         return send(res, 200, await shop.mailer.webhook(raw, req.headers));
       }
       if (path.startsWith('/api/webhooks/') && method === 'POST') {
-        if (config.paymentMode !== 'sandbox') throw new ShopError('Anbieter-Webhooks sind im lokalen Zahlungsmodus gesperrt.', 403);
+        if (config.paymentMode === 'local') throw new ShopError('Anbieter-Webhooks sind im lokalen Zahlungsmodus gesperrt.', 403);
         const raw = await rawBody(req, 256000); let event; try { event = JSON.parse(raw); } catch { throw new ShopError('Ungültiges Ereignis.'); }
         let order;
         if (path === '/api/webhooks/stripe') {
           if (!shop.payments.verifyStripeSignature(raw, req.headers['stripe-signature'])) throw new ShopError('Ungültige Webhook-Signatur.', 401);
           if (!['checkout.session.completed', 'checkout.session.async_payment_succeeded', 'checkout.session.async_payment_failed', 'checkout.session.expired'].includes(event.type)) return send(res, 200, { ignored: true });
-          if (!event.id || event.livemode !== false) throw new ShopError('Nur gültige Stripe-Testereignisse sind zulässig.', 400);
+          if (!event.id || event.livemode !== (config.paymentMode === 'live')) throw new ShopError('Ereignis und Zahlungsumgebung stimmen nicht überein.', 400);
           order = (await shop.s.get('SELECT * FROM orders WHERE payment_id=?', event.data?.object?.id || ''));
         }
-        if (!order) return send(res, 200, { ignored: true });
+        if (!order || order.mode !== config.shopMode) return send(res, 200, { ignored: true });
         const verified = await shop.payments.verify(order);
         if (!verified.completed) {
           if (event.type === 'checkout.session.expired' && verified.status === 'expired') await shop.s.run("UPDATE orders SET status='expired' WHERE id=? AND paid_at IS NULL", order.id);
@@ -54,7 +62,8 @@ export async function createApp(config = defaultConfig()) {
           await shop.newsletter.release(order.id);
           return send(res, 200, { pending: true });
         }
-        (await shop.acceptPayment({ ...verified, id: `${path}:${event.id}` }));
+        await shop.acceptPayment({ ...verified, id: `${path}:${event.id}` }, { flush: false });
+        await continueOrder(order.id);
         return send(res, 200, { received: true });
       }
       let secret = readCookie(req, 'archenlicht_session'), session = (await shop.session(secret));
@@ -129,7 +138,7 @@ export async function createApp(config = defaultConfig()) {
         if (orderMatch) {
           const order = (await shop.authorizeOrder(session, orderMatch[1], capability(req)));
           if (method === 'GET' && !orderMatch[2]) {
-            if (config.serverless) await shop.tick();
+            if (config.serverless && order.mode === config.shopMode) await continueOrder(order.id);
             return send(res, 200, await shop.orderView(await shop.s.get('SELECT * FROM orders WHERE id=?', order.id), session));
           }
           if (method === 'POST' && orderMatch[2] === 'confirm') {
@@ -138,7 +147,7 @@ export async function createApp(config = defaultConfig()) {
           }
           if (method === 'POST' && orderMatch[2] === 'verify') {
             const verified = await shop.payments.verify(order);
-            if (verified.completed) (await shop.acceptPayment(verified));
+            if (verified.completed) { await shop.acceptPayment(verified, { flush: false }); await continueOrder(order.id); }
             return send(res, 200, (await shop.orderView((await shop.s.get('SELECT * FROM orders WHERE id=?', order.id)), session)));
           }
           if (method === 'POST' && orderMatch[2] === 'cancel') {
@@ -167,11 +176,13 @@ export async function createApp(config = defaultConfig()) {
             const snapshot = await shop.podbaseCatalog?.snapshot({ force: true });
             return send(res, 200, { ...(shop.podbaseCatalog?.summary(snapshot) || { mode: 'local', connected: false, fulfillmentMode: 'simulated', orderSubmissionEnabled: false }), models: snapshot?.models || [] });
           }
+          if (path === '/api/admin/jobs' && method === 'POST') { await shop.tick(); return send(res, 200, { ok: true }); }
           if (path === '/api/admin/analytics' && method === 'GET') return send(res, 200, (await shop.analytics(Number(url.searchParams.get('from') || Date.now() - 30 * 86400000), Number(url.searchParams.get('to') || Date.now() + 86400000))));
           if (path === '/api/admin/mail' && method === 'GET') return send(res, 200, (await shop.s.all("SELECT * FROM mail_outbox WHERE status='local-delivered' ORDER BY created DESC LIMIT 100")));
           if (path === '/api/admin/mail-status' && method === 'GET') return send(res, 200, await shop.s.all('SELECT m.id,m.order_id,m.kind,m.recipient,m.subject,m.status,d.provider_id,d.attempts,d.last_error,d.accepted_at FROM mail_outbox m JOIN mail_deliveries d ON d.mail_id=m.id ORDER BY m.created DESC LIMIT 100'));
           if (path === '/api/admin/orders' && method === 'GET') return send(res, 200, (await Promise.all((await shop.s.all('SELECT * FROM orders ORDER BY created DESC LIMIT 100')).map(async o => (await shop.orderView(o))))));
           if (path === '/api/admin/test' && method === 'POST') {
+            if (config.shopMode !== 'test') throw new ShopError('Teststeuerung ist im Livebetrieb gesperrt.', 403);
             if (['ok', 'reject', 'timeout'].includes(body.podbase)) shop.podbase.scenario = body.podbase;
             if (['ok', 'unavailable', 'no-match'].includes(body.advisor)) shop.advisorScenario = body.advisor;
             if (body.variant) { const { modelId, designId, available } = body.variant; if (!MODELS.some(m => m.id === modelId) || !DESIGNS.some(d => d.id === designId) || typeof available !== 'boolean') throw new ShopError('Ungültige Testvariante.'); (await shop.s.run('UPDATE variants SET available=? WHERE model_id=? AND design_id=?', available ? 1 : 0, modelId, designId)); }

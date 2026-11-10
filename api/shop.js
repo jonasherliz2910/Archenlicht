@@ -1,10 +1,11 @@
+import { waitUntil } from '@vercel/functions';
 import { createApp, defaultConfig } from '../server/index.js';
 
 export function createVercelHandler(configuration = defaultConfig()) {
   let application;
   const getApplication = () => {
     if (!application) {
-      application = createApp({ ...configuration, serverless: true });
+      application = createApp({ ...configuration, serverless: true, ...(process.env.VERCEL === '1' ? { background: waitUntil } : {}) });
       application.catch(() => { application = null; });
     }
     return application;

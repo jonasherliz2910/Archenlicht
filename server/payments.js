@@ -105,10 +105,11 @@ export class Payments {
     const taxAmount = session.total_details?.amount_tax;
     const pricing = order.items ? summarizePricing(JSON.parse(order.items)) : null;
     const discountMatches = !pricing?.discount || session.total_details?.amount_discount === pricing.discount && session.amount_subtotal === pricing.subtotal;
-    const completed = discountMatches && session.id === order.payment_id && session.mode === 'payment' && session.payment_status === 'paid' && session.status === 'complete' && session.livemode === this.live && session.metadata?.order_id === order.id && session.metadata?.tax_treatment === TAX_TREATMENT && session.automatic_tax?.enabled === false && taxAmount === 0;
+    const completed = discountMatches && session.id === order.payment_id && session.client_reference_id === order.id && session.mode === 'payment' && session.payment_status === 'paid' && session.status === 'complete' && session.livemode === this.live && session.metadata?.order_id === order.id && session.metadata?.tax_treatment === TAX_TREATMENT && session.automatic_tax?.enabled === false && taxAmount === 0;
     return { id: `stripe-${session.id}`, paymentId: session.id, orderId: session.client_reference_id, amount: session.amount_total, currency: session.currency?.toUpperCase(), customerId: typeof session.customer === 'object' ? session.customer?.id : session.customer, paymentIntentId: typeof session.payment_intent === 'object' ? session.payment_intent?.id : session.payment_intent, taxTreatment: session.metadata?.tax_treatment, taxAmount, completed, status: session.status };
   }
   async expire(order) {
+    if (order.mode !== (this.live ? 'live' : 'test')) throw new ShopError('Bestellung und Zahlungsumgebung stimmen nicht überein.', 409);
     if (!order.payment_id) throw new ShopError('Der Zahlungsstatus muss zuerst geprüft werden. Bitte wende dich an info@archenlicht.de.', 409);
     const session = await this.request(client => client.checkout.sessions.retrieve(order.payment_id));
     if (session.id !== order.payment_id || session.livemode !== this.live || session.metadata?.order_id !== order.id) throw new ShopError('Die Zahlung konnte nicht zugeordnet werden.', 409);

@@ -64,9 +64,10 @@ export class PodbaseAPI {
       : order;
   }
   async get(id) { return this.normalizeOrder(await this.request(`/orders/${encodeURIComponent(id)}`)); }
-  async find(externalId) {
+  async find(externalId, { deadline = Date.now() + 40000 } = {}) {
     let match = null;
     for (let page = 0; page < 1000; page++) {
+      if (Date.now() > deadline - 15000) throw new Error('Podbase-Abgleich zeitlich unvollständig. Kein neuer Auftrag wird gesendet.');
       const result = await this.request(`/orders?page=${page}&limit=100`);
       if (!Array.isArray(result.orders) || typeof result.pagination?.hasNextPage !== 'boolean') throw new Error('Podbase-Auftragsabgleich lieferte keine vollständige Antwort.');
       if (result.pagination.page !== undefined && result.pagination.page !== page) throw new Error('Podbase-Auftragsabgleich lieferte eine unerwartete Seite.');
@@ -80,6 +81,6 @@ export class PodbaseAPI {
   create(payload) {
     if (!this.approved) throw new Error('Kostenpflichtige Podbase-Produktion ist gesperrt. Produktionsfreigabe fehlt.');
     if (!payload.externalOrderId || !payload.items?.length || payload.items.some(i => !/^PBP-/.test(i.productId) || !/^PBV-/.test(i.variantId) || !Number.isInteger(i.quantity) || i.quantity < 1 || !/^https:\/\/(www\.)?archenlicht\.de\/prints\/[a-f0-9]{64}\.png$/.test(i.printFile))) throw new Error('Podbase-Auftrag enthält keine gültigen Produktionsdaten.');
-    return this.request('/orders', 'POST', payload);
+    return this.request('/orders', 'POST', payload).then(order => this.normalizeOrder(order));
   }
 }

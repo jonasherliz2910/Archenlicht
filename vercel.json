@@ -16,7 +16,7 @@
   ],
   "functions": {
     "api/shop.js": {
-      "maxDuration": 60,
+      "maxDuration": 180,
       "includeFiles": "{server/**,public/**}"
     }
   },

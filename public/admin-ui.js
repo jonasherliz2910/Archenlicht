@@ -2,7 +2,7 @@ const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;',
 const money = value => new Intl.NumberFormat('de-DE',{style:'currency',currency:'EUR'}).format(value / 100);
 const date = value => value ? new Intl.DateTimeFormat('de-DE',{dateStyle:'medium',timeStyle:'short'}).format(value) : '–';
 const newsletterLabels = { pending:'Noch nicht bestätigt', active:'Angemeldet', unsubscribed:'Abgemeldet' };
-const statuses = { awaiting_payment:'Zahlung ausstehend', cancelled:'Abgebrochen', payment_setup_failed:'Zahlung nicht eingerichtet', payment_failed:'Zahlung fehlgeschlagen', expired:'Abgelaufen', paid:'Bezahlt', production:'In Produktion', shipped:'Versendet' };
+const statuses = { awaiting_payment:'Zahlung ausstehend', cancelled:'Abgebrochen', payment_setup_failed:'Zahlung nicht eingerichtet', payment_failed:'Zahlung fehlgeschlagen', expired:'Abgelaufen', paid:'Bezahlt', awaiting_approval:'Wartet auf Freigabe beim Druckpartner', production:'In Produktion', shipped:'Versendet' };
 const denied = () => '<section class="section-wrap empty-state"><h1>Deine Shop-Verwaltung.</h1><p>Bitte melde dich mit deinem Administratorkonto an.</p><a class="button primary" href="/konto?weiter=admin">Als Admin anmelden</a></section>';
 const navigation = active => `<nav class="admin-navigation" aria-label="Administration"><a href="/admin/kunden" ${active==='customers'?'aria-current="page"':''}>Kundenübersicht</a><a href="/auswertung">Auswertung & Postfach</a><a href="/admin/sicherheit" ${active==='security'?'aria-current="page"':''}>Passwort ändern</a><a href="/konto">Mein Konto</a></nav>`;
 const pageLink = (params, page) => { const next = new URLSearchParams(params); next.set('seite',page); return `/admin/kunden?${next}`; };

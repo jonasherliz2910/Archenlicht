@@ -22,4 +22,11 @@ test('Stripe-Kasse zeigt dynamische Zahlungswahl, freiwillige Kartenspeicherung 
   assert.doesNotMatch(html,/<p id="card-saving-note"[^>]*hidden/);
   assert.match(html,/name="saveAddress"/);assert.doesNotMatch(html,/name="saveAddress"[^>]*checked/);
   assert.doesNotMatch(vm.runInContext('cartPage()',context),/Lokal simulierte Zahlung|paypal-word/);
+  vm.runInContext("state.mode='live';state.paymentMode='live';state.checkoutEnabled=true",context);
+  const live=vm.runInContext('checkoutPage()',context);
+  assert.match(live,/name="method" value="stripe"/);assert.match(live,/Weiter zur Zahlung/);
+  assert.doesNotMatch(live,/Testcheckout|Testzahlung|Testkarten|type="radio" name="method"/);
+  vm.runInContext('state.checkoutEnabled=false',context);
+  const closed=vm.runInContext('checkoutPage()',context);
+  assert.match(closed,/Verkaufsstart/);assert.doesNotMatch(closed,/checkout-form|type="submit"/);
 });
