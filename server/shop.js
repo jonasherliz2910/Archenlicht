@@ -55,10 +55,16 @@ export class Shop {
   // Browsing stays available during launch preparation. Purchasing and paid
   // fulfillment always require approval for the actual order's environment.
   get variantMode() { return this.checkoutEnabled ? this.config.shopMode : 'test'; }
-  async createSession(source = 'unbekannt', campaign = null) {
+  async createSession() {
     const secret = token(), id = digest(secret), visit = randomUUID(), now = Date.now(), csrf = token();
-    (await this.s.tx(async () => { (await this.s.run('INSERT INTO visits VALUES(?,?,?,?,?)', visit, source, campaign, now, this.config.shopMode)); (await this.s.run('INSERT INTO sessions VALUES(?,?,?,?,?,?)', id, csrf, null, visit, now + this.config.sessionHours * 3600000, now)); }));
+    await this.s.run('INSERT INTO sessions VALUES(?,?,?,?,?,?)', id, csrf, null, visit, now + this.config.sessionHours * 3600000, now);
     return { secret, session: (await this.s.get('SELECT * FROM sessions WHERE id=?', id)) };
+  }
+  async recordVisit(session, source = 'unbekannt', campaign = null) {
+    if (session.statisticsConsent !== true) return;
+    source = ['tiktok', 'gemeinde', 'sonstige'].includes(source) ? source : 'unbekannt';
+    campaign = /^[a-zA-Z0-9_-]{1,40}$/.test(campaign || '') ? campaign : null;
+    await this.s.run('INSERT OR IGNORE INTO visits VALUES(?,?,?,?,?)', session.visit_id, source, campaign, Date.now(), this.config.shopMode);
   }
   async session(secret) { return secret ? (await this.s.get('SELECT * FROM sessions WHERE id=? AND expires>?', digest(secret), Date.now())) : null; }
   async user(session) { return session?.user_id ? (await this.s.get('SELECT id,email,role FROM users WHERE id=?', session.user_id)) : null; }
@@ -99,6 +105,8 @@ export class Shop {
   }
   async track(session, type, kind, designId) {
     if (!['view', 'cart'].includes(type) || !['fixed', 'custom'].includes(kind) || !findDesign(designId)) throw new ShopError('Ungültiges Ereignis.');
+    if (session.statisticsConsent !== true) return;
+    await this.recordVisit(session);
     (await this.s.run('INSERT OR IGNORE INTO events VALUES(?,?,?,?,?)', session.visit_id, type, kind, designId, Date.now()));
   }
   async assertAvailable(c, { mode = this.variantMode } = {}) {
@@ -286,10 +294,10 @@ export class Shop {
     const addressVersion = (await this.accountDetails(session))?.addressVersion || 0;
     const id = randomUUID(), guestToken = token(), amount = summarizePricing(items).total, now = Date.now();
     const number = `AL-${new Intl.DateTimeFormat('de', { year: 'numeric', timeZone: 'Europe/Berlin' }).format(now)}-${token().replace(/[-_]/g, '').slice(0, 9).toUpperCase()}`;
-    const visit = (await this.s.get('SELECT source FROM visits WHERE id=?', session.visit_id));
+    const visit = session.statisticsConsent === true ? await this.s.get('SELECT source FROM visits WHERE id=?', session.visit_id) : null;
     const snapshot = items.map(({ id, configuration, hash, title, model, quantity, unitPrice, pricing, printText, productId, variantId }) => ({ id, configuration, hash, title, model, quantity, unitPrice, pricing, printText, productId, variantId }));
     (await this.s.tx(async () => {
-      (await this.s.run('INSERT INTO orders(id,number,session_id,user_id,guest_hash,recipient,items,amount,currency,status,payment_method,source,visit_id,mode,created) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)', id, number, session.id, session.user_id, digest(guestToken), JSON.stringify(recipient), JSON.stringify(snapshot), amount, 'EUR', 'awaiting_payment', method, visit.source, session.visit_id, this.config.shopMode, now));
+      (await this.s.run('INSERT INTO orders(id,number,session_id,user_id,guest_hash,recipient,items,amount,currency,status,payment_method,source,visit_id,mode,created) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)', id, number, session.id, session.user_id, digest(guestToken), JSON.stringify(recipient), JSON.stringify(snapshot), amount, 'EUR', 'awaiting_payment', method, visit?.source || 'unbekannt', visit ? session.visit_id : randomUUID(), this.config.shopMode, now));
       if (newsletterDiscount) await this.newsletter.reserve(newsletterDiscount.subscriberId, id);
       if (method === 'stripe') await this.s.run('INSERT INTO stripe_payments VALUES(?,NULL,NULL,?,NULL,NULL)', id, TAX_TREATMENT);
       (await this.s.run('INSERT INTO checkout_preferences VALUES(?,?,?,?,?)', id, user?.id || null, saveAddress ? 1 : 0, addressVersion, customerId));
@@ -442,7 +450,7 @@ export class Shop {
       const viewIds = new Set(events.filter(e => e.type === 'view' && (!kind || e.kind === kind) && (!designId || e.design_id === designId)).map(e => e.visit_id)), views = viewIds.size;
       return { views, cartVisits: count(e => e.type === 'cart' && (!kind || e.kind === kind) && (!designId || e.design_id === designId)), paidOrders: paid.length, paidVisits: new Set(paid.filter(o => viewIds.has(o.visit_id)).map(o => o.visit_id)).size, units: paid.reduce((sum, o) => sum + JSON.parse(o.items).filter(matches).reduce((s, i) => s + i.quantity, 0), 0), denominator: views };
     };
-    return { mode: this.config.shopMode, from, to, visits: visits.length, paidOrders: orders.length, paidVisits: new Set(orders.map(o => o.visit_id)).size, revenue: orders.reduce((s, o) => s + o.amount, 0), units: orders.reduce((s, o) => s + JSON.parse(o.items).reduce((a, i) => a + i.quantity, 0), 0), products: ['fixed', 'custom'].map(kind => ({ id: kind, ...breakdown(kind) })), designs: DESIGNS.map(d => ({ id: d.id, title: d.title, ...breakdown(null, d.id) })), sources: ['tiktok', 'gemeinde', 'sonstige', 'unbekannt'].map(source => ({ source, visits: visits.filter(v => v.source === source).length, paidOrders: orders.filter(o => o.source === source).length, paidVisits: new Set(orders.filter(o => o.source === source && visits.some(v => v.id === o.visit_id)).map(o => o.visit_id)).size })), purposes: ['Für mich', 'Als Geschenk', 'Beides', 'Keine Angabe'].map(purpose => ({ purpose, orders: orders.filter(o => o.purpose === purpose).length })), feedback: (await this.s.all('SELECT reason,COUNT(*) AS count FROM feedback WHERE created>=? AND created<? GROUP BY reason', from, to)), openCases: (await this.s.all("SELECT o.id,o.number,f.state,f.error FROM fulfillment f JOIN orders o ON o.id=f.order_id WHERE f.state IN ('rejected','uncertain')")), definitions: `Besuch = neue technisch notwendige Sitzung (${this.config.sessionHours} h, keine IP/kein Fingerprint). Produktansicht und Warenkorbzugang = höchstens einmal je Besuch, Produktart und Motiv. Bezahlt = serverseitig bestätigte Bestellung im Zeitraum der Zahlung. Stück = Summe ihrer Mengen. Kaufquote = im Zeitraum kaufende Besuche mit Produktansicht im selben Zeitraum / Besuche mit Produktansicht. Herkunftsquote = im Zeitraum kaufende Besuche aus den im Zeitraum gestarteten Sitzungen / im Zeitraum gestartete Sitzungen der Quelle. Absolute Bestellzahlen richten sich unabhängig davon nach dem Zahlungszeitpunkt. Test- und Livebestellungen werden getrennt ausgewertet.` };
+    return { mode: this.config.shopMode, from, to, visits: visits.length, paidOrders: orders.length, paidVisits: new Set(orders.filter(o => visits.some(v => v.id === o.visit_id)).map(o => o.visit_id)).size, revenue: orders.reduce((s, o) => s + o.amount, 0), units: orders.reduce((s, o) => s + JSON.parse(o.items).reduce((a, i) => a + i.quantity, 0), 0), products: ['fixed', 'custom'].map(kind => ({ id: kind, ...breakdown(kind) })), designs: DESIGNS.map(d => ({ id: d.id, title: d.title, ...breakdown(null, d.id) })), sources: ['tiktok', 'gemeinde', 'sonstige', 'unbekannt'].map(source => ({ source, visits: visits.filter(v => v.source === source).length, paidOrders: orders.filter(o => o.source === source).length, paidVisits: new Set(orders.filter(o => o.source === source && visits.some(v => v.id === o.visit_id)).map(o => o.visit_id)).size })), purposes: ['Für mich', 'Als Geschenk', 'Beides', 'Keine Angabe'].map(purpose => ({ purpose, orders: orders.filter(o => o.purpose === purpose).length })), feedback: (await this.s.all('SELECT reason,COUNT(*) AS count FROM feedback WHERE created>=? AND created<? GROUP BY reason', from, to)), openCases: (await this.s.all("SELECT o.id,o.number,f.state,f.error FROM fulfillment f JOIN orders o ON o.id=f.order_id WHERE f.state IN ('rejected','uncertain')")), definitions: `Besuch = Sitzung mit freiwilliger Statistik-Einwilligung (${this.config.sessionHours} h, keine IP/kein Fingerprint). Produktansicht und Warenkorbzugang = höchstens einmal je Besuch, Produktart und Motiv. Bezahlt = serverseitig bestätigte Bestellung im Zeitraum der Zahlung. Stück = Summe ihrer Mengen. Kaufquote = im Zeitraum kaufende Besuche mit Produktansicht im selben Zeitraum / Besuche mit Produktansicht. Herkunftsquote = im Zeitraum kaufende Besuche aus den im Zeitraum gestarteten Sitzungen / im Zeitraum gestartete Sitzungen der Quelle. Absolute Bestellzahlen richten sich unabhängig davon nach dem Zahlungszeitpunkt. Test- und Livebestellungen werden getrennt ausgewertet.` };
   }
   async close() { this.situations.clear(); (await this.s.close()); }
 }

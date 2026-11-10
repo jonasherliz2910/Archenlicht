@@ -19,11 +19,11 @@ async function setup(t) {
   const config = configuration(), app = (await createApp(config)); await new Promise(resolve => app.server.listen(0, '127.0.0.1', resolve));
   const base = `http://127.0.0.1:${app.server.address().port}`;
   t.after(async () => { await new Promise(async resolve => (await app.server.close(resolve))); });
-  function client() {
+  function client({ statistics = false } = {}) {
     let cookie = '', csrf = '';
     return {
       async call(path, method = 'GET', body, headers = {}) {
-        const response = await fetch(`${base}${path}`, { method, headers: { Cookie: cookie, ...(body !== undefined ? { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf } : {}), ...headers }, ...(body !== undefined ? { body: JSON.stringify(body) } : {}) });
+        const response = await fetch(`${base}${path}`, { method, headers: { Cookie: cookie + (statistics ? `; archenlicht_consent=v1.statistics.${Date.now()}` : ''), ...(body !== undefined ? { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf } : {}), ...headers }, ...(body !== undefined ? { body: JSON.stringify(body) } : {}) });
         if (response.headers.get('set-cookie')) cookie = response.headers.get('set-cookie').split(';')[0];
         const data = response.headers.get('content-type')?.includes('json') ? await response.json() : Buffer.from(await response.arrayBuffer());
         if (data?.csrf) csrf = data.csrf;
@@ -38,7 +38,7 @@ async function putCart(c, configuration, quantity = 1) { const r = await c.call(
 async function checkout(c, method = 'paypal') { const r = await c.call('/api/checkout', 'POST', { recipient, method }); assert.equal(r.status, 201, JSON.stringify(r.data)); return r.data; }
 
 test('Beide vollständigen Kaufwege, identische Druckdatei, Konto, Gastlink, Versand und Kennzahlen', async t => {
-  const { shop, client, base } = await setup(t), guest = client(), account = client();
+  const { shop, client, base } = await setup(t), guest = client({ statistics: true }), account = client({ statistics: true });
   await guest.call('/api/bootstrap?source=tiktok&campaign=fluegel');
   await guest.call('/api/events', 'POST', { type: 'view', kind: 'fixed', designId: fixed.designId });
   const fixedCart = await putCart(guest, fixed);

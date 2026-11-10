@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 import { readJsonResponse, SHOP_UNAVAILABLE } from '../public/api-client.js';
+import { LEGAL_PAGES } from '../public/legal-content.js';
 
 test('API-Antworten liefern JSON und behalten verständliche Serverfehler bei', async () => {
   assert.deepEqual(await readJsonResponse(Response.json({ ok: true })), { ok: true });
@@ -21,7 +22,7 @@ test('Hosting-404, HTML und beschädigtes JSON erscheinen als verständlicher Ve
 test('Fehlgeschlagener Shopstart zeigt eine Wiederholungsaktion und fängt Navigation vor Initialisierung nicht ab', async () => {
   const listeners = new Map(), content = { innerHTML: '' }; let pushed = 0;
   const context = vm.createContext({
-    readJsonResponse, SHOP_UNAVAILABLE, URL, URLSearchParams, Intl,
+    readJsonResponse, SHOP_UNAVAILABLE, LEGAL_PAGES, URL, URLSearchParams, Intl,
     location: { origin: 'https://shop.example', pathname: '/', search: '', hash: '' },
     history: { pushState: () => { pushed++; } },
     document: { querySelector: selector => selector === '#inhalt' ? content : null, addEventListener: (type, callback) => listeners.set(type, callback) },

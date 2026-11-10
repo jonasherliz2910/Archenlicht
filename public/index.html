@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="/style.css" />
     <link rel="stylesheet" href="/bundle.css" />
     <link rel="stylesheet" href="/newsletter.css" />
+    <link rel="stylesheet" href="/cookie-consent.css" />
     <link rel="stylesheet" href="/admin.css" />
     <script type="module" src="/app.js"></script>
   </head>
@@ -22,5 +23,23 @@
     <main id="inhalt" tabindex="-1"><div class="loading"><span class="loader"></span>Ein Moment für Archenlicht …</div></main>
     <footer id="footer"></footer>
     <div id="toast" role="status" aria-live="polite"></div>
+    <dialog id="cookie-dialog" class="cookie-dialog" aria-labelledby="cookie-title" aria-describedby="cookie-description">
+      <p class="cookie-brand">Archenlicht · Cookies</p>
+      <h2 id="cookie-title" tabindex="-1">Du entscheidest.</h2>
+      <p id="cookie-description">Wir nutzen notwendige Cookies für Warenkorb, Kundenkonto und Sicherheit. Mit deiner Zustimmung erfassen wir zusätzlich die Nutzung unseres Shops. Keine Werbe-Cookies oder externen Analysedienste.</p>
+      <div class="cookie-actions">
+        <button type="button" data-cookie-accept>Alle akzeptieren</button>
+        <button type="button" data-cookie-necessary>Nur notwendige</button>
+      </div>
+      <p class="cookie-note">Deine Auswahl gilt für 180 Tage. Du kannst sie jederzeit unter „Cookie-Einstellungen“ unten auf der Website ändern.</p>
+      <details>
+        <summary>Auswahl anpassen</summary>
+        <div class="cookie-category"><strong>Notwendig · immer aktiv</strong><p>Die Shop-Sitzung speichert Warenkorb und Anmeldung für bis zu zwei Stunden. Ein weiteres Cookie merkt sich deine Cookie-Auswahl für 180 Tage. Das Schließen des Newsletter-Fensters wird für den aktuellen Browser-Tab gespeichert.</p></div>
+        <div class="cookie-category"><label><input type="checkbox" name="statistics"><strong>Shop-Statistik · freiwillig</strong></label><p>Erfasst Besuche, Produktansichten, Warenkorbzugänge und die Zuordnung von Käufen zu einer zufälligen Sitzungskennung. Dazu können Herkunftskategorie und Kampagnenkennung kommen. Ohne Zustimmung bleibt diese Auswertung ausgeschaltet. Wir übermitteln dafür keine Daten an externe Analysedienste.</p></div>
+        <button type="button" data-cookie-save>Auswahl speichern</button>
+      </details>
+      <p class="cookie-links"><a href="/datenschutz" data-cookie-legal>Datenschutz</a><a href="/impressum" data-cookie-legal>Impressum</a></p>
+    </dialog>
+    <script type="module" async src="/cookie-consent.js"></script>
   </body>
 </html>

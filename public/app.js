@@ -13,6 +13,7 @@ import { PRODUCT_VERSES } from './product-verses.js';
 import { modelTrigger, createModelPicker } from './model-picker.js';
 import { recipientFields, accountSettings, localCardOptions } from './account-ui.js';
 import { readJsonResponse, SHOP_UNAVAILABLE } from './api-client.js';
+import { readConsent } from './cookie-policy.js';
 
 const $ = (s, p = document) => p.querySelector(s);
 const $$ = (s, p = document) => [...p.querySelectorAll(s)];
@@ -50,6 +51,21 @@ async function api(path, options = {}) {
   return data;
 }
 const post = (path, body = {}) => api(path, { method: 'POST', body });
+function trackView(kind, designId) {
+  if (readConsent(document.cookie)?.statistics) post('/api/events', { type: 'view', kind, designId }).catch(() => {});
+}
+function visitSource() {
+  const query = new URLSearchParams(location.search), raw = query.get('utm_source') || query.get('quelle');
+  return { source: raw === 'tiktok' ? 'tiktok' : ['gemeinde', 'gemeinde-qr'].includes(raw) ? 'gemeinde' : raw ? 'sonstige' : 'unbekannt', campaign: query.get('utm_campaign') || query.get('gemeinde') || '' };
+}
+async function syncConsent() {
+  if (!state) return;
+  try {
+    await post('/api/privacy/consent', visitSource());
+    if (config && (/^\/kollektion\/[^/]+$/.test(location.pathname) || location.pathname === '/gestalten')) trackView(config.kind, config.designId);
+  } catch { /* A failed statistics request must not interrupt shopping. */ }
+}
+window.addEventListener('archenlicht:consent-change', syncConsent);
 function toast(text) { $('#toast').textContent = text; $('#toast').classList.add('visible'); clearTimeout(toast.timer); toast.timer = setTimeout(() => $('#toast').classList.remove('visible'), 4200); }
 function header() {
   const label = $('.test-label');
@@ -58,7 +74,7 @@ function header() {
   $('#header').innerHTML = `<div class="header-inner">${logo()}<nav aria-label="Hauptnavigation"><a href="/kollektion" class="${location.pathname.includes('/kollektion') ? 'active' : ''}">Die Kollektion</a><a href="/gestalten" class="${location.pathname === '/gestalten' ? 'active' : ''}">Dein Wunschvers ${icon('spark')}</a><a href="/bundle" class="${location.pathname === '/bundle' ? 'active' : ''}">Bundles</a><a href="/ueber-uns">Unsere Geschichte</a></nav><div class="header-actions"><a href="/konto" aria-label="Mein Konto" title="Mein Konto">${icon('user')}</a><a href="/warenkorb" class="cart-link" aria-label="Warenkorb, ${state.cart.reduce((s, i) => s + i.quantity, 0)} Artikel">${icon('bag')}<span>${state.cart.reduce((s, i) => s + i.quantity, 0)}</span></a><button class="icon-button mobile-menu" aria-label="Menü öffnen" aria-expanded="false" data-action="menu">${icon('menu')}</button></div></div>`;
 }
 function footer() {
-  $('#footer').innerHTML = `<div class="footer-main"><div>${logo()}<p>Ein Vers für den Weg.<br>Ein Stück Hoffnung für deinen Alltag.</p><small>Mit Bedeutung gestaltet. Für dich und deine Lieben.</small></div><div><h3>Entdecken</h3><a href="/kollektion">Die Kollektion</a><a href="/gestalten">Deine Wunschvers-Hülle</a><a href="/ueber-uns">Unsere Geschichte</a><a href="/faq">Häufige Fragen</a><a href="/newsletter">Newsletter · 5 % sichern</a></div><div><h3>Gut zu wissen</h3><a href="/versand">Versand & Geschenkkarte</a><a href="/vertrag-widerrufen" class="withdrawal-link">Vertrag widerrufen</a><a href="/widerruf">Widerruf & Rückgabe</a><a href="/datenschutz">Datenschutz</a><a href="/impressum">Impressum</a><a href="/agb">AGB</a></div><div class="footer-note">${icon('leaf')}<h3>Weniger Lärm.<br>Mehr Bedeutung.</h3><p>Deine Hülle wird erst nach deiner<br>Bestellung für dich gefertigt.</p><span class="draft-note">${state.checkoutEnabled === false ? 'Verkaufsstart in Vorbereitung' : 'Mit Sorgfalt für dich gefertigt'}</span></div></div><div class="footer-bottom"><span>© ${new Date().getFullYear()} ${esc(state.brand.name)} · Mit Hoffnung unterwegs.</span><span>Deutschland · EUR €</span><a href="${state.user?.role === 'admin' ? '/admin/kunden' : '/konto'}">${state.user?.role === 'admin' ? 'Administration' : 'Mein Konto'}</a></div>`;
+  $('#footer').innerHTML = `<div class="footer-main"><div>${logo()}<p>Ein Vers für den Weg.<br>Ein Stück Hoffnung für deinen Alltag.</p><small>Mit Bedeutung gestaltet. Für dich und deine Lieben.</small></div><div><h3>Entdecken</h3><a href="/kollektion">Die Kollektion</a><a href="/gestalten">Deine Wunschvers-Hülle</a><a href="/ueber-uns">Unsere Geschichte</a><a href="/faq">Häufige Fragen</a><a href="/newsletter">Newsletter · 5 % sichern</a></div><div><h3>Gut zu wissen</h3><a href="/versand">Versand & Geschenkkarte</a><a href="/vertrag-widerrufen" class="withdrawal-link">Vertrag widerrufen</a><a href="/widerruf">Widerruf & Rückgabe</a><a href="/datenschutz">Datenschutz</a><a href="/impressum">Impressum</a><a href="/agb">AGB</a><button type="button" class="cookie-settings" data-cookie-settings>Cookie-Einstellungen</button></div><div class="footer-note">${icon('leaf')}<h3>Weniger Lärm.<br>Mehr Bedeutung.</h3><p>Deine Hülle wird erst nach deiner<br>Bestellung für dich gefertigt.</p><span class="draft-note">${state.checkoutEnabled === false ? 'Verkaufsstart in Vorbereitung' : 'Mit Sorgfalt für dich gefertigt'}</span></div></div><div class="footer-bottom"><span>© ${new Date().getFullYear()} ${esc(state.brand.name)} · Mit Hoffnung unterwegs.</span><span>Deutschland · EUR €</span><a href="${state.user?.role === 'admin' ? '/admin/kunden' : '/konto'}">${state.user?.role === 'admin' ? 'Administration' : 'Mein Konto'}</a></div>`;
 }
 const designImage = id => `/assets/design-${id}.svg`;
 function phone(id, options = {}) {
@@ -262,14 +278,14 @@ async function render({ scroll = true } = {}) {
       if (!d) html = notFound(); else {
         const edit = state.cart.find(i => i.id === new URLSearchParams(location.search).get('bearbeiten'));
         config = edit ? { ...edit.configuration } : { kind: 'fixed', magsafe: false, designId: d.id, modelId: 'iphone-15', backgroundId: 'white', dedication: '' }; currentPreview = null;
-        html = fixedProduct(d); post('/api/events', { type: 'view', kind: config.kind, designId: d.id }).catch(() => {});
+        html = fixedProduct(d); trackView(config.kind, d.id);
       }
     } else if (path === '/gestalten') {
       const query = new URLSearchParams(location.search), edit = state.cart.find(i => i.id === query.get('bearbeiten'));
       config = edit ? { ...edit.configuration } : { kind: 'custom', magsafe: false, designId: state.designs.some(d => d.id === query.get('motiv')) ? query.get('motiv') : 'unter-seinen-fluegeln', modelId: 'iphone-15', backgroundId: 'white', verseId: state.verses[0]?.id, dedication: '' };
       textChoice = createTextChoice(config, state.verses); config = applyTextChoice(config, textChoice);
       advisorResults = null; situation = ''; adviceOpen = false; advisorPending = false; currentStep = 0; currentPreview = null;
-      html = customizer(); post('/api/events', { type: 'view', kind: 'custom', designId: config.designId }).catch(() => {});
+      html = customizer(); trackView('custom', config.designId);
     } else if (path === '/warenkorb') { await refreshState(); html = cartPage(); }
     else if (path === '/bundle') { await refreshState(); html = bundlePage(); }
     else if (path === '/kasse') { await refreshState(); html = checkoutPage(); }
@@ -296,6 +312,7 @@ async function render({ scroll = true } = {}) {
   galleryCleanup = mountPreviewGallery($('.preview-gallery'));
   photoGallery = mountLifestylePhotos($('.preview-gallery'));
   newsletterUI?.mount();
+  window.dispatchEvent(new Event('archenlicht:page-ready'));
   mountWithdrawal(post);
   if (scroll) window.scrollTo({ top: 0, behavior: 'instant' });
   document.title = `${path === '/' ? 'Ein Vers für deinen Alltag' : $('#inhalt h1')?.textContent || 'Shop'} | ${state.brand.name}`;
@@ -322,6 +339,7 @@ async function selectTextChoice(focusSelector) {
 }
 document.addEventListener('click', async event => {
   const link = event.target.closest('a');
+  if (link?.hasAttribute('data-cookie-legal')) return;
   if (link && !event.ctrlKey && !event.metaKey && !event.shiftKey && !link.target && !link.hasAttribute('download')) {
     if (!state || link.hasAttribute('data-reload')) return;
     const url = new URL(link.href, location.origin);
@@ -336,7 +354,7 @@ document.addEventListener('click', async event => {
       textChoice.verseId = button.dataset.verse; await selectTextChoice(`[data-verse="${textChoice.verseId}"]`);
     }
     if (button.dataset.step !== undefined) { currentStep = Number(button.dataset.step); rerenderWizard(); }
-    if (button.dataset.design) { config.designId = button.dataset.design; post('/api/events', { type: 'view', kind: 'custom', designId: config.designId }).catch(() => {}); rerenderWizard(); await updatePreview(); }
+    if (button.dataset.design) { config.designId = button.dataset.design; trackView('custom', config.designId); rerenderWizard(); await updatePreview(); }
     if (button.dataset.remove) { state.cart = await api(`/api/cart/${button.dataset.remove}`, { method: 'DELETE', body: {} }); header(); await render({ scroll: false }); }
     if (button.dataset.confirm) {
       button.disabled = true;
@@ -449,11 +467,12 @@ document.addEventListener('submit', async event => {
 window.addEventListener('popstate', () => render());
 async function start() {
   try {
-    const query = new URLSearchParams(location.search), raw = query.get('utm_source') || query.get('quelle'), source = raw === 'tiktok' ? 'tiktok' : ['gemeinde', 'gemeinde-qr'].includes(raw) ? 'gemeinde' : raw ? 'sonstige' : 'unbekannt';
-    const campaign = query.get('utm_campaign') || query.get('gemeinde') || '';
+    const { source, campaign } = visitSource();
     state = await api(`/api/bootstrap?source=${source}&campaign=${encodeURIComponent(campaign)}`);
     modelPicker = createModelPicker({ getState: () => state, getConfiguration: () => config, onSelect: async id => { config.modelId = id; modelPicker.sync(); syncCaseSelection(); await updatePreview(); }, onError: error => toast(error.message) });
     newsletterUI = createNewsletterUI({ post });
+    // A visitor may already have chosen while the bootstrap request was pending.
+    if (readConsent(document.cookie)) await syncConsent();
     await render();
   } catch { $('#inhalt').innerHTML = startupError(); }
 }

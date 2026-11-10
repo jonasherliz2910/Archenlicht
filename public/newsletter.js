@@ -1,5 +1,6 @@
 import { NEWSLETTER_CONSENT, NEWSLETTER_CONSENT_VERSION, NEWSLETTER_TERMS } from './newsletter-policy.js';
 import { summarizePricing } from './bundle-pricing.js';
+import { readConsent } from './cookie-policy.js';
 
 const money = value => new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(value / 100);
 const signup = () => `<span class="eyebrow">POST, DIE HOFFNUNG MACHT</span><h1 id="newsletter-title">Ein kleiner Lichtblick.<br>Und 5 % für dich.</h1><p>Entdecke neue Motive, kleine Impulse und Angebote von Archenlicht. Melde dich kostenlos an und bestätige deine Anmeldung anschließend per E-Mail. Erst danach erhältst du deinen persönlichen 5-%-Rabattcode.</p><form id="newsletter-form"><div class="newsletter-names"><label>Vorname<input name="firstName" autocomplete="given-name" maxlength="80" required></label><label>Nachname<input name="lastName" autocomplete="family-name" maxlength="80" required></label></div><label>E-Mail-Adresse<input name="email" type="email" autocomplete="email" maxlength="180" required></label><div class="newsletter-honey" aria-hidden="true"><label>Website<input name="website" tabindex="-1" autocomplete="off"></label></div><label class="newsletter-consent"><input type="checkbox" name="consent" required><span>${NEWSLETTER_CONSENT} Mehr in unseren <a href="/datenschutz">Datenschutzhinweisen</a>.</span></label><p class="newsletter-terms">${NEWSLETTER_TERMS}</p><p class="newsletter-status" role="status" aria-live="polite"></p><button type="submit" class="button primary full">Kostenlos anmelden</button><p class="newsletter-help">Öffne danach unsere E-Mail und bestätige deine Anmeldung über den Link. Dein Code kommt anschließend in einer zweiten E-Mail.</p></form>`;
@@ -22,7 +23,7 @@ export function createNewsletterUI({ post }) {
   }
   function close() { if (dialog?.open) { dismiss(); dialog.close(); } dialog?.remove(); dialog = null; }
   function show() {
-    if (!eligible() || seen() || document.querySelector('dialog[open]')) return;
+    if (!readConsent(document.cookie) || !eligible() || seen() || document.querySelector('dialog[open]')) return;
     previousFocus = document.activeElement;
     dialog = document.createElement('dialog'); dialog.className = 'newsletter-dialog'; dialog.setAttribute('aria-labelledby','newsletter-title');
     dialog.innerHTML = `<button type="button" class="newsletter-close" aria-label="Newsletter-Fenster schließen">×</button><div class="newsletter-content">${signup()}</div><button type="button" class="text-button newsletter-later">Vielleicht später</button>`;
@@ -75,7 +76,13 @@ export function createNewsletterUI({ post }) {
       try { const result = await post(location.pathname.endsWith('bestaetigen') ? '/api/newsletter/confirm' : '/api/newsletter/unsubscribe', { token: linkToken }); status.textContent = result.message; button.remove(); dismiss(); }
       catch (e) { status.textContent = e.message; button.disabled = false; }
     };
-    if (eligible() && !seen()) timer = setTimeout(show, 6000);
+    schedule();
   }
+  function schedule() {
+    clearTimeout(timer);
+    if (readConsent(document.cookie) && eligible() && !seen() && !document.querySelector('#cookie-dialog[open]')) timer = setTimeout(show, 6000);
+  }
+  window.addEventListener('archenlicht:consent-change', schedule);
+  window.addEventListener('archenlicht:consent-open', () => { clearTimeout(timer); close(); });
   return { page, mount };
 }

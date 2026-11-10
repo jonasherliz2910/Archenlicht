@@ -7,6 +7,7 @@ import { ShopError, renderLayout } from './layout.js';
 import { DESIGNS, MODELS } from './catalog.js';
 import { digest } from './store.js';
 import { contractInformation, WITHDRAWAL_FORM, OPERATOR } from '../public/legal-content.js';
+import { readConsent } from '../public/cookie-policy.js';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 export const defaultConfig = () => ({ legalContactReady: Boolean(OPERATOR.phone), checkoutEnabled: process.env.CHECKOUT_ENABLED === undefined ? undefined : process.env.CHECKOUT_ENABLED === 'true', podbaseSubmissionEnabled: process.env.PODBASE_SUBMISSION_ENABLED === 'true', podbaseStoreId: process.env.PODBASE_STORE_ID, podbaseKey: process.env.PODBASE_API_KEY, podbaseBaseUrl: process.env.PODBASE_BASE_URL || 'https://open-api.podbase.com', shopMode: process.env.SHOP_MODE || 'test', podbaseMode: process.env.PODBASE_MODE || 'local', printMode: process.env.PRINT_MODE || 'preview', mailMode: process.env.MAIL_MODE || 'local', newsletterMode: process.env.NEWSLETTER_MODE || 'local', resendKey: process.env.RESEND_API_KEY, resendWebhook: process.env.RESEND_WEBHOOK_SECRET, mailPublicUrl: process.env.MAIL_PUBLIC_URL || 'https://www.archenlicht.de', mailTestRecipients: (process.env.MAIL_TEST_RECIPIENTS || '').split(',').map(v => v.trim().toLowerCase()).filter(Boolean), mailEnabledSince: process.env.MAIL_ENABLED_SINCE, paymentMode: process.env.PAYMENT_MODE || 'local', dataDir: resolve(process.env.DATA_DIR || 'data/test'), adminEmail: process.env.ADMIN_EMAIL || 'jonas@archenlicht.test', adminPassword: process.env.ADMIN_PASSWORD || undefined, sessionHours: Math.min(24, Math.max(1, Number(process.env.SESSION_HOURS) || 2)), baseUrl: process.env.BASE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : `http://localhost:${process.env.PORT || 3000}`), printBaseUrl: process.env.PRINT_BASE_URL || '', stripeKey: process.env.STRIPE_SECRET_KEY, stripeWebhook: process.env.STRIPE_WEBHOOK_SECRET, stripePaymentConfiguration: process.env.STRIPE_PAYMENT_CONFIGURATION, autoShip: true, storageMode: process.env.STORAGE_MODE || (process.env.VERCEL === '1' ? 'postgres' : 'sqlite'), databaseUrl: process.env.DATABASE_URL, databaseSchema: process.env.DATABASE_SCHEMA || 'public', serverless: process.env.VERCEL === '1', workerSecret: process.env.CRON_SECRET, platformOrigins: [process.env.VERCEL_URL, process.env.VERCEL_BRANCH_URL, process.env.VERCEL_PROJECT_PRODUCTION_URL].filter(Boolean).map(host => `https://${host}`).concat((process.env.SHOP_ALLOWED_ORIGINS || '').split(',').map(value => value.trim()).filter(value => /^https:\/\/[^/]+$/.test(value))) });
@@ -75,10 +76,11 @@ export async function createApp(config = defaultConfig()) {
       const setSession = value => res.setHeader('Set-Cookie', `archenlicht_session=${value}; HttpOnly; Path=/; SameSite=Lax; Max-Age=${Math.round(config.sessionHours * 3600)}${config.baseUrl.startsWith('https:') ? '; Secure' : ''}`);
       if (path.startsWith('/api/')) {
         if (!session) {
-          const sourceParam = url.searchParams.get('source'), source = ['tiktok', 'gemeinde', 'sonstige'].includes(sourceParam) ? sourceParam : 'unbekannt';
-          const campaign = /^[a-zA-Z0-9_-]{1,40}$/.test(url.searchParams.get('campaign') || '') ? url.searchParams.get('campaign') : null;
-          const created = (await shop.createSession(source, campaign)); session = created.session; secret = created.secret; setSession(secret);
+          const created = (await shop.createSession()); session = created.session; secret = created.secret; setSession(secret);
         }
+        // Enforce the current choice on every request, including carts and checkout.
+        // Client-side suppression alone would not cover these server-side events.
+        session.statisticsConsent = readConsent(req.headers.cookie || '')?.statistics === true;
         let body = {};
         if (!['GET', 'HEAD'].includes(method)) {
           const origin = req.headers.origin;
@@ -88,7 +90,15 @@ export async function createApp(config = defaultConfig()) {
           const raw = await rawBody(req); try { body = raw ? JSON.parse(raw) : {}; } catch { throw new ShopError('Ungültige Eingabe.'); }
           if (!body || Array.isArray(body) || typeof body !== 'object') throw new ShopError('Ungültige Eingabe.');
         }
-        if (path === '/api/bootstrap' && method === 'GET') return send(res, 200, (await shop.publicState(session)));
+        if (path === '/api/bootstrap' && method === 'GET') {
+          await shop.recordVisit(session, url.searchParams.get('source'), url.searchParams.get('campaign'));
+          return send(res, 200, await shop.publicState(session));
+        }
+        if (path === '/api/privacy/consent' && method === 'POST') {
+          if (session.statisticsConsent) await shop.recordVisit(session, body.source, body.campaign);
+          else await shop.s.run('UPDATE sessions SET visit_id=? WHERE id=?', crypto.randomUUID(), session.id);
+          return send(res, 200, { statistics: session.statisticsConsent });
+        }
         if (path === '/api/withdrawals' && method === 'POST') return send(res, 200, await shop.withdrawals.submit(body, session, config.serverless ? String(req.headers['x-forwarded-for'] || req.socket.remoteAddress).split(',')[0].trim() : req.socket.remoteAddress));
         if (path === '/api/newsletter/subscribe' && method === 'POST') return send(res, 200, await shop.newsletter.subscribe(body, session, config.serverless ? String(req.headers['x-forwarded-for'] || req.socket.remoteAddress).split(',')[0].trim() : req.socket.remoteAddress));
         if (path === '/api/newsletter/confirm' && method === 'POST') return send(res, 200, await shop.newsletter.confirm(body.token));
@@ -172,7 +182,7 @@ export async function createApp(config = defaultConfig()) {
             (await shop.s.run('UPDATE orders SET purpose=? WHERE id=?', body.purpose, order.id)); return send(res, 200, { ok: true });
           }
         }
-        if (path === '/api/feedback' && method === 'POST') { if (!['Preis', 'Fehlendes Modell', 'Gestaltung', 'Keine Angabe'].includes(body.reason)) throw new ShopError('Bitte wähle einen Grund aus.'); (await shop.s.run('INSERT INTO feedback VALUES(?,?,?,?)', crypto.randomUUID(), session.visit_id, body.reason, Date.now())); return send(res, 200, { ok: true }); }
+        if (path === '/api/feedback' && method === 'POST') { if (!['Preis', 'Fehlendes Modell', 'Gestaltung', 'Keine Angabe'].includes(body.reason)) throw new ShopError('Bitte wähle einen Grund aus.'); (await shop.s.run('INSERT INTO feedback VALUES(?,?,?,?)', crypto.randomUUID(), session.statisticsConsent ? session.visit_id : crypto.randomUUID(), body.reason, Date.now())); return send(res, 200, { ok: true }); }
         if (path.startsWith('/api/admin/')) {
           (await shop.requireAdmin(session));
           if (path === '/api/admin/withdrawals' && method === 'GET') return send(res, 200, await shop.s.all('SELECT id,name,email,contract,statement,created FROM withdrawals WHERE mode=? ORDER BY created DESC LIMIT 100', config.shopMode));
