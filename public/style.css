@@ -471,3 +471,26 @@ body.choosing-model{overflow:hidden}
 .warranty-notice h2{font-family:inherit;font-size:18px}
 .warranty-notice img{display:block;width:100%;max-width:480px;height:auto;margin:12px auto}
 @media(max-width:600px){.withdrawal-actions .button{width:100%}.warranty-notice{padding:12px}.prose-page{overflow-wrap:anywhere}}
+
+/* A centered, image-free introduction with a direct path to the collection. */
+.hero.hero-centered{display:block;padding-top:clamp(52px,6vw,84px);padding-bottom:clamp(46px,5vw,68px);text-align:center}
+.hero-centered .hero-copy{max-width:960px;margin-inline:auto;padding:0}
+.hero-centered .eyebrow{justify-content:center;font-size:10px;line-height:1.7;letter-spacing:1.8px}
+.hero-centered .eyebrow::after{content:'';width:24px;height:1px;background:#a2ad91;flex-shrink:0}
+.hero-centered h1{font-size:clamp(76px,9vw,116px);line-height:.98;letter-spacing:-.035em;margin:26px auto;overflow-wrap:normal;text-wrap:balance}
+.hero-centered h1 em{color:#758664}
+.hero-centered .hero-description{max-width:500px;margin:0 auto;font-size:17px;line-height:1.8;text-wrap:pretty;color:#626e5d}
+.hero-centered .hero-buttons{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:16px 28px;margin:30px 0 24px}
+.hero-centered .hero-buttons .button{min-height:56px;padding:17px 29px;font-size:14px;gap:24px}
+.hero-centered .hero-buttons .text-button{max-width:none;min-height:44px;justify-content:center;font-size:13px;gap:8px}
+.hero-centered .hero-benefits{justify-content:center;flex-wrap:wrap;gap:10px 24px;font-size:11px;line-height:1.6}
+@media(max-width:680px){
+  .hero.hero-centered{padding-top:42px;padding-bottom:38px}
+  .hero-centered .eyebrow{font-size:8px;letter-spacing:1.1px;gap:8px;flex-wrap:nowrap}
+  .hero-centered .eyebrow .little-line,.hero-centered .eyebrow::after{width:14px}
+  .hero-centered h1{font-size:clamp(54px,17vw,88px);margin:22px auto;line-height:1.02}
+  .hero-centered .hero-description{max-width:390px;font-size:15px;line-height:1.75}
+  .hero-centered .hero-buttons{flex-direction:column;gap:4px;margin:26px 0 19px}
+  .hero-centered .hero-buttons .button{width:100%;max-width:320px}
+  .hero-centered .hero-benefits{font-size:10px;gap:8px 16px}
+}
