@@ -12,6 +12,7 @@ import { Payments, TAX_TREATMENT, TAX_NOTICE } from './payments.js';
 import { Mailer } from './mail.js';
 import { Newsletter } from './newsletter.js';
 import { AdminCustomers } from './admin-customers.js';
+import { Withdrawals } from './withdrawals.js';
 import { officialTemplate, productionPrint, previewFromProduction } from './production-print.js';
 import { magneticVariant, catalogVariant, localVariant } from './case-variants.js';
 import { casePrice } from '../public/case-options.js';
@@ -27,6 +28,7 @@ export class Shop {
     if (!['local', 'sandbox', 'live'].includes(config.paymentMode)) throw new Error('Ungültiger Zahlungsmodus.');
     if (!['local', 'catalog', 'production'].includes(config.podbaseMode)) throw new Error('Ungültiger Podbase-Modus. Produktionsaufträge bleiben gesperrt.');
     if (config.shopMode === 'live') {
+      if (config.checkoutEnabled === true && config.legalContactReady === false) throw new Error('Vor dem Verkaufsstart fehlt eine freigegebene öffentliche Geschäfts-Telefonnummer.');
       if (config.paymentMode !== 'live' || !/^(sk|rk)_live_[A-Za-z0-9_]+$/.test(config.stripeKey || '') || !/^whsec_[A-Za-z0-9_]+$/.test(config.stripeWebhook || '')) throw new Error('Livebetrieb benötigt Stripe-Liveschlüssel und Live-Webhook.');
       if (config.podbaseMode !== 'production' || config.printMode !== 'podbase' || !/^PUS-[A-Z0-9]+(?:-[A-Z0-9]+)+$/.test(config.podbaseStoreId || '')) throw new Error('Livebetrieb benötigt Originaldruckvorlagen und den zugeordneten Podbase-Store.');
       if (config.mailMode !== 'resend' || !/^https:\/\/(www\.)?archenlicht\.de$/.test(config.baseUrl) || !/^https:\/\/(www\.)?archenlicht\.de$/.test(config.printBaseUrl)) throw new Error('Livebetrieb benötigt Bestellmails und die öffentliche Shopadresse.');
@@ -42,6 +44,7 @@ export class Shop {
     this.podbase = config.podbaseMode === 'production' ? new PodbaseAPI({ apiKey: config.podbaseKey, baseUrl: config.podbaseBaseUrl, storeId: config.podbaseStoreId, productionApproved: config.podbaseSubmissionEnabled === true }) : new LocalPodbase(this.s);
     this.payments = new Payments(config, this.s); this.mailer = new Mailer(config, this.s);
     this.newsletter = new Newsletter(config, this.s, this.mailer);
+    this.withdrawals = new Withdrawals(this);
     this.adminCustomers = new AdminCustomers(this.s);
     this.podbaseCatalog = config.podbaseMode !== 'local' ? new PodbaseCatalog({ apiKey: config.podbaseKey, baseUrl: config.podbaseBaseUrl }) : null;
     this.situations = new Map(); this.advisorScenario = 'ok'; this.busy = false;

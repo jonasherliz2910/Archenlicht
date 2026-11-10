@@ -2,11 +2,12 @@ import {summarizePricing} from '../public/bundle-pricing.js';
 import {caseLabel} from '../public/case-options.js';
 import {caseColor} from '../public/case-colors.js';
 import {TAX_NOTICE} from './payments.js';
+import {contractInformation, LEGAL_VERSION, OPERATOR} from '../public/legal-content.js';
 
 export const MAIL_IDENTITY = Object.freeze({
   from: 'Archenlicht <info@archenlicht.de>', replyTo: 'info@archenlicht.de',
-  operator: 'Herzly Marketing GbR', representatives: 'Julian Isaak und Laura Herliz',
-  address: 'Stettiner Straße 27, 36251 Bad Hersfeld'
+  operator: OPERATOR.name, representatives: OPERATOR.representatives,
+  address: OPERATOR.address
 });
 const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const money = cents => new Intl.NumberFormat('de-DE',{style:'currency',currency:'EUR'}).format(cents/100);
@@ -31,5 +32,11 @@ export function orderEmail({order,kind,statusUrl,tracking,reason}) {
   const trackingText=kind==='shipping'?`${test?'Simulierte Sendungsnummer':'Sendungsnummer'}: ${tracking||'Noch nicht vorhanden'}`:'';
   const text=[heading,test?'TESTBETRIEB – keine echte Zahlung, Produktion oder Lieferung.':'',`Bestellnummer: ${order.number}`,intro,...lines,bundleText,`Gesamt: ${money(order.amount)}`,TAX_NOTICE,test?'Deutschlandversand und Kartenbeilage sind im Testpreis enthalten.':'Deutschlandversand und Kartenbeilage sind im Preis enthalten.',`Lieferdaten${test?' der Testbestellung':''}:\n${address}`,trackingText,`${admin?'Geschützter Auftragslink (Admin-Anmeldung)':'Deine Bestellung ansehen'}: ${statusUrl}`,'Bei Fragen antworte einfach auf diese E-Mail.',footer].filter(Boolean).join('\n\n');
   const html=`<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escape(subject)}</title></head><body style="margin:0;padding:24px 12px;background:#f5f4ef;color:#163e29;font-family:Arial,sans-serif;font-size:16px;line-height:1.6"><table role="presentation" style="width:100%;max-width:600px;margin:auto;background:#fffdf7;border:1px solid #dce2d8;border-radius:12px"><tr><td style="padding:28px"><div style="font-family:Georgia,serif;font-size:30px">Archenlicht</div><p style="font-size:12px;letter-spacing:1px;color:#63775f">EIN KLEINER BEGLEITER. EINE GROSSE ZUSAGE.</p>${test?'<p style="padding:12px;background:#e9eee5;font-size:14px"><strong>Testbetrieb</strong><br>Keine echte Zahlung, Produktion oder Lieferung.</p>':''}<h1 style="font-family:Georgia,serif;font-size:28px;font-weight:normal;line-height:1.3">${escape(heading)}</h1><p>Bestellnummer: <strong>${escape(order.number)}</strong></p><p>${escape(intro)}</p><table style="width:100%;border-collapse:collapse;font-size:14px">${table}</table>${bundleHtml}<p style="font-size:20px"><strong>Gesamt: ${escape(money(order.amount))}</strong></p><p style="font-size:13px">${escape(TAX_NOTICE)}<br>Deutschlandversand und Kartenbeilage sind im ${test?'Testpreis':'Preis'} enthalten.</p><h2 style="font-size:17px">Lieferdaten${test?' der Testbestellung':''}</h2><p style="white-space:pre-line">${escape(address)}</p>${trackingText?`<p>${escape(trackingText)}</p>`:''}<p style="margin:28px 0"><a href="${escape(statusUrl)}" style="display:inline-block;padding:13px 20px;background:#163e29;color:#fff;text-decoration:none;border-radius:4px">${admin?'Auftrag prüfen':'Bestellung ansehen'}</a></p><p>Bei Fragen antworte einfach auf diese E-Mail.</p><hr style="border:0;border-top:1px solid #dce2d8"><p style="font-size:12px;color:#536451">Archenlicht · ${escape(MAIL_IDENTITY.operator)}<br>Vertreten durch ${escape(MAIL_IDENTITY.representatives)}<br>${escape(MAIL_IDENTITY.address)}<br><a href="mailto:${MAIL_IDENTITY.replyTo}" style="color:#163e29">${MAIL_IDENTITY.replyTo}</a></p></td></tr></table></body></html>`;
-  return {from:MAIL_IDENTITY.from,reply_to:MAIL_IDENTITY.replyTo,to:[admin?MAIL_IDENTITY.replyTo:recipient.email],subject,html,text};
+  // Created together with the order, before payment: future text edits cannot
+  // silently change the customer's copy on payment or delivery retries.
+  const legal = kind === 'confirmation' && !test ? contractInformation() : null;
+  return {from:MAIL_IDENTITY.from,reply_to:MAIL_IDENTITY.replyTo,to:[admin?MAIL_IDENTITY.replyTo:recipient.email],subject,
+    html: legal ? html.replace('</body>', `<hr><div style="max-width:600px;margin:24px auto;white-space:pre-wrap;font:14px/1.6 Arial,sans-serif">${escape(legal)}</div></body>`) : html,
+    text: legal ? `${text}\n\n${legal}` : text,
+    ...(legal ? {attachments:[{filename:`Archenlicht-Vertragsinformationen-${LEGAL_VERSION}.txt`,content:Buffer.from(legal,'utf8').toString('base64')}]} : {})};
 }

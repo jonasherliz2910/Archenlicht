@@ -28,6 +28,8 @@ export const TABLES = [
   "CREATE TABLE IF NOT EXISTS mail_outbox(id TEXT PRIMARY KEY,order_id TEXT REFERENCES orders(id),kind TEXT NOT NULL,recipient TEXT NOT NULL,subject TEXT NOT NULL,body TEXT NOT NULL,status TEXT NOT NULL,created INTEGER NOT NULL,UNIQUE(order_id,kind))",
   "CREATE TABLE IF NOT EXISTS newsletter_mail(mail_id TEXT PRIMARY KEY REFERENCES mail_outbox(id),subscriber_id TEXT NOT NULL REFERENCES newsletter_subscribers(id) ON DELETE CASCADE,generation TEXT NOT NULL)",
   "CREATE TABLE IF NOT EXISTS newsletter_redemptions(subscriber_id TEXT NOT NULL REFERENCES newsletter_subscribers(id),mode TEXT NOT NULL,order_id TEXT UNIQUE NOT NULL REFERENCES orders(id),redeemed_at INTEGER,PRIMARY KEY(subscriber_id,mode))",
+  "CREATE TABLE IF NOT EXISTS withdrawals(id TEXT PRIMARY KEY,session_id TEXT NOT NULL,mode TEXT NOT NULL,name TEXT NOT NULL,email TEXT NOT NULL,contract TEXT NOT NULL,statement TEXT NOT NULL,created INTEGER NOT NULL)",
+  "CREATE TABLE IF NOT EXISTS withdrawal_mail(mail_id TEXT PRIMARY KEY REFERENCES mail_outbox(id),withdrawal_id TEXT NOT NULL REFERENCES withdrawals(id))",
   "CREATE TABLE IF NOT EXISTS feedback(id TEXT PRIMARY KEY,visit_id TEXT NOT NULL,reason TEXT NOT NULL,created INTEGER NOT NULL)",
   ...MAIL_TABLES
 ];

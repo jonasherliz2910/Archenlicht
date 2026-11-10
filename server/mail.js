@@ -47,10 +47,10 @@ export class Mailer {
     await this.s.run('UPDATE mail_deliveries SET state=?,last_error=?,lease_until=0,lease_token=NULL WHERE mail_id=?',state,error,mailId);
     await this.s.run('UPDATE mail_outbox SET status=? WHERE id=?',`resend-${state}`,mailId);
   }
-  async flush({orderId=null,limit=2,newsletterOnly=false}={}) {
+  async flush({orderId=null,limit=2,newsletterOnly=false,withdrawalsOnly=false}={}) {
     if(!this.enabled && this.config.newsletterMode !== 'resend') return;
     const started=Date.now();
-    const jobs=await this.s.all("SELECT d.*,m.order_id,m.kind FROM mail_deliveries d JOIN mail_outbox m ON m.id=d.mail_id LEFT JOIN orders o ON o.id=m.order_id WHERE d.state IN ('queued','sending') AND d.lease_until<? AND d.next_attempt<=? AND ((o.paid_at IS NOT NULL AND o.mode=? AND o.created>=?) OR m.kind IN ('newsletter-confirm','newsletter-welcome'))"+(orderId?' AND o.id=?':'')+(newsletterOnly?" AND m.kind IN ('newsletter-confirm','newsletter-welcome')":'')+' ORDER BY d.created LIMIT 10',started,started,this.config.shopMode,Date.parse(this.config.mailEnabledSince)||0,...(orderId?[orderId]:[]));
+    const jobs=await this.s.all("SELECT d.*,m.order_id,m.kind FROM mail_deliveries d JOIN mail_outbox m ON m.id=d.mail_id LEFT JOIN orders o ON o.id=m.order_id WHERE d.state IN ('queued','sending') AND d.lease_until<? AND d.next_attempt<=? AND ((o.paid_at IS NOT NULL AND o.mode=? AND o.created>=?) OR m.kind IN ('newsletter-confirm','newsletter-welcome') OR (m.kind IN ('withdrawal-receipt','withdrawal-notification') AND EXISTS(SELECT 1 FROM withdrawal_mail wm JOIN withdrawals w ON w.id=wm.withdrawal_id WHERE wm.mail_id=m.id AND w.mode=?)))"+(orderId?' AND o.id=?':'')+(newsletterOnly?" AND m.kind IN ('newsletter-confirm','newsletter-welcome')":'')+(withdrawalsOnly?" AND m.kind IN ('withdrawal-receipt','withdrawal-notification')":'')+' ORDER BY d.created LIMIT 10',started,started,this.config.shopMode,Date.parse(this.config.mailEnabledSince)||0,this.config.shopMode,...(orderId?[orderId]:[]));
     let processed=0;
     for(const candidate of jobs) {
       const newsletter = candidate.kind.startsWith('newsletter-');
