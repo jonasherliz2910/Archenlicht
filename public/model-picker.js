@@ -32,9 +32,9 @@ export function modelAvailable(variants, modelId, designId, mode = 'test') {
 export function modelTriggerContent(model) {
   return `${device(model?.brand)}<span class="model-trigger-copy"><small>DEIN HANDYMODELL</small><strong>${esc(model?.name || 'Modell auswählen')}</strong></span><span class="model-trigger-change">Ändern <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></span>`;
 }
-export function modelTrigger(models, selected) {
+export function modelTrigger(models, selected, pickerId = 'phone-model-picker') {
   const model = models.find(m => m.id === selected);
-  return `<button type="button" class="model-trigger" data-model-picker aria-haspopup="dialog" aria-controls="phone-model-picker" aria-label="Handymodell ändern, derzeit ${esc(model?.name || 'kein Modell')}">${modelTriggerContent(model)}</button>`;
+  return `<button type="button" class="model-trigger" data-model-picker aria-haspopup="dialog" aria-controls="${esc(pickerId)}" aria-label="Handymodell ändern, derzeit ${esc(model?.name || 'kein Modell')}">${modelTriggerContent(model)}</button>`;
 }
 function cards(models, selected, variants, designId, mode) {
   return models.map(model => {
@@ -43,11 +43,13 @@ function cards(models, selected, variants, designId, mode) {
   }).join('');
 }
 
-export function createModelPicker({ getState, getConfiguration, onSelect, onError }) {
+export function createModelPicker({ getState, getConfiguration, onSelect, onError, id = 'phone-model-picker', onOpen, getTriggers }) {
   const dialog = document.createElement('dialog');
-  dialog.id = 'phone-model-picker'; dialog.className = 'model-picker';
-  dialog.setAttribute('aria-labelledby', 'model-picker-title'); dialog.setAttribute('aria-describedby', 'model-picker-description');
+  dialog.id = id; dialog.className = 'model-picker';
+  dialog.setAttribute('aria-labelledby', `${id}-title`); dialog.setAttribute('aria-describedby', `${id}-description`);
   dialog.innerHTML = `<div class="model-picker-surface"><div class="model-picker-header"><div><span class="eyebrow">DIE RICHTIGE PASSFORM</span><h2 id="model-picker-title" tabindex="-1">Welches Handy begleitet dich?</h2><p id="model-picker-description">Wähle deine Marke und dein genaues Modell.</p></div><button type="button" class="model-picker-close" data-picker-close aria-label="Modellauswahl schließen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg></button></div><div class="model-picker-tools"><div class="model-brands" role="group" aria-label="Handymarke"></div><label class="model-search" for="model-picker-search">${searchIcon}<input id="model-picker-search" type="search" placeholder="Modell suchen, z. B. iPhone 18 oder S26" aria-label="In allen Handymodellen suchen" autocomplete="off" spellcheck="false" maxlength="80"></label><div class="model-results-heading"><span id="model-results-count" role="status" aria-live="polite"></span><span>Neuere Modelle zuerst</span></div></div><div class="model-picker-scroll"><div class="model-options" role="group" aria-label="Handymodelle"></div></div><div class="model-picker-footer"><span class="model-selection-check">${check}</span><p class="model-picker-selected"></p><small>Exaktes Modell unter<br>Einstellungen → Geräteinfo prüfen.</small></div></div>`;
+  for (const name of ['title', 'description', 'search']) dialog.innerHTML = dialog.innerHTML.replaceAll(`"model-picker-${name}"`, `"${id}-${name}"`);
+  dialog.innerHTML = dialog.innerHTML.replaceAll('"model-results-count"', `"${id}-count"`);
   document.body.append(dialog);
   const input = dialog.querySelector('input'), list = dialog.querySelector('.model-options'), brandList = dialog.querySelector('.model-brands');
   let activeBrand, previousFocus;
@@ -56,7 +58,7 @@ export function createModelPicker({ getState, getConfiguration, onSelect, onErro
     const query = input.value.trim(), models = filterModels(state.models, { brand: activeBrand, query });
     brandList.innerHTML = brands.map(brand => `<button type="button" data-picker-brand="${brand.id}" aria-pressed="${!query && brand.id === activeBrand}"><strong>${brand.name}</strong><span>${brand.family} <i>·</i> ${state.models.filter(m => m.brand === brand.id).length}</span></button>`).join('');
     list.innerHTML = models.length ? cards(models, configuration.modelId, state.variants, configuration.designId, state.mode) : `<div class="model-empty">${searchIcon}<h3>Dein Modell ist noch nicht dabei.</h3><p>Versuche einen kürzeren Namen oder wähle eine Marke.</p><button type="button" class="text-button" data-clear-model-search>Suche zurücksetzen</button></div>`;
-    dialog.querySelector('#model-results-count').textContent = `${models.length} ${models.length === 1 ? 'Modell' : 'Modelle'}${query ? ' · alle Marken' : ` · ${activeBrand}`}`;
+    dialog.querySelector(`#${id}-count`).textContent = `${models.length} ${models.length === 1 ? 'Modell' : 'Modelle'}${query ? ' · alle Marken' : ` · ${activeBrand}`}`;
     const selected = state.models.find(m => m.id === configuration.modelId);
     dialog.querySelector('.model-picker-selected').textContent = `Aktuell ausgewählt: ${selected?.name || 'kein Modell'}`;
   }
@@ -64,7 +66,7 @@ export function createModelPicker({ getState, getConfiguration, onSelect, onErro
   function sync() {
     const state = getState(), configuration = getConfiguration(); if (!configuration) return;
     const model = state.models.find(m => m.id === configuration.modelId);
-    for (const trigger of document.querySelectorAll('[data-model-picker]')) {
+    for (const trigger of (getTriggers ? getTriggers() : document.querySelectorAll(`[data-model-picker][aria-controls="${id}"]`))) {
       trigger.innerHTML = modelTriggerContent(model);
       trigger.setAttribute('aria-label', `Handymodell ändern, derzeit ${model?.name || 'kein Modell'}`);
     }
@@ -86,11 +88,13 @@ export function createModelPicker({ getState, getConfiguration, onSelect, onErro
   // Prevent Enter in the search field from submitting an unrelated shop form.
   input.addEventListener('keydown', event => { if (event.key === 'Enter') event.preventDefault(); });
   dialog.addEventListener('close', () => { document.body.classList.remove('choosing-model'); if (previousFocus?.isConnected) previousFocus.focus({ preventScroll: true }); });
-  document.addEventListener('click', event => {
-    const trigger = event.target.closest('[data-model-picker]'); if (!trigger || dialog.open || !getConfiguration()) return;
+  function openFromTrigger(event) {
+    const trigger = event.target.closest(`[data-model-picker][aria-controls="${id}"]`); if (!trigger || dialog.open) return;
+    onOpen?.(trigger); if (!getConfiguration()) return;
     previousFocus = trigger; input.value = ''; activeBrand = getState().models.find(m => m.id === getConfiguration().modelId)?.brand || 'Apple';
     paint(); dialog.querySelector('.model-picker-scroll').scrollTop = 0;
-    dialog.showModal(); document.body.classList.add('choosing-model'); dialog.querySelector('#model-picker-title').focus({ preventScroll: true });
-  });
-  return { close, sync };
+    dialog.showModal(); document.body.classList.add('choosing-model'); dialog.querySelector(`#${id}-title`).focus({ preventScroll: true });
+  }
+  document.addEventListener('click', openFromTrigger);
+  return { close, sync, dispose() { close(); dialog.remove(); document.removeEventListener('click', openFromTrigger); } };
 }

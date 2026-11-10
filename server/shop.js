@@ -17,6 +17,7 @@ import { officialTemplate, productionPrint, previewFromProduction } from './prod
 import { magneticVariant, catalogVariant, localVariant } from './case-variants.js';
 import { casePrice } from '../public/case-options.js';
 import { priceBundleItems, summarizePricing } from '../public/bundle-pricing.js';
+import { fixedBundleConfigurations } from '../public/fixed-bundles.js';
 
 export class Shop {
   static async create(config) {
@@ -192,6 +193,31 @@ export class Shop {
     (await this.track(session, 'cart', c.kind, c.designId)); return (await this.cart(session));
   }
   async removeCart(session, id) { (await this.s.run('DELETE FROM cart WHERE id=? AND session_id=?', id, session.id)); return (await this.cart(session)); }
+  async saveFixedBundle(session, input) {
+    if (!/^[a-f0-9-]{36}$/.test(input.requestId || '')) throw new ShopError('Bitte öffne die Bundle-Auswahl erneut.');
+    let configurations;
+    try { configurations = fixedBundleConfigurations(input.bundleId, input.items).map(item => normalizeConfiguration(item)); }
+    catch (error) { throw new ShopError(error.message); }
+    // Validate every printable variant before inserting any of the three rows.
+    for (const configuration of configurations) { await this.assertAvailable(configuration); await this.preview(configuration); }
+    const rows = configurations.map((configuration, index) => {
+      const hex = digest(`${session.id}:${input.requestId}:${index}`);
+      const id = `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20, 32)}`;
+      return { id, configuration: JSON.stringify(configuration) };
+    });
+    await this.s.tx(async () => {
+      const existing = await Promise.all(rows.map(row => this.s.get('SELECT * FROM cart WHERE id=? AND session_id=?', row.id, session.id)));
+      if (existing.some(Boolean)) {
+        if (!existing.every((row, index) => row && row.configuration === rows[index].configuration && row.quantity === 1)) throw new ShopError('Dieses Bundle wurde bereits verändert. Bitte öffne die Bundle-Auswahl erneut.', 409);
+        return; // A retried request must not add another three cases.
+      }
+      if ((await this.s.get('SELECT COUNT(*) AS n FROM cart WHERE session_id=?', session.id)).n > 17) throw new ShopError('Für dieses Bundle werden drei freie Warenkorbpositionen benötigt. Maximal sind 20 Positionen möglich.');
+      const now = Date.now();
+      for (const [index, row] of rows.entries()) await this.s.run('INSERT INTO cart VALUES(?,?,?,?,?)', row.id, session.id, row.configuration, 1, now + index);
+      for (const configuration of configurations) await this.track(session, 'cart', 'fixed', configuration.designId);
+    });
+    return this.cart(session);
+  }
   async limitAuthentication(email, address) {
     const now = Date.now(), duration = 15 * 60000;
     for (const [value, maximum] of [[`ip:${address}`, 50], [`email:${String(email || '').trim().toLowerCase().slice(0, 180)}`, 15]]) {

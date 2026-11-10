@@ -112,6 +112,7 @@ export async function createApp(config = defaultConfig()) {
         if (path === '/api/events' && method === 'POST') { (await shop.track(session, body.type, body.kind, body.designId)); return send(res, 200, { ok: true }); }
         if (path === '/api/cart' && method === 'GET') return send(res, 200, (await shop.cart(session)));
         if (path === '/api/cart' && method === 'POST') return send(res, 200, (await shop.saveCart(session, body)));
+        if (path === '/api/cart/bundle' && method === 'POST') return send(res, 200, await shop.saveFixedBundle(session, body));
         const cartMatch = /^\/api\/cart\/([a-f0-9-]{36})$/.exec(path);
         if (cartMatch && method === 'PUT') return send(res, 200, (await shop.saveCart(session, body, cartMatch[1])));
         if (cartMatch && method === 'DELETE') return send(res, 200, (await shop.removeCart(session, cartMatch[1])));
