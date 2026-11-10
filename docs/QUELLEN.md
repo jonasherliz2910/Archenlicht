@@ -44,6 +44,27 @@ Die verbreitete Kurzform „Sei getrost und unverzagt“ steht in diesem konkret
 
 Die Erklärungen sind eigene, getrennt markierte Bezugstexte. Sie gehören nicht zum Bibelzitat und werden nicht als Zitat gedruckt. Eine Livequelle (etwa BasisBibel oder Hoffnung für alle) erfordert eine eigenständige Prüfung und Freigabe für digitale Nutzung und Produktdruck.
 
+## Vollständige Verse auf den Produktseiten · 10. November 2026
+
+Die sechs festen Produktseiten zeigen den vollständigen zugehörigen Vers aus
+der [Luther-1912-Ausgabe von eBible](https://ebible.org/deu1912/copyright.htm),
+die der Anbieter ausdrücklich als Public Domain kennzeichnet. Der Wortlaut
+wurde mit dieser Ausgabe abgeglichen; die Gegenprüfung erfolgte zusätzlich
+anhand der Luther-1912-Texte der Deutschen Bibelgesellschaft. Die Großschreibung
+„HERR“ und die Versgrenzen einschließlich abschließender Kommas folgen eBible.
+
+- [Psalm 91,4](https://ebible.org/deu1912/PSA091.htm#V4): Unter seinen Flügeln.
+- [Markus 4,39](https://ebible.org/deu1912/MRK04.htm#V39): Nach dem Sturm.
+- [Matthäus 11,28](https://ebible.org/deu1912/MAT11.htm#V28): Absetzen.
+- [Psalm 131,2](https://ebible.org/deu1912/PSA131.htm#V2): Ganz nah.
+- [Psalm 121,5](https://ebible.org/deu1912/PSA121.htm#V5): Im Schatten.
+- [Jesaja 40,11](https://ebible.org/deu1912/ISA40.htm#V11): Getragen.
+
+Die Absätze „Einfach erklärt“ sind eigene, kurze Deutungen des Textes und des
+Motivs. Sie sind sichtbar vom Zitat getrennt. Diese Ergänzung betrifft nur die
+Beschreibung auf den Produktseiten (`public/product-verses.js`), nicht den
+Versbestand der Personalisierung oder die Druckdateien.
+
 ## Schriften und Entwurfsassets
 
 Jonas’ Projektquellen: [CI-Book Ausgabe 01](../Archenlicht-CI-Book.pdf), insbesondere Logo/Farbrollen auf Seiten 4–6 und Shop/Produkt auf Seiten 9–10, sowie [Original-Logo Nr. 2](../Logoentwürfe/Archenlicht-02.png). Das Original wurde unverändert übernommen; Seiten 4, 5 und 10 wurden zusätzlich visuell gerendert und abgeglichen. Farbcodes und Schriftbeispiele sind laut Buch Arbeitsvorschläge; die Freigabe des Original-Logos bleibt maßgeblich.

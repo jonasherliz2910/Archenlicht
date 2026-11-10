@@ -442,6 +442,19 @@ body.choosing-model{overflow:hidden}
 .magsafe-options .field-help{margin:8px 0 0}
 @media(max-width:380px){.magsafe-choice{padding:12px;gap:8px}.magsafe-choice strong{font-size:14px}.magsafe-choice b{font-size:13px}}
 
+/* Full Bible verse and clearly separated explanation on collection details. */
+.product-verse{margin:0 0 28px;padding:22px 24px;background:#eef0e680;border:1px solid #dbe1d3;border-radius:6px;overflow-wrap:break-word}
+.product-verse blockquote{margin:0;padding:0;border:0}
+.product-verse blockquote p{margin:0;font-family:var(--serif);font-size:25px;font-weight:500;line-height:1.4;color:var(--ink)}
+.product-verse-source{display:flex;align-items:center;flex-wrap:wrap;gap:5px 8px;margin:14px 0 0;font-size:11px;line-height:1.6;color:#596b53}
+.product-verse-source a{display:inline-flex;align-items:center;gap:4px;text-decoration:underline;text-underline-offset:3px}
+.product-verse-source .icon{width:13px;height:13px;flex-shrink:0}
+.product-verse-source a:focus-visible{outline:2px solid var(--ink);outline-offset:4px;border-radius:2px}
+.product-verse-explanation{margin-top:18px;padding-top:16px;border-top:1px solid #d4dccb}
+.product-verse-explanation h2{margin:0 0 7px;font-family:inherit;font-size:12px;font-weight:600;line-height:1.5;letter-spacing:.03em}
+.product-verse-explanation p{margin:0;font-size:14px;line-height:1.75;color:#435640}
+@media(max-width:680px){.product-verse{padding:18px;margin-bottom:24px}.product-verse blockquote p{font-size:23px}.product-verse-explanation p{font-size:14px}}
+
 /* Legal information and the guest-accessible withdrawal flow. */
 .legal-text,.withdrawal-receipt{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.75}
 .legal-text{margin:1.4rem 0}
