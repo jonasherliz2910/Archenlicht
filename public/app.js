@@ -115,7 +115,7 @@ function colorChoice() {
 function previewPanel() {
   const d = state.designs.find(d => d.id === config.designId), model = state.models.find(m => m.id === config.modelId);
   const slides = [false, true].map((caseOnly, index) => `<div class="preview-slide" role="group" aria-roledescription="Bild" aria-label="${index + 1} von 2: ${caseOnly ? 'Nur Hülle' : 'Mit Handy'}"><span class="preview-tag">${caseOnly ? 'DEINE HÜLLE · OFFENE AUSSPARUNG' : 'DEINE HÜLLE AM HANDY'}</span><div id="${caseOnly ? 'case-phone' : 'live-phone'}" class="preview-device">${config.kind === 'custom' && !currentPreview ? '<p class="preview-placeholder">Deine Vorschau wird erstellt …</p>' : phone(d.id, { url: currentPreview?.svgUrl, cls: 'detail-phone', model: model.name, caseOnly, backgroundId: config.backgroundId })}</div><span class="preview-subtitle" data-preview-model>${esc(model.name)}</span></div>`).join('');
-  return `<div class="preview-panel"><section class="preview-stage preview-gallery" aria-label="Hüllenansichten" aria-roledescription="Karussell" style="--card-bg:${d.color}"><div class="preview-track" tabindex="0" aria-label="Hüllenansichten: mit Pfeiltasten oder Wischen wechseln">${slides}</div><div class="preview-controls"><button type="button" class="preview-arrow" data-preview-previous aria-label="Vorherige Hüllenansicht">${icon('back')}</button><div class="preview-tabs" role="group" aria-label="Ansicht wählen"><button type="button" data-preview-slide="0" aria-pressed="true">Mit Handy</button><button type="button" data-preview-slide="1" aria-pressed="false">Nur Hülle</button></div><button type="button" class="preview-arrow" data-preview-next aria-label="Nächste Hüllenansicht">${icon('right')}</button></div><p class="preview-hint">Wischen oder Ansicht wählen</p><span class="visually-hidden" data-preview-status aria-live="polite">1 / 2 · Mit Handy</span></section><div class="preview-info">${icon('check')} Dein Motiv und Text bleiben in beiden Ansichten gleich.</div><details class="print-details"><summary>Vollständigen Drucktext ansehen ${icon('chevron')}</summary><pre id="print-text">${esc(currentPreview?.printText || 'Vorschau wird erstellt …')}</pre><p>Gerade ausgerichtet · Schrift und Motiv werden proportional eingesetzt.</p><a id="print-download" ${currentPreview ? '' : 'hidden'} href="${currentPreview?.pngUrl || '#'}" target="_blank" rel="noopener">Druckentwurf vergrößern ${icon('arrow')}</a></details><p class="draft-note">${state.printMode === 'podbase' ? 'Druckdatei mit Original-Podbase-Vorlage geprüft. Die Hüllenansicht bleibt schematisch; Farben und Material können beim fertigen Produkt abweichen.' : 'Illustrative Modellvorschau. Form und Ausschnitt können bei der fertigen Hülle abweichen; die endgültigen Podbase-Vorlagen stehen noch aus.'}</p></div>`;
+  return `<div class="preview-panel"><section class="preview-stage preview-gallery" aria-label="Hüllenansichten" aria-roledescription="Karussell" style="--card-bg:${d.color}"><div class="preview-track" tabindex="0" aria-label="Hüllenansichten: mit Pfeiltasten oder Wischen wechseln">${slides}</div><div class="preview-controls"><button type="button" class="preview-arrow" data-preview-previous aria-label="Vorherige Hüllenansicht">${icon('back')}</button><div class="preview-tabs" role="group" aria-label="Ansicht wählen"><button type="button" data-preview-slide="0" aria-pressed="true">Mit Handy</button><button type="button" data-preview-slide="1" aria-pressed="false">Nur Hülle</button></div><button type="button" class="preview-arrow" data-preview-next aria-label="Nächste Hüllenansicht">${icon('right')}</button></div><p class="preview-hint">Wischen oder Ansicht wählen</p><span class="visually-hidden" data-preview-status aria-live="polite">1 / 2 · Mit Handy</span></section></div>`;
 }
 
 function fixedProduct(d) {
@@ -154,8 +154,6 @@ async function updatePreview() {
     if ($('#case-phone')) $('#case-phone').innerHTML = phone(d.id, { url: preview.svgUrl, cls: 'detail-phone', model: model.name, caseOnly: true, backgroundId: preview.configuration.backgroundId });
     if ($('.preview-stage')) $('.preview-stage').style.setProperty('--card-bg', d.color);
     $$('[data-preview-model]').forEach(label => { label.textContent = model.name; });
-    if ($('#print-text')) $('#print-text').textContent = preview.printText;
-    if ($('#print-download')) { $('#print-download').href = preview.pngUrl; $('#print-download').hidden = !textIsReady(); }
     const available = state.variants.find(v => v.model_id === config.modelId && v.design_id === config.designId);
     const error = !textIsReady() ? 'Bitte gib deinen eigenen Text ein oder wähle einen Vers aus.' : !caseAvailable(available, config) ? (config.magsafe ? 'MagSafe ist für diese Kombination gerade nicht verfügbar. Entferne den Haken oder wähle ein anderes Modell.' : 'Diese Kombination ist gerade nicht verfügbar. Bitte wähle ein anderes Modell oder Motiv.') : '';
     if ($('#preview-error')) $('#preview-error').textContent = error;
@@ -164,8 +162,6 @@ async function updatePreview() {
     currentPreview = null; previewPending = true;
     if ($('#preview-error')) $('#preview-error').textContent = e.message;
     if ($('#custom-text')) $('#custom-text').setAttribute('aria-invalid', 'true');
-    if ($('#print-download')) $('#print-download').hidden = true;
-    if ($('#print-text')) $('#print-text').textContent = 'Noch kein gültiger Drucktext – bitte korrigiere deine Eingabe.';
     for (const id of ['#live-phone', '#case-phone']) if ($(id)) $(id).innerHTML = '<p class="preview-placeholder">Bitte passe deinen Text an, damit eine neue Vorschau erstellt werden kann.</p>';
   } }
 }
@@ -306,8 +302,6 @@ function rerenderWizard() {
 async function selectTextChoice(focusSelector) {
   clearTimeout(previewTimer); config = applyTextChoice(config, textChoice);
   currentPreview = null; previewPending = true; rerenderWizard();
-  if ($('#print-download')) $('#print-download').hidden = true;
-  if ($('#print-text')) $('#print-text').textContent = 'Vorschau wird erstellt …';
   if (focusSelector) $(focusSelector)?.focus({ preventScroll: true });
   await updatePreview();
 }
@@ -407,7 +401,6 @@ document.addEventListener('input', event => {
     config.customText = event.target.value; textChoice.customText = config.customText; ++previewSequence;
     $('#custom-text-count').textContent = `${config.customText.length}/${MAX_CUSTOM_TEXT}`;
     currentPreview = null; previewPending = true; if ($('#add-cart')) $('#add-cart').disabled = true;
-    if ($('#print-download')) $('#print-download').hidden = true;
     clearTimeout(previewTimer); previewTimer = setTimeout(updatePreview, 250);
   }
 });
