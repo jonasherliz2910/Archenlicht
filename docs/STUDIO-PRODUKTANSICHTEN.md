@@ -1,31 +1,40 @@
-# Studioansichten und Produkteigenschaften
+# Fotografische Produktansichten
 
-Die ersten beiden Bilder der fertigen Motive sind modellabhängige 3D-Studiovorschauen vor weißem Hintergrund mit weichem Bodenschatten. Sie sind keine Fotos eines bereits produzierten Musters. Ansicht 1 zeigt die Hülle am Handy, Ansicht 2 die Hülle mit offener Kameraaussparung. Beide vorhandenen Lifestyle-Fotos und der sonstige Seitenaufbau bleiben bestehen.
+Die Hüllen erscheinen auf Startseite, Kollektion, Produktseiten, in der personalisierten Vorschau, Bundle-Konfiguration, Warenkorb und Bestellübersicht im selben Fotostudio. Die ersten beiden Galeriebilder zeigen die Hülle am Gerät und mit offener Kameraaussparung; die beiden vorhandenen Lifestyle-Bilder bleiben erhalten.
 
-## Originale und Modelltreue
+## Herkunft und Grenzen
 
-- `public/studio-photos.js` nutzt dieselben Geräteprofile und `printFrame` wie die vorhandene Modellvorschau. Die bestätigte Druckdatei wird ohne neu generierte Verse oder Motive auf die Hülle gelegt.
-- Alle neun Hintergrundfarben und die Platzierung auf einer Klapphälfte bei Galaxy-Z-Flip-Modellen bleiben erhalten. MagSafe-Auswahl und Bestellung verwenden weiterhin die bestehenden echten Varianten. Es wird kein erfundener äußerer Magnetring auf das Motiv gezeichnet.
-- Vorderseite, Seitenwand, Kamerarand, optische Oberflächen und Schatten werden räumlich gerendert. Nach einem Modell- oder Farbwechsel werden die zwei Bilder und ihre Miniaturen gemeinsam aktualisiert; veraltete Antworten werden verworfen.
-- Ein einzelner WebGL-Renderer erzeugt bedarfsweise Standbilder. Kein dauerhafter Animationszyklus, keine externen Skripte. Bei fehlender WebGL-Unterstützung bleibt die bisherige modellgenaue Vorschau bedienbar.
-- Three.js ist auf Version 0.180.0 festgelegt. Die lokal ausgelieferten Browsermodule und die MIT-Lizenz liegen unter `public/vendor/three/`. Reproduzierbar mit `node scripts/vendor-studio.mjs` nach `pnpm install`.
+Die 21 neutralen Fotovorlagen wurden mit dem integrierten **image_gen** erzeugt, nicht mit dem CLI-Fallback. Es sind KI-generierte Fotomontagen, keine Fotos bereits hergestellter Podbase-Muster. Ähnliche Geräte teilen sich eine Vorlage für ihre Kamerafamilie; die Bilder sind keine maßgenauen Herstellerabbildungen. Die Beschriftung lautet „Fotovorschau“. Verbindliche Produktionsmaße kommen weiterhin ausschließlich aus den ausgewählten Podbase-Druckvorlagen.
 
-## Erzeugter Bildbaustein
+- Originaldateipfade und sämtliche tatsächlich verwendeten Prompts: [studio-photo-sources.json](studio-photo-sources.json).
+- 21 WebP-Vorlagen und zugehörige Masken: public/assets/studio-v2/, 1122 × 1402 Pixel.
+- Sechs fertig zusammengesetzte Kollektionsbilder: public/assets/studio-v2/catalog/, 672 × 840 Pixel, Beispielgerät iPhone 15 in Weiß.
+- Perspektive, Kameraöffnungen und Zuordnung: public/studio-scenes.js. 19 Kamerafamilien plus zwei separate Pixel-Vorlagen mit zwei Objektiven decken die 74 derzeit angebotenen Modelle ab.
 
-Die optische Kameratextur wurde mit dem integrierten **image_gen** erzeugt (kein CLI-Fallback). Sie wird nur für Kameraglas verwendet; die Kundengestaltung wird nicht durch KI verändert.
+## Originalgestaltung und Darstellung
 
-- Projektdatei: `public/assets/studio-v1/camera-optics.webp`, 512 × 512, mit Transparenz.
-- Original: `C:/Users/Jonas/.codex/generated_images/01a1a2ec-2646-7621-99db-a849623028bb/exec-fac1b570-c532-4089-9623-1ebb6d2b90dd.png`.
-- Verarbeitung: transparente Außenränder entfernt, proportional auf 512 × 512 verkleinert, WebP Qualität 95, Alphaqualität 100.
+public/studio-photography.js legt die vorhandene Druckvorschau über printFrame auf die fotografierte Fläche. public/studio-compositor.js übernimmt Perspektive, Farbe, Beleuchtung und Materialreflexe. Vers, Schrift und Illustration werden nicht neu generiert. Die Kamera und der Studioschatten stammen aus der Bildvorlage. In der zweiten Ansicht werden ausschließlich die Kameraöffnungen mit Hintergrund und einem inneren Randschatten gefüllt.
 
-Verwendeter Prompt:
+Alle neun Farben, die Platzierung auf einer Klapphälfte bei Galaxy Z Flip und die bestehende Druckskalierung bleiben erhalten. MagSafe verändert weiterhin die echte Bestellvariante; ein sichtbarer Magnetring wird nicht erfunden. Das Rendering verändert keine Druckdateien oder Bestellung.
 
-> Use case: product-mockup. Asset type: photographic camera-glass material for physically rendered smartphone case product photographs. Generate a single perfectly circular smartphone rear camera lens photographed exactly straight-on, orthographic frontal macro view. One lens only, centered, occupying 92% of a square canvas. Real optical glass with a very dark charcoal-black pupil, subtle dark blue and muted violet antireflection coating, restrained concentric optical elements, a soft elongated white studio softbox reflection at upper left. Thin polished graphite metal retaining ring. High-end real commercial macro product photography, exceptionally clean and crisp, no illustration or cartoon. No text, no logo, no numbers, no hardware outside the circular retaining ring, no phone body, no ground, no cast shadow. The area outside the circular lens must be fully transparent. This lens image is a reusable surface texture; maintain circular symmetry and a perfectly centered optical axis.
+Die Galerie verwirft veraltete Ergebnisse nach einem Farb- oder Modellwechsel. Die gesamte Hülle bleibt durch object-fit: contain sichtbar. Statische Kollektionsbilder laden ohne Canvas-Berechnung; konfigurierte Vorschaubilder werden bei Annäherung an den sichtbaren Bildschirmbereich erstellt. Foto- und Maskencaches sind begrenzt. Bei einem fehlgeschlagenen Fotodownload bleibt in der Produktgalerie die bisherige schematische Vorschau bedienbar. Three.js/WebGL und die alten lokalen Three-Browsermodule werden nicht mehr benötigt.
 
-## Eigenschaften und Aufrufe
+## Reproduzieren
 
-Die Häkchen nennen vorhandene Eigenschaften: Doppelschicht, Motiv ohne Markenaufdruck, Versand innerhalb Deutschlands inklusive und die Geschenkkarte zum Selbstbeschriften (10 × 15 cm). Fremde Material-, Schutz- oder Bewertungsversprechen wurden nicht übernommen.
+Die fertigen WebP- und PNG-Dateien sind versioniert; für Betrieb und Deployment ist keine Bildgenerierung erforderlich. Für erneute Aufbereitung müssen die im Manifest genannten Quelldateien vorhanden sein:
 
-Ein monatlicher Hinweis erscheint erst ab mindestens 100 tatsächlich erfassten Besuchen eines festen Motivs. Die Zahl wird auf volle Hunderter abgerundet und als **Besuche**, nicht als Personen oder Verkäufe, bezeichnet. Quelle sind vorhandene Ereignisse mit Statistik-Einwilligung, einmal je Sitzung/Motiv, ausschließlich Live-Daten im aktuellen Kalendermonat nach Europe/Berlin. Eigene Sitzung, zuordenbare Admin-Sitzungen, Testdaten, Warenkorbzugänge, personalisierte Produktansichten und zukünftige Ereignisse zählen nicht. Unterhalb der Schwelle, im Testshop oder bei einem Statistikfehler bleibt der Hinweis vollständig verborgen. Keine erfundenen Namen, Bewertungen oder Nutzerzahlen.
+1. node scripts/prepare-studio-photos.mjs erstellt WebPs und geometrische Maskenvorlagen.
+2. python scripts/studio-photo-masks.py erstellt Masken mit OpenCV und NumPy (opencv-python-headless, numpy). Geprüfte, glatte Konturen verhindern ausgefranste Ränder bei dunklen Farben. Die RGB-Kanäle speichern bedruckbare Fläche, Kameraöffnung und inneren Randschatten.
+3. node scripts/studio-catalog.mjs exportiert die sechs Kollektionsbilder mit denselben Kompositionsfunktionen wie im Browser.
 
-Prüfungen: `tests/product-interest.test.js`, bestehende Einwilligungs- und Geräteprofiltests; Browserprüfung der Studioansichten, Farbauswahl, Galerie, Modellwechsel und Warenkorb.
+Die Zwischendateien liegen standardmäßig im ausgeschlossenen Ordner test-results/studio-v2; STUDIO_WORK_DIR kann für die ersten beiden Schritte einen anderen Ordner festlegen. Die erzeugten Konturen und Kameraöffnungen müssen vor Veröffentlichung visuell geprüft werden.
+
+## Eigenschaften und tatsächliche Aufrufe
+
+Die vorhandenen Häkchen nennen Doppelschicht, Motiv ohne Markenaufdruck, Versand innerhalb Deutschlands inklusive und die Karte zum Selbstbeschriften. Fremde Material-, Schutz- oder Bewertungsversprechen werden nicht übernommen.
+
+Der monatliche Hinweis erscheint erst ab 100 tatsächlich erfassten Besuchen eines festen Motivs. Er zählt Einwilligungen zur Statistik, einmal je Sitzung/Motiv, ausschließlich Live-Daten im aktuellen Kalendermonat nach Europe/Berlin. Er wird auf volle Hunderter abgerundet und bezeichnet Besuche, nicht Personen oder Käufe. Eigene Sitzung, zuordenbare Admin-Sitzungen, Testdaten, Warenkorbzugänge, personalisierte Ansichten und zukünftige Ereignisse zählen nicht. Unterhalb der Schwelle, im Testshop oder bei Fehlern bleibt er verborgen.
+
+## Prüfung
+
+tests/studio-photography.test.js prüft Vorlagen für alle angebotenen Modelle, vorhandene Bildmaße sowie die Trennung zwischen Druckfläche, Kamerapixeln, Hintergrund und offener Aussparung. Geräteprofil-, Lifestyle- und Aufrufstatistiktests bleiben erhalten. Zusätzlich werden Browseransichten auf Handy und PC, Galeriebedienung, Farb-/Modellwechsel, personalisierte Gestaltung, Bundle und Warenkorb geprüft. Eine Kontaktübersicht prüft alle 21 Vorlagen sowie die 54 Kombinationen aus sechs Motiven und neun Farben. Es werden dabei keine echten Bestellungen oder Zahlungen ausgelöst.

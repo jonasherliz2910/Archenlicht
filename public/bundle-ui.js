@@ -3,7 +3,7 @@ import { priceBundleItems, summarizePricing } from './bundle-pricing.js';
 import { casePrice, caseAvailable } from './case-options.js';
 import { CASE_COLORS, caseColor } from './case-colors.js';
 import { modelTrigger, createModelPicker } from './model-picker.js';
-import { phoneMockup } from './device-preview.js';
+import { studioCardMarkup } from './studio-photography.js';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const money = value => new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(value / 100);
@@ -57,7 +57,7 @@ export function createFixedBundleUI({ getState, post, onAdded }) {
         const result = await post('/api/preview', item);
         if (disposed || status[index].revision !== ticket) return;
         const model = state.models.find(m => m.id === item.modelId), target = root.querySelector(`[data-bundle-slot="${index}"] [data-bundle-preview]`);
-        target.innerHTML = phoneMockup(model, { imageUrl: result.svgUrl, color: caseColor(item.backgroundId).hex, label: `${state.designs.find(d => d.id === item.designId).title}, ${model.name}, ${caseColor(item.backgroundId).name}` });
+        target.innerHTML = studioCardMarkup({ designId:item.designId, model, imageUrl:result.svgUrl, backgroundId:item.backgroundId, hash:result.hash, label: `${state.designs.find(d => d.id === item.designId).title}, ${model.name}, ${caseColor(item.backgroundId).name}` });
         target.setAttribute('aria-busy', 'false'); target.dataset.printHash = result.hash;
         status[index].ready = true;
       } catch (e) {
