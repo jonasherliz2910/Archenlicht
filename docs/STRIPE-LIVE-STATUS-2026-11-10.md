@@ -61,9 +61,11 @@ neuer Serverinstanz. Diese Teststruktur wurde anschließend entfernt.
 ## Bereitstellung und Freigabeschalter
 
 Projekt: `jonas-4eb6/archenlicht`, Domain: `https://www.archenlicht.de`.
-Production wird für die technische Vorbereitung auf `SHOP_MODE=live`,
+Production ist für die technische Vorbereitung auf `SHOP_MODE=live`,
 `PAYMENT_MODE=live`, `PODBASE_MODE=production`, `PRINT_MODE=podbase`,
-`MAIL_MODE=resend` eingestellt. Preview/Development behalten Testzugänge.
+`MAIL_MODE=resend` eingestellt. Preview/Development behalten Testzugänge;
+die gemeinsam gespeicherten Umgebungsvariablen wurden dafür ausdrücklich
+nach Zielumgebung getrennt.
 
 **CHECKOUT_ENABLED=false und PODBASE_SUBMISSION_ENABLED=false bleiben gesetzt.**
 Es werden keine Live-Varianten automatisch freigegeben. Der Shop zeigt
@@ -73,7 +75,24 @@ Live-Webhook: `we_1UaHJy0jS9LUiVLqSrykrcc7`, Ziel
 `https://www.archenlicht.de/api/webhooks/stripe`, API `2026-10-28.endive`.
 Ereignisse: `checkout.session.completed`, `checkout.session.async_payment_succeeded`,
 `checkout.session.async_payment_failed`, `checkout.session.expired`.
-Die Aktivierung darf erst nach Prüfung des bereitgestellten Livehandlers erfolgen.
+Der Live-Webhook wurde nach Prüfung des bereitgestellten Handlers aktiviert.
+Ein korrekt signiertes Diagnoseereignis ohne existierende Bestellung wird mit
+HTTP 200 ignoriert, falsche Signaturen mit 401 und Testereignisse mit 400
+abgewiesen. Der ehemalige Sandbox-Webhook auf der nun umgestellten öffentlichen
+Domain wurde deaktiviert. Ein vollständiger Zahlungsnachweis über einen
+tatsächlich bezahlten Live-Checkout steht weiterhin aus.
+
+Veröffentlichtes Deployment:
+`https://archenlicht-k3yok6314-jonas-4eb6.vercel.app`,
+`dpl_AVjbAKZG7JLqVwhmvi3tNWDf6gpu`, Code `fc444d8`.
+Die geschützte Bereitstellung bestand vor Promotion die Prüfung von Bootstrap,
+Checkout-Sperre, Signaturen und geschütztem Worker. Die Produktionsdatenbank
+enthielt danach unverändert acht Testbestellungen, davon drei bezahlt, und
+keine Livebestellungen. Es wurden keine Varianten auf Livefreigabe umgestellt.
+Die öffentliche Seite bestand anschließend 16 Browserprüfungen bei 360, 390 und
+1440 Pixeln: Startseite, Produkt, Personalisierung, Konto, geschlossene Kasse
+und MagSafe-Warenkorb. Keine JavaScript-Fehler oder horizontalen Überläufe.
+Die Screenshots liegen lokal unter `test-results/live-release/`.
 
 ## Vor öffentlichem Verkauf weiterhin offen
 
