@@ -6,7 +6,9 @@ import { NEWSLETTER_CONSENT, NEWSLETTER_CONSENT_VERSION } from '../public/newsle
 import { priceNewsletterItems } from '../public/bundle-pricing.js';
 
 const HOUR = 3600000, DAY = 24 * HOUR;
-const accepted = { ok: true, message: 'Wenn eine Bestätigung erforderlich ist, erhältst du eine E-Mail. Bitte prüfe auch deinen Spamordner. Bereits bestätigte Anmeldungen erhalten keinen weiteren Willkommenscode.' };
+// Keep the response identical for new and existing addresses, without making
+// double opt-in sound optional or promising another email to active subscribers.
+const accepted = { ok: true, message: 'Bitte bestätige deine Anmeldung über den Link in unserer E-Mail. Erst nach deiner Bestätigung ist dein Newsletter-Abonnement aktiv und du erhältst deinen persönlichen 5-%-Code. Prüfe auch deinen Spamordner. Hast du deine Anmeldung bereits bestätigt, bleibt sie aktiv; ein weiterer Willkommenscode wird nicht versendet.' };
 export class Newsletter {
   constructor(config, store, mailer) { this.config = config; this.s = store; this.mailer = mailer; }
   async limit(key, max, duration) {
