@@ -1,17 +1,14 @@
-const labels = ['Mit Handy', 'Nur Hülle'];
-
 // Native horizontal scrolling keeps touch swipes smooth and preserves vertical
-// page scrolling. Buttons and keyboard offer the same two views without touch.
+// page scrolling. Dots and keyboard provide the same views without touch.
 export function mountPreviewGallery(root) {
   if (!root) return;
   const track = root.querySelector('.preview-track'), buttons = [...root.querySelectorAll('[data-preview-slide]')];
+  const slides=[...track.querySelectorAll('.preview-slide')],last=slides.length-1;
   let selected = 0, frame;
   function update(index) {
-    selected = Math.max(0,Math.min(1,index));
+    selected = Math.max(0,Math.min(last,index));
     buttons.forEach((b,i)=>b.setAttribute('aria-pressed',String(i===selected)));
-    root.querySelector('[data-preview-status]').textContent = `${selected+1} / 2 · ${labels[selected]}`;
-    root.querySelector('[data-preview-previous]').disabled = selected===0;
-    root.querySelector('[data-preview-next]').disabled = selected===1;
+    root.querySelector('[data-preview-status]').textContent = slides[selected].getAttribute('aria-label');
   }
   function go(index) {
     update(index);
@@ -25,7 +22,7 @@ export function mountPreviewGallery(root) {
   });
   track.addEventListener('keydown',event=>{
     if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;
-    event.preventDefault();go(event.key==='Home'?0:event.key==='End'?1:selected+(event.key==='ArrowRight'?1:-1));
+    event.preventDefault();go(event.key==='Home'?0:event.key==='End'?last:selected+(event.key==='ArrowRight'?1:-1));
   });
   track.addEventListener('scroll',()=>{
     cancelAnimationFrame(frame);frame=requestAnimationFrame(()=>update(Math.round(track.scrollLeft/Math.max(1,track.clientWidth))));

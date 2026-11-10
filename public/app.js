@@ -8,6 +8,7 @@ import { phoneMockup } from './device-preview.js';
 import { CASE_COLORS, caseColor } from './case-colors.js';
 import { caseLabel, casePrice, caseAvailable } from './case-options.js';
 import { mountPreviewGallery } from './preview-gallery.js';
+import { mountLifestylePhotos } from './lifestyle-photos.js';
 import { modelTrigger, createModelPicker } from './model-picker.js';
 import { recipientFields, accountSettings, localCardOptions } from './account-ui.js';
 import { readJsonResponse, SHOP_UNAVAILABLE } from './api-client.js';
@@ -24,7 +25,7 @@ let state, config, currentPreview, previewSequence = 0, previewTimer, previewPen
 let textChoice, advisorResults, situation = '', adviceOpen = false, advisorPending = false;
 const textIsReady = () => hasConfiguredText(config, state.verses);
 const caps = new Map();
-let expiresTimer, modelPicker, galleryCleanup, newsletterUI;
+let expiresTimer, modelPicker, galleryCleanup, photoGallery, newsletterUI;
 function armExpiry(data) {
   if (!data?.csrf || !data.sessionExpires) return;
   clearTimeout(expiresTimer);
@@ -114,8 +115,11 @@ function colorChoice() {
 }
 function previewPanel() {
   const d = state.designs.find(d => d.id === config.designId), model = state.models.find(m => m.id === config.modelId);
-  const slides = [false, true].map((caseOnly, index) => `<div class="preview-slide" role="group" aria-roledescription="Bild" aria-label="${index + 1} von 2: ${caseOnly ? 'Nur Hülle' : 'Mit Handy'}"><span class="preview-tag">${caseOnly ? 'DEINE HÜLLE · OFFENE AUSSPARUNG' : 'DEINE HÜLLE AM HANDY'}</span><div id="${caseOnly ? 'case-phone' : 'live-phone'}" class="preview-device">${config.kind === 'custom' && !currentPreview ? '<p class="preview-placeholder">Deine Vorschau wird erstellt …</p>' : phone(d.id, { url: currentPreview?.svgUrl, cls: 'detail-phone', model: model.name, caseOnly, backgroundId: config.backgroundId })}</div><span class="preview-subtitle" data-preview-model>${esc(model.name)}</span></div>`).join('');
-  return `<div class="preview-panel"><section class="preview-stage preview-gallery" aria-label="Hüllenansichten" aria-roledescription="Karussell" style="--card-bg:${d.color}"><div class="preview-track" tabindex="0" aria-label="Hüllenansichten: mit Pfeiltasten oder Wischen wechseln">${slides}</div><div class="preview-controls"><button type="button" class="preview-arrow" data-preview-previous aria-label="Vorherige Hüllenansicht">${icon('back')}</button><div class="preview-tabs" role="group" aria-label="Ansicht wählen"><button type="button" data-preview-slide="0" aria-pressed="true">Mit Handy</button><button type="button" data-preview-slide="1" aria-pressed="false">Nur Hülle</button></div><button type="button" class="preview-arrow" data-preview-next aria-label="Nächste Hüllenansicht">${icon('right')}</button></div><p class="preview-hint">Wischen oder Ansicht wählen</p><span class="visually-hidden" data-preview-status aria-live="polite">1 / 2 · Mit Handy</span></section></div>`;
+  const labels=['Hülle am Handy','Hülle mit offener Kameraaussparung','Lifestyle-Foto in einer Hand','Lifestyle-Foto auf einem Tisch'];
+  const slides = [false, true].map((caseOnly, index) => `<div class="preview-slide" role="group" aria-roledescription="Bild" aria-label="${index + 1} von 4: ${labels[index]}"><span class="preview-tag">${caseOnly ? 'DEINE HÜLLE · OFFENE AUSSPARUNG' : 'DEINE HÜLLE AM HANDY'}</span><div id="${caseOnly ? 'case-phone' : 'live-phone'}" class="preview-device">${config.kind === 'custom' && !currentPreview ? '<p class="preview-placeholder">Deine Vorschau wird erstellt …</p>' : phone(d.id, { url: currentPreview?.svgUrl, cls: 'detail-phone', model: model.name, caseOnly, backgroundId: config.backgroundId })}</div><span class="preview-subtitle" data-preview-model>${esc(model.name)}</span></div>`).join('');
+  const photos=[0,1].map(view=>`<div class="preview-slide lifestyle-slide" data-lifestyle-view="${view}" role="group" aria-roledescription="Bild" aria-label="${view+3} von 4: ${labels[view+2]}" aria-busy="true"><canvas role="img" aria-label="${labels[view+2]}" hidden></canvas><p class="preview-placeholder" data-photo-status>Dein Foto wird vorbereitet …</p><span class="lifestyle-caption">Designbeispiel · iPhone 14 Pro</span></div>`).join('');
+  const dots=labels.map((label,index)=>`<button type="button" data-preview-slide="${index}" aria-label="Bild ${index+1}: ${label}" aria-pressed="${index===0}"><span aria-hidden="true"></span></button>`).join('');
+  return `<div class="preview-panel"><section class="preview-stage preview-gallery" aria-label="Hüllenansichten" aria-roledescription="Karussell" style="--card-bg:${d.color}"><div class="preview-track" tabindex="0" aria-label="Hüllenansichten: mit Pfeiltasten oder Wischen wechseln">${slides}${photos}</div><div class="preview-controls"><div class="preview-tabs" role="group" aria-label="Ansicht wählen">${dots}</div></div><span class="visually-hidden" data-preview-status aria-live="polite">1 von 4: ${labels[0]}</span></section></div>`;
 }
 
 function fixedProduct(d) {
@@ -143,6 +147,7 @@ function customizer() {
 }
 async function updatePreview() {
   const seq = ++previewSequence; previewPending = true;
+  photoGallery?.invalidate();
   const add = $('#add-cart'); if (add) add.disabled = true;
   try {
     const preview = await post('/api/preview', config);
@@ -154,12 +159,14 @@ async function updatePreview() {
     if ($('#case-phone')) $('#case-phone').innerHTML = phone(d.id, { url: preview.svgUrl, cls: 'detail-phone', model: model.name, caseOnly: true, backgroundId: preview.configuration.backgroundId });
     if ($('.preview-stage')) $('.preview-stage').style.setProperty('--card-bg', d.color);
     $$('[data-preview-model]').forEach(label => { label.textContent = model.name; });
+    photoGallery?.update(preview,model,d);
     const available = state.variants.find(v => v.model_id === config.modelId && v.design_id === config.designId);
     const error = !textIsReady() ? 'Bitte gib deinen eigenen Text ein oder wähle einen Vers aus.' : !caseAvailable(available, config) ? (config.magsafe ? 'MagSafe ist für diese Kombination gerade nicht verfügbar. Entferne den Haken oder wähle ein anderes Modell.' : 'Diese Kombination ist gerade nicht verfügbar. Bitte wähle ein anderes Modell oder Motiv.') : '';
     if ($('#preview-error')) $('#preview-error').textContent = error;
     if ($('#add-cart')) $('#add-cart').disabled = Boolean(error);
   } catch (e) { if (seq === previewSequence) {
     currentPreview = null; previewPending = true;
+    photoGallery?.invalidate('Bitte passe deine Eingabe an, damit dein Foto erstellt werden kann.');
     if ($('#preview-error')) $('#preview-error').textContent = e.message;
     if ($('#custom-text')) $('#custom-text').setAttribute('aria-invalid', 'true');
     for (const id of ['#live-phone', '#case-phone']) if ($(id)) $(id).innerHTML = '<p class="preview-placeholder">Bitte passe deinen Text an, damit eine neue Vorschau erstellt werden kann.</p>';
@@ -278,8 +285,10 @@ async function render({ scroll = true } = {}) {
   } catch (e) { html = notFound(e.message); }
   if (sequence !== routeSequence) return;
   galleryCleanup?.();
+  photoGallery?.dispose();
   $('#inhalt').innerHTML = html;
   galleryCleanup = mountPreviewGallery($('.preview-gallery'));
+  photoGallery = mountLifestylePhotos($('.preview-gallery'));
   newsletterUI?.mount();
   mountWithdrawal(post);
   if (scroll) window.scrollTo({ top: 0, behavior: 'instant' });
@@ -396,8 +405,9 @@ document.addEventListener('change', async event => {
 });
 document.addEventListener('input', event => {
   if (event.target.id === 'situation') situation = event.target.value;
-  if (event.target.id === 'dedication') { config.dedication = event.target.value; ++previewSequence; $('#dedication-count').textContent = `${config.dedication.length}/32`; previewPending = true; if ($('#add-cart')) $('#add-cart').disabled = true; clearTimeout(previewTimer); previewTimer = setTimeout(updatePreview, 250); }
+  if (event.target.id === 'dedication') { photoGallery?.invalidate(); config.dedication = event.target.value; ++previewSequence; $('#dedication-count').textContent = `${config.dedication.length}/32`; previewPending = true; if ($('#add-cart')) $('#add-cart').disabled = true; clearTimeout(previewTimer); previewTimer = setTimeout(updatePreview, 250); }
   if (event.target.id === 'custom-text') {
+    photoGallery?.invalidate();
     config.customText = event.target.value; textChoice.customText = config.customText; ++previewSequence;
     $('#custom-text-count').textContent = `${config.customText.length}/${MAX_CUSTOM_TEXT}`;
     currentPreview = null; previewPending = true; if ($('#add-cart')) $('#add-cart').disabled = true;
