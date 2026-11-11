@@ -61,7 +61,7 @@ test('Stripe-Kundenbindung, sichere Kartenanzeige und Entfernen prüfen Eigentü
       return Response.json(customers.get(key));
     }
     if (path === '/v1/checkout/sessions') {
-      checkoutSession = { id: 'cs_test_owner', client_reference_id: params.get('client_reference_id'), amount_total: 2999, currency: 'eur', mode: 'payment', metadata: { order_id: params.get('client_reference_id'), tax_treatment: TAX_TREATMENT }, automatic_tax: { enabled: false }, total_details: { amount_tax: 0 }, payment_intent: 'pi_fixture', payment_status: 'paid', status: 'complete', livemode: false, customer: params.get('customer') };
+      checkoutSession = { id: 'cs_test_owner', client_reference_id: params.get('client_reference_id'), amount_total: 3499, currency: 'eur', mode: 'payment', metadata: { order_id: params.get('client_reference_id'), tax_treatment: TAX_TREATMENT }, automatic_tax: { enabled: false }, total_details: { amount_tax: 0 }, payment_intent: 'pi_fixture', payment_status: 'paid', status: 'complete', livemode: false, customer: params.get('customer') };
       return Response.json({ livemode: false, id: checkoutSession.id, url: 'https://checkout.stripe.com/c/pay/cs_test_owner' });
     }
     if (path === '/v1/checkout/sessions/cs_test_owner') return Response.json(checkoutSession);
@@ -89,7 +89,7 @@ test('Stripe-Kundenbindung, sichere Kartenanzeige und Entfernen prüfen Eigentü
   const result = await shop.checkout(session, { method: 'card', customerId: 'cus_someone_else', recipient: { name: 'Empfänger', email: 'recipient@example.test', phone: '+4915112345678', street: 'Weg 12', postalCode: '10115', city: 'Berlin', country: 'DE' } });
   assert.equal(checkoutSession.customer, ids[0]);
   const order = (await shop.s.get('SELECT * FROM orders WHERE id=?', result.orderId));
-  checkoutSession.customer = 'cus_someone_else'; (await assert.rejects(async () => (await shop.acceptPayment({ id: 'evt_wrong_customer', orderId: order.id, paymentId: order.payment_id, amount: 2999, currency: 'EUR', customerId: checkoutSession.customer, completed: true })), /Stripe-Kundenkonto/));
+  checkoutSession.customer = 'cus_someone_else'; (await assert.rejects(async () => (await shop.acceptPayment({ id: 'evt_wrong_customer', orderId: order.id, paymentId: order.payment_id, amount: 3499, currency: 'EUR', customerId: checkoutSession.customer, completed: true })), /Stripe-Kundenkonto/));
   assert.equal((await shop.s.get('SELECT COUNT(*) AS n FROM fulfillment')).n, 0);
   checkoutSession.customer = ids[0]; (await shop.acceptPayment(await shop.payments.verify(order)));
   assert.equal((await shop.s.get('SELECT COUNT(*) AS n FROM fulfillment')).n, 1);
@@ -100,7 +100,7 @@ test('Stripe-Webhook: Signatur + unabhängiger API-Abgleich für PayPal; Replay 
   let remote;
   globalThis.fetch = async (url, options) => { if (String(url).startsWith('https://api.stripe.com/')) options = { ...options, body: new URLSearchParams(options.body) };
     if (String(url).startsWith('https://api.stripe.com/')) {
-      if (options.method === 'POST') { remote = { id: 'cs_test_paypal', client_reference_id: options.body.get('client_reference_id'), amount_total: 2999, currency: 'eur', mode: 'payment', metadata: { order_id: options.body.get('client_reference_id'), tax_treatment: TAX_TREATMENT }, automatic_tax: { enabled: false }, total_details: { amount_tax: 0 }, payment_intent: 'pi_fixture', payment_status: 'unpaid', status: 'open', livemode: false }; return Response.json({ livemode: false, id: remote.id, url: 'https://checkout.stripe.com/c/pay/cs_test_paypal' }); }
+      if (options.method === 'POST') { remote = { id: 'cs_test_paypal', client_reference_id: options.body.get('client_reference_id'), amount_total: 3499, currency: 'eur', mode: 'payment', metadata: { order_id: options.body.get('client_reference_id'), tax_treatment: TAX_TREATMENT }, automatic_tax: { enabled: false }, total_details: { amount_tax: 0 }, payment_intent: 'pi_fixture', payment_status: 'unpaid', status: 'open', livemode: false }; return Response.json({ livemode: false, id: remote.id, url: 'https://checkout.stripe.com/c/pay/cs_test_paypal' }); }
       return Response.json(remote);
     }
     return original(url, options);
@@ -121,7 +121,7 @@ test('Stripe-Webhook: Signatur + unabhängiger API-Abgleich für PayPal; Replay 
   remote.payment_status = 'paid'; remote.status = 'complete';
   assert.equal((await webhook(sig)).status, 200); assert.equal((await webhook(sig)).status, 200);
   await app.shop.tick(); assert.equal((await app.shop.s.get('SELECT COUNT(*) AS n FROM provider_orders')).n, 1); assert.equal((await app.shop.s.get('SELECT COUNT(*) AS n FROM payment_events')).n, 1);
-  assert.equal((await app.shop.s.get('SELECT amount FROM orders')).amount, 2999); // Amount comes from Stripe API, never forged webhook fields.
+  assert.equal((await app.shop.s.get('SELECT amount FROM orders')).amount, 3499); // Amount comes from Stripe API, never forged webhook fields.
   const record = await app.shop.s.get('SELECT * FROM stripe_payments WHERE order_id=?', checkout.data.orderId);
   assert.equal(record.tax_treatment, TAX_TREATMENT); assert.equal(record.tax_amount, 0); assert.equal(record.payment_intent_id, 'pi_fixture'); assert.ok(record.verified_at);
   remote.status = 'expired'; remote.payment_status = 'unpaid';

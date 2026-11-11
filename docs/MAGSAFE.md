@@ -4,8 +4,8 @@ Stand: 9. November 2026. Die Preise entsprechen Jonas' Auftrag:
 
 | Gestaltung | Standard | MagSafe-kompatibel |
 |---|---:|---:|
-| Kollektion | 29,99 € | 34,99 € |
-| Personalisiert | 34,99 € | 39,99 € |
+| Kollektion | 34,99 € | 39,99 € |
+| Personalisiert | 39,99 € | 44,99 € |
 
 Das Häkchen ändert ausschließlich `configuration.magsafe`. Motiv, Farbe,
 Handymodell, eigener Text bzw. gewählter Vers und Widmung bleiben erhalten.

@@ -24,7 +24,7 @@ test('Bestellmail erst nach Zahlung, mit identischen Positionen, Betreiber und p
   assert.equal(calls.length,1);const p=calls[0].payload;
   assert.deepEqual(p.to,['info@archenlicht.de']);assert.equal(p.from,'Archenlicht <info@archenlicht.de>');assert.equal(p.reply_to,'info@archenlicht.de');
   assert.match(p.subject,/\[TEST\]/);assert.match(p.text,/Herzly Marketing GbR/);assert.match(p.text,/Julian Isaak und Laura Herliz/);assert.match(p.text,/Stettiner Straße 27/);
-  assert.match(p.text,/34,99/);assert.match(p.text,/iPhone 18 Pro Max/);assert.match(p.text,/Schwarz/);assert.match(p.text,/Für Anna/);assert.match(p.text,/§ 19 UStG/);
+  assert.match(p.text,/39,99/);assert.match(p.text,/iPhone 18 Pro Max/);assert.match(p.text,/Schwarz/);assert.match(p.text,/Für Anna/);assert.match(p.text,/§ 19 UStG/);
   assert.match(p.text,new RegExp(`https://www.archenlicht.de/bestellung/${order.id}#token=[A-Za-z0-9_-]{43}`));
   assert.equal((await shop.s.get('SELECT state FROM mail_deliveries')).state,'accepted');
 });

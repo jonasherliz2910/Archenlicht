@@ -44,7 +44,7 @@ test('Double opt-in speichert Namen und Einwilligung; Replay sendet keinen zweit
 
 test('Nur bestätigte passende E-Mail; 5 % centgenau auf Standard, Wunschtext und MagSafe, keine Rabattkombination',async t=>{
  const {shop,session}=await setup(t),sub=await activate(shop,session);
- for(const price of [2999,3499,3999]) {
+ for(const price of [3499,3999,4499]) {
   const result=await shop.newsletter.discount(sub.code.toLowerCase(),signup.email.toUpperCase(),priceBundleItems([{unitPrice:price,quantity:1}]));
   assert.equal(summarizePricing(result.items).total,price-Math.round(price*.05));assert.equal(summarizePricing(result.items).source,'newsletter');
  }
@@ -62,16 +62,16 @@ test('Paralleler Checkout reserviert nur einmal, Abbruch gibt Code frei, Zahlung
  const input={recipient,method:'card',newsletterCode:sub.code,amount:1};
  const results=await Promise.allSettled([shop.checkout(session,input),shop.checkout(session,input)]);
  assert.equal(results.filter(r=>r.status==='fulfilled').length,1);
- let order=await shop.s.get('SELECT * FROM orders');assert.equal(order.amount,2849);
+ let order=await shop.s.get('SELECT * FROM orders');assert.equal(order.amount,3324);
  assert.equal((await shop.s.get('SELECT COUNT(*) AS n FROM orders')).n,1);
  await shop.s.run("UPDATE orders SET status='cancelled' WHERE id=?",order.id);await shop.newsletter.release(order.id);
  await assert.rejects(shop.acceptPayment(paid(order)),/abgebrochen/);
  const next=await shop.checkout(session,input);order=await shop.s.get('SELECT * FROM orders WHERE id=?',next.orderId);
  const calls=[],payments=new Payments({paymentMode:'sandbox',stripeKey:'sk_test_fixture',baseUrl:'https://www.archenlicht.de'});
  payments.sdk={coupons:{create:async(p)=>{calls.push(p);return {id:'coupon',livemode:false,...p};}},checkout:{sessions:{create:async p=>{calls.push(p);return {id:'cs_test_fixture',livemode:false,url:'https://checkout.stripe.com/c/pay/fixture'};}}}};
- await payments.create(order);assert.equal(calls[0].amount_off,150);assert.equal(calls[0].name,'Newsletter-Rabatt 5 %');assert.equal(calls[1].line_items[0].price_data.unit_amount,2999);assert.deepEqual(calls[1].discounts,[{coupon:'coupon'}]);
+ await payments.create(order);assert.equal(calls[0].amount_off,175);assert.equal(calls[0].name,'Newsletter-Rabatt 5 %');assert.equal(calls[1].line_items[0].price_data.unit_amount,3499);assert.deepEqual(calls[1].discounts,[{coupon:'coupon'}]);
  await shop.acceptPayment(paid(order));await shop.acceptPayment(paid(order));
- const mail=orderEmail({order,kind:'confirmation',statusUrl:'https://www.archenlicht.de/bestellung/fixture'});assert.match(mail.text,/Newsletter-Rabatt \(5 %\): −1,50/);assert.match(mail.text,/Gesamt: 28,49/);assert.doesNotMatch(mail.text,/Bundle-Rabatt/);
+ const mail=orderEmail({order,kind:'confirmation',statusUrl:'https://www.archenlicht.de/bestellung/fixture'});assert.match(mail.text,/Newsletter-Rabatt \(5 %\): −1,75/);assert.match(mail.text,/Gesamt: 33,24/);assert.doesNotMatch(mail.text,/Bundle-Rabatt/);
  assert.ok((await shop.s.get('SELECT redeemed_at FROM newsletter_redemptions')).redeemed_at);
  await assert.rejects(shop.newsletter.discount(sub.code,signup.email,[{unitPrice:2999,quantity:1}]),/bereits eingelöst/);
 });

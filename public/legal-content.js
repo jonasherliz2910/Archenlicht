@@ -1,5 +1,5 @@
 // Shared by the website and immutable order-mail snapshots. No runtime secrets.
-export const LEGAL_VERSION = '2026-11-10-v1';
+export const LEGAL_VERSION = '2026-11-11-v1';
 export const OPERATOR = Object.freeze({
   name: 'Herzly Marketing GbR', representatives: 'Julian Isaak und Laura Herliz',
   address: 'Stettiner Straße 27, 36251 Bad Hersfeld, Deutschland',
@@ -47,7 +47,7 @@ Datum _____________________________________________
 (*) Unzutreffendes streichen.`;
 
 export const TERMS = `Allgemeine Geschäftsbedingungen und Kundeninformationen
-Stand: 10. November 2026 (${LEGAL_VERSION})
+Stand: 11. November 2026 (${LEGAL_VERSION})
 
 1. Anbieter und Geltungsbereich
 Archenlicht ist ein Angebot der ${OPERATOR.name}, vertreten durch ${OPERATOR.representatives}. Kontakt: ${CONTACT}. Diese Bedingungen gelten für Warenbestellungen von Verbrauchern über www.archenlicht.de. Wir liefern ausschließlich an Anschriften in Deutschland. Vertragssprache ist Deutsch.
@@ -60,7 +60,7 @@ Die Produktdarstellung ist eine Einladung zur Bestellung. Sie legen Produkte unv
 Wir speichern die Bestelldaten und senden Ihnen die Bestellübersicht, diese Bedingungen, die Widerrufsinformationen und das Musterformular in der Bestellbestätigung. Ihren Bestellstatus erreichen Sie über den persönlichen Link; ein Kundenkonto ist freiwillig. Bitte bewahren Sie die E-Mail auf.
 
 4. Preise, Rabatte und Zahlung
-Alle Preise sind Euro-Endpreise. Gemäß § 19 UStG wird keine Umsatzsteuer berechnet. Der Standardversand innerhalb Deutschlands und eine Karte zum Selbstbeschriften je Bestellung sind enthalten. Die Kollektion kostet 29,99 €, die Wunschvers-Hülle 34,99 €. Die MagSafe-Option kostet jeweils zusätzlich 5,00 €, soweit für das Modell verfügbar. Maßgeblich ist der vor Abschluss ausgewiesene Gesamtbetrag.
+Alle Preise sind Euro-Endpreise. Gemäß § 19 UStG wird keine Umsatzsteuer berechnet. Der Standardversand innerhalb Deutschlands und eine Karte zum Selbstbeschriften je Bestellung sind enthalten. Die Kollektion kostet 34,99 €, die Wunschvers-Hülle 39,99 €. Die MagSafe-Option kostet jeweils zusätzlich 5,00 €, soweit für das Modell verfügbar. Maßgeblich ist der vor Abschluss ausgewiesene Gesamtbetrag.
 Ab zwei Hüllen werden 5 %, ab vier Hüllen 10 % Bundle-Rabatt auf die Hüllen in derselben Bestellung gewährt. Der persönliche Newsletter-Code gewährt einmalig 5 % auf nicht reduzierte Hüllen, ist an die bestätigte E-Mail-Adresse gebunden und nicht mit Bundle-Rabatten, anderen Rabatten oder Aktionen kombinierbar. Es gibt keinen Mindestbestellwert und keine Barauszahlung; eine Newsletter-Abmeldung lässt einen noch nicht verwendeten Code unberührt. Bei einer Rückabwicklung wird der tatsächlich gezahlte, anteilige Preis berücksichtigt.
 Die Zahlung erfolgt über Stripe mit den dort angezeigten verfügbaren Zahlungsarten. Der Kaufpreis wird bei Bestellabschluss bezahlt. Eine gespeicherte Karte kann nur nach Ihrer entsprechenden Auswahl bei Stripe für spätere Käufe verwendet werden. Der Shop speichert keine vollständigen Kartennummern oder Kartenprüfnummern.
 
