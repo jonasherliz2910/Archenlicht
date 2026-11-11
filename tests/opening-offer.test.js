@@ -7,7 +7,7 @@ import { defaultConfig } from '../server/index.js';
 import { Payments } from '../server/payments.js';
 import { orderEmail } from '../server/mail-templates.js';
 import { priceNewsletterItems, summarizePricing } from '../public/bundle-pricing.js';
-import { priceMarkup, newsletterEligible } from '../public/price-display.js';
+import { priceMarkup, casePriceMarkup, linePriceMarkup, newsletterEligible } from '../public/price-display.js';
 
 const fixed = { kind: 'fixed', modelId: 'iphone-14-pro', designId: 'nach-dem-sturm', backgroundId: 'light-blue' };
 const recipient = { name: 'Aktion Test', email: 'aktion@example.test', phone: '01721234567', street: 'Testweg 12', postalCode: '10115', city: 'Berlin', country: 'DE' };
@@ -27,8 +27,10 @@ test('Opening prices reach every variant; the server marks reductions and ignore
     assert.equal(item.unitPrice, price); assert.equal(item.reduced, true); assert.equal(item.openingOffer, true);
     assert.equal(newsletterEligible([item]), false);
     assert.throws(() => priceNewsletterItems([item]), /nicht reduzierte/);
-    const html = priceMarkup(price, state.brand);
-    assert.match(html, /Eröffnungspreis/); assert.doesNotMatch(html, /<del|<s>|statt|Countdown/);
+    assert.equal(item.plannedUnitPrice, price + 500);
+    const html = casePriceMarkup(state.brand, item.configuration);
+    assert.match(html, /Eröffnungspreis/); assert.match(html, /<s class="opening-price-planned"/); assert.match(html, /Geplanter Preis nach der Eröffnungsaktion/); assert.doesNotMatch(html, /früher|statt|Countdown/);
+    assert.equal(linePriceMarkup(item), html);
     await shop.removeCart(session, item.id);
   }
 });
@@ -42,6 +44,7 @@ test('Bundle reductions apply to opening prices with exact cents and survive an 
     const saved = await shop.s.get('SELECT * FROM orders WHERE id=?', checkout.orderId);
     assert.equal(saved.amount, total);
     assert.equal(JSON.parse(saved.items)[0].openingOffer, true);
+    assert.equal(JSON.parse(saved.items)[0].plannedUnitPrice, 3499);
     await shop.removeCart(session, cart[0].id);
   }
   const before = await shop.s.all('SELECT id,amount,items FROM orders ORDER BY id');

@@ -15,7 +15,7 @@ import { AdminCustomers } from './admin-customers.js';
 import { Withdrawals } from './withdrawals.js';
 import { officialTemplate, productionPrint, previewFromProduction } from './production-print.js';
 import { magneticVariant, catalogVariant, localVariant } from './case-variants.js';
-import { casePrice } from '../public/case-options.js';
+import { casePrice, plannedCasePrice } from '../public/case-options.js';
 import { priceBundleItems, summarizePricing } from '../public/bundle-pricing.js';
 import { fixedBundleConfigurations } from '../public/fixed-bundles.js';
 import { monthlyProductInterest } from './product-interest.js';
@@ -180,7 +180,7 @@ export class Shop {
         printable = false; p = await this.preview(c, { printMode: 'preview' });
       }
       const remote = catalogVariant(snapshot, c), provider = this.podbaseCatalog ? remote : localVariant(model, c);
-      return { id: row.id, configuration: c, ...p, title: c.kind === 'custom' ? `Dein Wunschvers · ${d.title}` : d.title, model: model.name, quantity: row.quantity, unitPrice: casePrice(this.brand, c), reduced: Boolean(this.brand.openingOffer), openingOffer: Boolean(this.brand.openingOffer), productId: provider?.productId || null, variantId: provider?.variantId || null, available: Boolean(printable && (!c.magsafe || magneticVariant(c.modelId)) && variant?.available && variant.print_approved && variant.approval_mode === this.variantMode && (!this.podbaseCatalog || remote?.inStock)) };
+      return { id: row.id, configuration: c, ...p, title: c.kind === 'custom' ? `Dein Wunschvers · ${d.title}` : d.title, model: model.name, quantity: row.quantity, unitPrice: casePrice(this.brand, c), plannedUnitPrice: plannedCasePrice(this.brand, c), reduced: Boolean(this.brand.openingOffer), openingOffer: Boolean(this.brand.openingOffer), productId: provider?.productId || null, variantId: provider?.variantId || null, available: Boolean(printable && (!c.magsafe || magneticVariant(c.modelId)) && variant?.available && variant.print_approved && variant.approval_mode === this.variantMode && (!this.podbaseCatalog || remote?.inStock)) };
     })));
   }
   async saveCart(session, input, existingId) {
@@ -325,7 +325,7 @@ export class Shop {
     const id = randomUUID(), guestToken = token(), amount = summarizePricing(items).total, now = Date.now();
     const number = `AL-${new Intl.DateTimeFormat('de', { year: 'numeric', timeZone: 'Europe/Berlin' }).format(now)}-${token().replace(/[-_]/g, '').slice(0, 9).toUpperCase()}`;
     const visit = session.statisticsConsent === true ? await this.s.get('SELECT source FROM visits WHERE id=?', session.visit_id) : null;
-    const snapshot = items.map(({ id, configuration, hash, title, model, quantity, unitPrice, pricing, reduced, openingOffer, printText, productId, variantId }) => ({ id, configuration, hash, title, model, quantity, unitPrice, pricing, reduced, openingOffer, printText, productId, variantId }));
+    const snapshot = items.map(({ id, configuration, hash, title, model, quantity, unitPrice, plannedUnitPrice, pricing, reduced, openingOffer, printText, productId, variantId }) => ({ id, configuration, hash, title, model, quantity, unitPrice, plannedUnitPrice, pricing, reduced, openingOffer, printText, productId, variantId }));
     (await this.s.tx(async () => {
       (await this.s.run('INSERT INTO orders(id,number,session_id,user_id,guest_hash,recipient,items,amount,currency,status,payment_method,source,visit_id,mode,created) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)', id, number, session.id, session.user_id, digest(guestToken), JSON.stringify(recipient), JSON.stringify(snapshot), amount, 'EUR', 'awaiting_payment', method, visit?.source || 'unbekannt', visit ? session.visit_id : randomUUID(), this.config.shopMode, now));
       if (newsletterDiscount) await this.newsletter.reserve(newsletterDiscount.subscriberId, id);
