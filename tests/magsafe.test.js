@@ -54,7 +54,7 @@ test('MagSafe-Umschalten erhält Motiv, Text, Widmung, Farbe und Vorschau für a
 });
 
 test('Offizielle magnetische Druckvorlagen haben eigene IDs und dieselbe proportionale Gestaltung', async () => {
-  assert.equal(PODBASE_PRINT_TEMPLATES.magsafeTemplates.length, 37);
+  assert.equal(PODBASE_PRINT_TEMPLATES.magsafeTemplates.length, 38);
   for (const template of PODBASE_PRINT_TEMPLATES.magsafeTemplates) {
     const model = findModel(template.modelId);
     for (const input of [...DESIGNS.map(d => ({ ...fixed, designId: d.id })), custom]) {

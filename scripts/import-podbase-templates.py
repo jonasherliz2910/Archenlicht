@@ -9,6 +9,7 @@ import json
 import re
 from pathlib import Path
 from psd_tools import PSDImage
+from podbase_raster_guide import extract_raster_guide
 
 root = Path(__file__).resolve().parent.parent
 source = root / '.tools/podbase-print-references/podbase-phone-layouts.psd'
@@ -65,12 +66,22 @@ for model in mapping['models']:
     descendants = list(group.descendants())
     safe = [l for l in descendants if l.name in ('Safe area for text and details', 'Save area for text and details', 'Save area for text and idetails') and l.has_vector_mask()]
     cameras = [l for l in descendants if not l.is_group() and l.kind != 'type' and l not in safe and l.width > 0 and l.height > 0]
-    if len(safe) != 1 or not cameras:
+    raster_safe = [l for l in descendants if l.name == 'Safe area for text and details' and l.kind == 'pixel']
+    # Podbase's iPhone 17 guide combines the safe and camera outlines in one
+    # raster layer. Recover its closed contours instead of rejecting it or
+    # borrowing another phone's template. Other raster layouts require review.
+    if model['modelId'] == 'iphone-17' and not safe and len(raster_safe) == 1 and len(cameras) == 1:
+        layer = raster_safe[0]
+        safe_shape, camera_shapes = extract_raster_guide(layer.topil(), layer.bbox[:2])
+        safe_shape['sourceLayer'] = layer.name
+    elif len(safe) == 1 and cameras:
+        safe_shape, camera_shapes = shape(safe[0]), [shape(l) for l in cameras]
+    else:
         missing.append({'modelId': model['modelId'], 'reason': 'missing-safe-or-camera-path'})
         continue
     record = {**model, 'productId': mapping['productId'], 'sku': row['SKU'], 'width': width, 'height': height,
               'density': 300, 'printType': 'full-file-area', 'guideGroup': group.name,
-              'safeArea': shape(safe[0]), 'cameraExclusions': [shape(l) for l in cameras], 'clearance': 45}
+              'safeArea': safe_shape, 'cameraExclusions': camera_shapes, 'clearance': 45}
     record['hash'] = hashlib.sha256(json.dumps(record, sort_keys=True).encode()).hexdigest()
     templates.append(record)
 

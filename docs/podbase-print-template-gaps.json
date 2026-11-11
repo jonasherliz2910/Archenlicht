@@ -1,0 +1,199 @@
+{
+  "checkedAt": "2026-11-11T16:23:16.713077+00:00",
+  "source": {
+    "guideUrl": "https://drive.google.com/file/d/1SvuCd1eDkq2VKgky2NRi6NpEF9CZTUB2/view",
+    "guideSha256": "f205b1965bf66d82d74f5134c28f4d26aadcc5a9fec7502abf74e44e7991b207",
+    "requirementsUrl": "https://docs.google.com/spreadsheets/d/1shTH2o9K3sN0RyWYUzk8tLADDNgB-qixPxnwQGvOiqM/edit?gid=969391465",
+    "requirementsSha256": "85a8d1911073fc1b014fc637121dbba8680f540638c1b92217025d2b3e4a8b4f"
+  },
+  "availableTemplates": {
+    "standard": 64,
+    "magnetic": 38
+  },
+  "gaps": [
+    {
+      "modelId": "google-pixel-10a",
+      "name": "Google Pixel 10A",
+      "guideGroup": "Google Pixel 10 A",
+      "variants": [
+        {
+          "kind": "standard",
+          "productId": "PBP-FL-5D2-224T",
+          "variantId": "PBV-4PS-2J3-224N",
+          "requirementsPublished": false
+        },
+        {
+          "kind": "magnetic",
+          "productId": "PBP-4HU-2II-223I",
+          "variantId": "PBV-4PS-2XB-225I",
+          "requirementsPublished": false
+        }
+      ]
+    },
+    {
+      "modelId": "iphone-17e",
+      "name": "iPhone 17e",
+      "guideGroup": null,
+      "variants": [
+        {
+          "kind": "standard",
+          "productId": "PBP-FL-5D2-224T",
+          "variantId": "PBV-4KV-2GT-2234",
+          "requirementsPublished": true
+        },
+        {
+          "kind": "magnetic",
+          "productId": "PBP-37-2FY-223Z",
+          "variantId": "PBV-4KV-2VG-225G",
+          "requirementsPublished": true
+        }
+      ]
+    },
+    {
+      "modelId": "iphone-18-pro",
+      "name": "iPhone 18 Pro",
+      "guideGroup": "iPhone 17 Pro / 18 Pro",
+      "variants": [
+        {
+          "kind": "standard",
+          "productId": "PBP-FL-5D2-224T",
+          "variantId": "PBV-4QL-2KM-223I",
+          "requirementsPublished": false
+        },
+        {
+          "kind": "magnetic",
+          "productId": "PBP-37-2FY-223Z",
+          "variantId": "PBV-4QL-2RI-227W",
+          "requirementsPublished": false
+        }
+      ]
+    },
+    {
+      "modelId": "iphone-18-pro-max",
+      "name": "iPhone 18 Pro Max",
+      "guideGroup": "iPhone 17 Pro Max / 18 Pro Max",
+      "variants": [
+        {
+          "kind": "standard",
+          "productId": "PBP-FL-5D2-224T",
+          "variantId": "PBV-4QL-2C3-224I",
+          "requirementsPublished": false
+        },
+        {
+          "kind": "magnetic",
+          "productId": "PBP-37-2FY-223Z",
+          "variantId": "PBV-4QL-2C2-22AB",
+          "requirementsPublished": false
+        }
+      ]
+    },
+    {
+      "modelId": "samsung-galaxy-s26-fe",
+      "name": "Samsung Galaxy S26 Fe",
+      "guideGroup": null,
+      "variants": [
+        {
+          "kind": "standard",
+          "productId": "PBP-FL-5D2-224T",
+          "variantId": "PBV-4RB-2HK-223F",
+          "requirementsPublished": false
+        },
+        {
+          "kind": "magnetic",
+          "productId": "PBP-4HU-2II-223I",
+          "variantId": "PBV-4RB-2XY-22GA",
+          "requirementsPublished": false
+        }
+      ]
+    },
+    {
+      "modelId": "samsung-galaxy-a27",
+      "name": "Samsung Galaxy A27",
+      "guideGroup": null,
+      "variants": [
+        {
+          "kind": "standard",
+          "productId": "PBP-FL-5D2-224T",
+          "variantId": "PBV-4RB-2UF-224N",
+          "requirementsPublished": false
+        }
+      ]
+    },
+    {
+      "modelId": "samsung-galaxy-z-flip8",
+      "name": "Samsung Galaxy Z Flip 8",
+      "guideGroup": null,
+      "variants": [
+        {
+          "kind": "standard",
+          "productId": "PBP-FL-5D2-224T",
+          "variantId": "PBV-4RB-2AC-225X",
+          "requirementsPublished": false
+        },
+        {
+          "kind": "magnetic",
+          "productId": "PBP-4HU-2II-223I",
+          "variantId": "PBV-4RB-2IM-22HJ",
+          "requirementsPublished": false
+        }
+      ]
+    },
+    {
+      "modelId": "google-pixel-11",
+      "name": "Google Pixel 11",
+      "guideGroup": null,
+      "variants": [
+        {
+          "kind": "standard",
+          "productId": "PBP-FL-5D2-224T",
+          "variantId": "PBV-4RB-2NR-22CD",
+          "requirementsPublished": false
+        },
+        {
+          "kind": "magnetic",
+          "productId": "PBP-4HU-2II-223I",
+          "variantId": "PBV-4RB-2RL-22IV",
+          "requirementsPublished": false
+        }
+      ]
+    },
+    {
+      "modelId": "google-pixel-11-pro",
+      "name": "Google Pixel 11 Pro",
+      "guideGroup": null,
+      "variants": [
+        {
+          "kind": "standard",
+          "productId": "PBP-FL-5D2-224T",
+          "variantId": "PBV-4RB-2Z5-22D5",
+          "requirementsPublished": false
+        },
+        {
+          "kind": "magnetic",
+          "productId": "PBP-4HU-2II-223I",
+          "variantId": "PBV-4RB-2YD-22JN",
+          "requirementsPublished": false
+        }
+      ]
+    },
+    {
+      "modelId": "google-pixel-11-pro-xl",
+      "name": "Google Pixel 11 Pro XL",
+      "guideGroup": null,
+      "variants": [
+        {
+          "kind": "standard",
+          "productId": "PBP-FL-5D2-224T",
+          "variantId": "PBV-4RB-24W-22E5",
+          "requirementsPublished": false
+        },
+        {
+          "kind": "magnetic",
+          "productId": "PBP-4HU-2II-223I",
+          "variantId": "PBV-4RB-2HW-22K2",
+          "requirementsPublished": false
+        }
+      ]
+    }
+  ]
+}

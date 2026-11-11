@@ -13,8 +13,8 @@ import { podbasePayload } from '../server/podbase.js';
 const input = { kind: 'custom', modelId: 'iphone-14-pro', designId: 'nach-dem-sturm', backgroundId: 'light-blue', customText: 'Du bist geliebt.', dedication: 'Für Anna' };
 
 test('Offizielle Vorlagen enthalten Variantenbezug, Originalkurven und prüfbare Quelldateien', () => {
-  assert.equal(PODBASE_PRINT_TEMPLATES.templates.length, 63);
-  assert.equal(PODBASE_PRINT_TEMPLATES.missing.length, 11);
+  assert.equal(PODBASE_PRINT_TEMPLATES.templates.length, 64);
+  assert.equal(PODBASE_PRINT_TEMPLATES.missing.length, 10);
   assert.match(PODBASE_PRINT_TEMPLATES.source.guideSha256, /^[a-f0-9]{64}$/);
   for (const t of PODBASE_PRINT_TEMPLATES.templates) {
     assert.ok(findModel(t.modelId)); assert.equal(t.width, 2000); assert.equal(t.height, 3400);
