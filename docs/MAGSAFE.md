@@ -1,11 +1,11 @@
 # Optionale magnetische Hüllen
 
-Stand: 9. November 2026. Die Preise entsprechen Jonas' Auftrag:
+Stand: 11. November 2026. Aktive Eröffnungspreise:
 
 | Gestaltung | Standard | MagSafe-kompatibel |
 |---|---:|---:|
-| Kollektion | 34,99 € | 39,99 € |
-| Personalisiert | 39,99 € | 44,99 € |
+| Kollektion | 29,99 € | 34,99 € |
+| Personalisiert | 34,99 € | 39,99 € |
 
 Das Häkchen ändert ausschließlich `configuration.magsafe`. Motiv, Farbe,
 Handymodell, eigener Text bzw. gewählter Vers und Widmung bleiben erhalten.

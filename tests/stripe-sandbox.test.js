@@ -29,14 +29,14 @@ test('Echte Stripe-Sandbox: Gast und Konto erhalten gehosteten EUR-Checkout ohne
     for (const discount of remote.discounts || []) if (typeof discount.coupon === 'string') coupons.push(discount.coupon);
     if (remote.customer) customers.push(remote.customer);
     assert.equal(remote.livemode, false); assert.equal(remote.mode, 'payment'); assert.equal(remote.currency, 'eur');
-    assert.equal(remote.amount_total, account ? 13046 : 7123); assert.equal(remote.amount_subtotal, account ? 14496 : 7498); assert.equal(remote.total_details.amount_discount, account ? 1450 : 375);
+    assert.equal(remote.amount_total, account ? 11246 : 6173); assert.equal(remote.amount_subtotal, account ? 12496 : 6498); assert.equal(remote.total_details.amount_discount, account ? 1250 : 325);
     assert.equal(order.amount, remote.amount_total);
     assert.equal(remote.automatic_tax.enabled, false); assert.equal(remote.total_details.amount_tax, 0); assert.equal(remote.metadata.tax_treatment, TAX_TREATMENT);
     assert.match(remote.custom_text.submit.message, /Kleinunternehmer/); assert.match(remote.success_url, /^https:\/\/archenlicht\.vercel\.app\//);
     assert.equal(Boolean(remote.customer), account);
     if (account) assert.equal(remote.saved_payment_method_options.payment_method_save, 'enabled');
     const items = await shop.payments.request(client => client.checkout.sessions.listLineItems(order.payment_id));
-    assert.deepEqual(items.data.map(item => item.amount_subtotal).sort((a,b)=>a-b), account ? [3999, 10497] : [3499, 3999]);
+    assert.deepEqual(items.data.map(item => item.amount_subtotal).sort((a,b)=>a-b), account ? [3499, 8997] : [2999, 3499]);
     assert.equal((await shop.payments.verify(order)).completed, false);
     assert.equal((await shop.s.get('SELECT COUNT(*) AS n FROM fulfillment')).n, 0);
     assert.equal((await shop.s.get('SELECT tax_treatment FROM stripe_payments WHERE order_id=?', order.id)).tax_treatment, TAX_TREATMENT);

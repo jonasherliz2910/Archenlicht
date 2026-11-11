@@ -33,24 +33,24 @@ test('Bundle-Staffel: ab zwei Stück 5 %, ab vier Stück 10 %, centgenau auf die
 test('Jede Bundle-Hülle behält eigene Gestaltung; Entfernen, Snapshot, Mail und Podbase bleiben konsistent',async t=>{
  const shop=await Shop.create({...defaultConfig(),shopMode:'test',paymentMode:'local',podbaseMode:'local',mailMode:'local',storageMode:'sqlite',dataDir:resolve('test-results',randomUUID()),autoShip:false});t.after(()=>shop.close());
  const {session}=await shop.createSession();const [first]=await shop.saveCart(session,{...fixed,unitPrice:1,pricing:{discount:99999}});
- let cart=await shop.saveCart(session,custom);assert.equal(summarizePricing(cart).total,7598);assert.equal(cart[0].hash,first.hash);
+ let cart=await shop.saveCart(session,custom);assert.equal(summarizePricing(cart).total,6648);assert.equal(cart[0].hash,first.hash);
  assert.notEqual(cart[0].hash,cart[1].hash);assert.equal(cart[1].configuration.customText,custom.customText);assert.equal(cart[1].configuration.magsafe,true);
  const second=cart[1];cart=await shop.saveCart(session,{...custom,backgroundId:'mint'},second.id);assert.equal(cart[0].hash,first.hash);assert.notEqual(cart[1].hash,second.hash);
- cart=await shop.removeCart(session,first.id);assert.equal(summarizePricing(cart).discount,0);assert.equal(summarizePricing(cart).total,4499);
+ cart=await shop.removeCart(session,first.id);assert.equal(summarizePricing(cart).discount,0);assert.equal(summarizePricing(cart).total,3999);
  cart=await shop.saveCart(session,{...fixed,quantity:3});
  assert.equal(summarizePricing(cart).percent,10);const fixedId=cart[1].id;
- cart=await shop.saveCart(session,{...fixed,quantity:2},fixedId);assert.equal(summarizePricing(cart).percent,5);assert.equal(summarizePricing(cart).total,10922);
+ cart=await shop.saveCart(session,{...fixed,quantity:2},fixedId);assert.equal(summarizePricing(cart).percent,5);assert.equal(summarizePricing(cart).total,9497);
  cart=await shop.saveCart(session,{...fixed,quantity:3},fixedId);
- const expected=summarizePricing(cart);assert.equal(expected.subtotal,14996);assert.equal(expected.total,13496);
+ const expected=summarizePricing(cart);assert.equal(expected.subtotal,12996);assert.equal(expected.total,11696);
  const checkout=await shop.checkout(session,{method:'card',recipient,amount:1,discount:9999});
  const order=await shop.s.get('SELECT * FROM orders WHERE id=?',checkout.orderId),saved=JSON.parse(order.items);
- assert.equal(order.amount,13496);assert.deepEqual(saved.map(i=>i.pricing),cart.map(i=>i.pricing));
- await shop.removeCart(session,cart[1].id);assert.equal((await shop.s.get('SELECT amount FROM orders WHERE id=?',order.id)).amount,13496);
+ assert.equal(order.amount,11696);assert.deepEqual(saved.map(i=>i.pricing),cart.map(i=>i.pricing));
+ await shop.removeCart(session,cart[1].id);assert.equal((await shop.s.get('SELECT amount FROM orders WHERE id=?',order.id)).amount,11696);
  const payload=podbasePayload(order,'https://example.test');assert.deepEqual(payload.items.map(i=>i.quantity),saved.map(i=>i.quantity));
  for(const [n,item] of saved.entries()){assert.equal(payload.items[n].variantId,item.variantId);assert.ok(payload.items[n].printFile.endsWith(item.hash+'.png'));}
- const mail=orderEmail({order,kind:'confirmation',statusUrl:'https://example.test/order'});assert.match(mail.text,/Bundle-Rabatt \(10 %\): −15,00/);assert.match(mail.html,/134,96/);
- await assert.rejects(shop.acceptPayment({id:'wrong',orderId:order.id,paymentId:order.payment_id,amount:14996,currency:'EUR',completed:true}),/Betrag/);
- const event={id:'bundle-paid',orderId:order.id,paymentId:order.payment_id,amount:13496,currency:'EUR',completed:true};
+ const mail=orderEmail({order,kind:'confirmation',statusUrl:'https://example.test/order'});assert.match(mail.text,/Bundle-Rabatt \(10 %\): −13,00/);assert.match(mail.html,/116,96/);
+ await assert.rejects(shop.acceptPayment({id:'wrong',orderId:order.id,paymentId:order.payment_id,amount:12996,currency:'EUR',completed:true}),/Betrag/);
+ const event={id:'bundle-paid',orderId:order.id,paymentId:order.payment_id,amount:11696,currency:'EUR',completed:true};
  await shop.acceptPayment(event);await shop.acceptPayment(event);await shop.tick();assert.equal((await shop.s.get('SELECT COUNT(*) AS n FROM provider_orders')).n,1);
 });
 

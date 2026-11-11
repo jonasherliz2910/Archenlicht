@@ -27,7 +27,7 @@ async function setup(t, printMode = 'preview') {
 
 test('Vier verbindliche Preise; manipulierte Preise und MagSafe-Werte ersetzen keine Serverberechnung', async t => {
   const { shop, session } = await setup(t);
-  for (const [configuration, expected] of [[fixed, 3499], [{ ...fixed, magsafe: true }, 3999], [custom, 3999], [{ ...custom, magsafe: true }, 4499]]) {
+  for (const [configuration, expected] of [[fixed, 2999], [{ ...fixed, magsafe: true }, 3499], [custom, 3499], [{ ...custom, magsafe: true }, 3999]]) {
     assert.equal(casePrice(BRAND, configuration), expected);
     const cart = await shop.saveCart(session, { ...configuration, unitPrice: 1, productId: 'forged', variantId: 'forged' });
     assert.equal(cart.at(-1).unitPrice, expected);
@@ -88,7 +88,7 @@ test('Gemischter Warenkorb bleibt nach Bearbeiten, Zahlung und Wiederholung bei 
   await shop.saveCart(session, fixed);
   const checkout = await shop.checkout(session, { method: 'card', recipient });
   const order = await shop.s.get('SELECT * FROM orders WHERE id=?', checkout.orderId), items = JSON.parse(order.items);
-  assert.equal(order.amount, 11872); assert.equal(items[0].configuration.magsafe, true); assert.equal(items[1].configuration.magsafe, false);
+  assert.equal(order.amount, 10447); assert.equal(items[0].configuration.magsafe, true); assert.equal(items[1].configuration.magsafe, false);
   assert.notEqual(items[0].productId, items[1].productId); assert.notEqual(items[0].variantId, items[1].variantId);
   const event = { id: 'magsafe-payment', orderId: order.id, paymentId: order.payment_id, amount: order.amount, currency: 'EUR', completed: true };
   await shop.acceptPayment(event); await shop.acceptPayment(event); await shop.tick(); await shop.tick();
@@ -130,6 +130,6 @@ test('Stripe erhält den berechneten Aufpreis und die ausgewählte Hüllenart; n
   globalThis.fetch = async (url, options) => { assert.equal(url, 'https://api.stripe.com/v1/checkout/sessions'); body = new URLSearchParams(options.body); return Response.json({ id: 'cs_test_magsafe', url: 'https://checkout.stripe.com/c/pay/cs_test_magsafe', livemode: false }); };
   const payments = new Payments({ paymentMode: 'sandbox', stripeKey: 'sk_test_fixture', baseUrl: 'https://www.archenlicht.de' });
   await payments.create({ id: 'magsafe-order', mode: 'test', recipient: JSON.stringify(recipient), items: JSON.stringify([{ title: 'Nach dem Sturm', model: 'iPhone 14 Pro', configuration: { ...custom, magsafe: true }, unitPrice: casePrice(BRAND, { ...custom, magsafe: true }), quantity: 1 }]) });
-  assert.equal(body.get('line_items[0][price_data][unit_amount]'), '4499');
+  assert.equal(body.get('line_items[0][price_data][unit_amount]'), '3999');
   assert.match(body.get('line_items[0][price_data][product_data][name]'), /MagSafe-kompatibel/);
 });

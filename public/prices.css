@@ -1,0 +1,30 @@
+.opening-price{display:inline-flex;flex-direction:column;align-items:flex-start;gap:5px;vertical-align:middle;line-height:1.3}
+.opening-price-label{display:inline-block;padding:4px 8px;border-radius:4px;background:#e7edde;color:#38533b;font-size:10px;font-weight:600;letter-spacing:.25px;line-height:1.35;white-space:nowrap}
+.opening-price-value{color:#163e29;font-size:22px;font-weight:700;line-height:1.2;white-space:nowrap}
+.product-detail>.product-card-price{flex-shrink:0;text-align:right}
+.product-card-price .opening-price{align-items:flex-end}
+.product-card-price .opening-price-value{font-size:20px}
+.price-line>[data-config-price]{font-size:inherit;color:inherit}
+.price-line .opening-price-value{font-size:32px}
+.price-line .opening-price-label{font-size:11px}
+.customizer-heading .opening-price{margin:0 6px}
+.collection-toolbar .opening-price{flex-direction:row;align-items:center;gap:8px;margin-right:4px}
+.collection-toolbar .opening-price-value{font-size:14px}
+.custom-banner small .opening-price{margin:8px 5px 8px 0}
+.bundle-card-price .opening-price-value{font-size:30px}
+.bundle-total .opening-price-value{font-size:32px}
+.bundle-unit-price .opening-price-value{font-size:18px}
+.cart-row-price{text-align:right}
+.cart-row-price .opening-price{align-items:flex-end}
+.checkout-mini .opening-price{align-items:flex-end}
+.checkout-mini .opening-price-value{font-size:16px}
+.checkout-mini .opening-price-label{font-size:9px}
+@media(max-width:600px){
+  .product-detail{flex-wrap:wrap;row-gap:12px}
+  .product-detail>.product-card-price{margin-left:auto}
+  .product-card-price .opening-price-value{font-size:18px}
+  .product-card-price .opening-price-label{font-size:9px}
+  .collection-toolbar .opening-price{flex-wrap:wrap}
+  .cart-row-price .opening-price-value{font-size:18px}
+  .checkout-mini .opening-price-label{white-space:normal;text-align:right}
+}

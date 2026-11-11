@@ -11,7 +11,8 @@ import { Payments } from '../server/payments.js';
 const signup = { firstName:'Anna',lastName:'Muster',email:'anna@example.test',consent:true,consentVersion:NEWSLETTER_CONSENT_VERSION };
 const recipient = { name:'Anna Muster',email:signup.email,phone:'+4915112345678',street:'Testweg 1',postalCode:'10115',city:'Berlin',country:'DE' };
 const design = {kind:'fixed',designId:'nach-dem-sturm',modelId:'iphone-14-pro',backgroundId:'light-blue'};
-const config = () => ({...defaultConfig(),storageMode:'sqlite',shopMode:'test',paymentMode:'local',podbaseMode:'local',printMode:'preview',mailMode:'local',newsletterMode:'local',dataDir:resolve('test-results','newsletter-'+randomUUID()),serverless:true,autoShip:false});
+// Normal-price fixtures keep testing newsletter redemption outside the opening offer.
+const config = () => ({...defaultConfig(),openingOfferEnabled:false,storageMode:'sqlite',shopMode:'test',paymentMode:'local',podbaseMode:'local',printMode:'preview',mailMode:'local',newsletterMode:'local',dataDir:resolve('test-results','newsletter-'+randomUUID()),serverless:true,autoShip:false});
 async function setup(t,overrides={}) {const shop=await Shop.create({...config(),...overrides});t.after(()=>shop.close());const {session}=await shop.createSession();return {shop,session};}
 async function activate(shop,session) {
  await shop.newsletter.subscribe(signup,session,'fixture-ip');
@@ -20,6 +21,14 @@ async function activate(shop,session) {
  return {token,...await shop.s.get('SELECT * FROM newsletter_subscribers WHERE email=?',signup.email)};
 }
 const paid=o=>({id:'paid-'+o.id,orderId:o.id,paymentId:o.payment_id,amount:o.amount,currency:'EUR',completed:true});
+
+test('Eröffnungspreise sperren Newsletter-Codes auch im Servercheckout und verbrauchen den Code nicht',async t=>{
+ const {shop,session}=await setup(t,{openingOfferEnabled:true}),sub=await activate(shop,session);
+ await shop.saveCart(session,{...design,reduced:false});
+ await assert.rejects(shop.checkout(session,{recipient,method:'card',newsletterCode:sub.code}),/nicht reduzierte/);
+ assert.equal((await shop.s.get('SELECT COUNT(*) AS n FROM orders')).n,0);
+ assert.equal((await shop.s.get('SELECT COUNT(*) AS n FROM newsletter_redemptions')).n,0);
+});
 
 test('Double opt-in speichert Namen und Einwilligung; Replay sendet keinen zweiten Code; Abmeldung bleibt möglich',async t=>{
  const {shop,session}=await setup(t);

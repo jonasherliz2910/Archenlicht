@@ -1,6 +1,6 @@
 # Zwei feste Dreier-Sets
 
-Stand: 10. November 2026.
+Stand: 11. November 2026. Eröffnungspreise aktiv.
 
 Unter `/bundle` stehen zwei Sets mit jeweils einem gemeinsamen fotorealistischen Bild:
 
@@ -9,7 +9,7 @@ Unter `/bundle` stehen zwei Sets mit jeweils einem gemeinsamen fotorealistischen
 
 Die drei Motive und ihre Bibelstellen sind fest vorgegeben. Handymodell, Hintergrundfarbe und MagSafe bleiben pro Hülle unabhängig wählbar. Die Einzelvorschauen verwenden die vorhandene Druckkomposition und Modellgeometrie. Die Fotomontagen zeigen ein Bildbeispiel am iPhone 14 Pro in Weiß; eine andere Auswahl ist in den drei Einzelvorschauen sichtbar.
 
-Das Set kostet bei drei Standardhüllen 99,72 € statt 104,97 € beim Einzelkauf (5 % bzw. 5,25 € Ersparnis). MagSafe wird pro Hülle mit dem bestehenden Aufpreis berechnet. Der bisherige Mengenrabatt bleibt erhalten: ab zwei Hüllen 5 %, ab vier Hüllen 10 %. Beide Sets zusammen ergeben sechs Hüllen mit 10 %. Newsletter-Rabatt ist nicht zusätzlich kombinierbar. Preis und Rabatt kommen aus derselben serverseitigen Berechnung wie Einzelkäufe und Stripe.
+Das Set kostet bei drei Standardhüllen 85,47 € statt 89,97 € beim Einzelkauf (5 % bzw. 4,50 € Ersparnis). MagSafe wird pro Hülle mit dem bestehenden Aufpreis berechnet. Der bisherige Mengenrabatt bleibt erhalten: ab zwei Hüllen 5 %, ab vier Hüllen 10 %. Beide Sets zusammen ergeben sechs Hüllen mit 10 %. Newsletter-Rabatt ist nicht zusätzlich kombinierbar. Preis und Rabatt kommen aus derselben serverseitigen Berechnung wie Einzelkäufe und Stripe.
 
 ## Übernahme in den Warenkorb
 

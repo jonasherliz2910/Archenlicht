@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { mkdirSync, existsSync, writeFileSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { BRAND, DESIGNS, MODELS, VERSES, findDesign, findModel } from './catalog.js';
+import { BRAND, REGULAR_BRAND, DESIGNS, MODELS, VERSES, findDesign, findModel } from './catalog.js';
 import { ShopError, renderLayout, rasterize, normalizeConfiguration } from './layout.js';
 import { token, digest, passwordHash, passwordMatches } from './store.js';
 import { createStore } from './async-store.js';
@@ -54,6 +54,7 @@ export class Shop {
     if (!store.remote) mkdirSync(join(config.dataDir, 'prints'), { recursive: true });
   }
   get checkoutEnabled() { return this.config.checkoutEnabled ?? this.config.shopMode === 'test'; }
+  get brand() { return this.config.openingOfferEnabled === false ? REGULAR_BRAND : BRAND; }
   // Browsing stays available during launch preparation. Purchasing and paid
   // fulfillment always require approval for the actual order's environment.
   get variantMode() { return this.checkoutEnabled ? this.config.shopMode : 'test'; }
@@ -105,7 +106,7 @@ export class Shop {
       return { ...v, available: ready && inStock(false) && printable(false) ? 1 : 0, magsafe_available: ready && inStock(true) && printable(true) ? 1 : 0 };
     });
     const models = MODELS.map(m => this.podbaseCatalog ? { ...m, podbase: snapshot?.models.find(v => v.modelId === m.id) || null } : m);
-    return { brand: BRAND, designs: DESIGNS, models, verses: VERSES, variants, productInterest, podbase: { ...(this.podbaseCatalog?.summary(snapshot) || { mode: 'local', connected: false }), fulfillmentMode: this.config.shopMode === 'live' ? 'podbase' : 'simulated', orderSubmissionEnabled: this.config.shopMode === 'live' && this.config.podbaseSubmissionEnabled === true }, mode: this.config.shopMode, checkoutEnabled: this.checkoutEnabled, printMode: this.config.printMode || 'preview', paymentMode: this.config.paymentMode, taxNotice: TAX_NOTICE, csrf: session.csrf, user: (await this.user(session)), account: (await this.accountDetails(session)), cart: (await this.cart(session)), sessionExpires: session.expires, sessionHours: this.config.sessionHours };
+    return { brand: this.brand, designs: DESIGNS, models, verses: VERSES, variants, productInterest, podbase: { ...(this.podbaseCatalog?.summary(snapshot) || { mode: 'local', connected: false }), fulfillmentMode: this.config.shopMode === 'live' ? 'podbase' : 'simulated', orderSubmissionEnabled: this.config.shopMode === 'live' && this.config.podbaseSubmissionEnabled === true }, mode: this.config.shopMode, checkoutEnabled: this.checkoutEnabled, printMode: this.config.printMode || 'preview', paymentMode: this.config.paymentMode, taxNotice: TAX_NOTICE, csrf: session.csrf, user: (await this.user(session)), account: (await this.accountDetails(session)), cart: (await this.cart(session)), sessionExpires: session.expires, sessionHours: this.config.sessionHours };
   }
   async track(session, type, kind, designId) {
     if (!['view', 'cart'].includes(type) || !['fixed', 'custom'].includes(kind) || !findDesign(designId)) throw new ShopError('Ungültiges Ereignis.');
@@ -179,7 +180,7 @@ export class Shop {
         printable = false; p = await this.preview(c, { printMode: 'preview' });
       }
       const remote = catalogVariant(snapshot, c), provider = this.podbaseCatalog ? remote : localVariant(model, c);
-      return { id: row.id, configuration: c, ...p, title: c.kind === 'custom' ? `Dein Wunschvers · ${d.title}` : d.title, model: model.name, quantity: row.quantity, unitPrice: casePrice(BRAND, c), productId: provider?.productId || null, variantId: provider?.variantId || null, available: Boolean(printable && (!c.magsafe || magneticVariant(c.modelId)) && variant?.available && variant.print_approved && variant.approval_mode === this.variantMode && (!this.podbaseCatalog || remote?.inStock)) };
+      return { id: row.id, configuration: c, ...p, title: c.kind === 'custom' ? `Dein Wunschvers · ${d.title}` : d.title, model: model.name, quantity: row.quantity, unitPrice: casePrice(this.brand, c), reduced: Boolean(this.brand.openingOffer), openingOffer: Boolean(this.brand.openingOffer), productId: provider?.productId || null, variantId: provider?.variantId || null, available: Boolean(printable && (!c.magsafe || magneticVariant(c.modelId)) && variant?.available && variant.print_approved && variant.approval_mode === this.variantMode && (!this.podbaseCatalog || remote?.inStock)) };
     })));
   }
   async saveCart(session, input, existingId) {
@@ -324,7 +325,7 @@ export class Shop {
     const id = randomUUID(), guestToken = token(), amount = summarizePricing(items).total, now = Date.now();
     const number = `AL-${new Intl.DateTimeFormat('de', { year: 'numeric', timeZone: 'Europe/Berlin' }).format(now)}-${token().replace(/[-_]/g, '').slice(0, 9).toUpperCase()}`;
     const visit = session.statisticsConsent === true ? await this.s.get('SELECT source FROM visits WHERE id=?', session.visit_id) : null;
-    const snapshot = items.map(({ id, configuration, hash, title, model, quantity, unitPrice, pricing, printText, productId, variantId }) => ({ id, configuration, hash, title, model, quantity, unitPrice, pricing, printText, productId, variantId }));
+    const snapshot = items.map(({ id, configuration, hash, title, model, quantity, unitPrice, pricing, reduced, openingOffer, printText, productId, variantId }) => ({ id, configuration, hash, title, model, quantity, unitPrice, pricing, reduced, openingOffer, printText, productId, variantId }));
     (await this.s.tx(async () => {
       (await this.s.run('INSERT INTO orders(id,number,session_id,user_id,guest_hash,recipient,items,amount,currency,status,payment_method,source,visit_id,mode,created) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)', id, number, session.id, session.user_id, digest(guestToken), JSON.stringify(recipient), JSON.stringify(snapshot), amount, 'EUR', 'awaiting_payment', method, visit?.source || 'unbekannt', visit ? session.visit_id : randomUUID(), this.config.shopMode, now));
       if (newsletterDiscount) await this.newsletter.reserve(newsletterDiscount.subscriberId, id);

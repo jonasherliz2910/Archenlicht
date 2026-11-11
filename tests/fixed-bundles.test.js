@@ -19,9 +19,9 @@ test('Fixed sets preserve all three models, colours, prints and MagSafe through 
   assert.equal(cart.length, 3);
   for (const [i, item] of cart.entries()) {
     for (const name of ['designId', 'modelId', 'backgroundId', 'magsafe']) assert.equal(item.configuration[name], first.items[i][name]);
-    assert.equal(item.quantity, 1); assert.equal(item.unitPrice, i === 0 ? 3999 : 3499);
+    assert.equal(item.quantity, 1); assert.equal(item.unitPrice, i === 0 ? 3499 : 2999);
   }
-  assert.equal(summarizePricing(cart).percent, 5); assert.equal(summarizePricing(cart).total, 10447);
+  assert.equal(summarizePricing(cart).percent, 5); assert.equal(summarizePricing(cart).total, 9022);
   const checkout = await shop.checkout(session, { recipient, method: 'card' });
   const order = await shop.s.get('SELECT * FROM orders WHERE id=?', checkout.orderId);
   const stored = JSON.parse(order.items);
@@ -73,6 +73,6 @@ test('The bundle endpoint requires CSRF and returns exactly three correctly pric
   assert.equal((await fetch(base + '/api/cart/bundle', { method: 'POST', headers, body })).status, 403);
   const response = await fetch(base + '/api/cart/bundle', { method: 'POST', headers: { ...headers, 'X-CSRF-Token': state.csrf }, body });
   assert.equal(response.status, 200); const cart = await response.json();
-  assert.equal(cart.length, 3); assert.equal(summarizePricing(cart).total, 10447);
+  assert.equal(cart.length, 3); assert.equal(summarizePricing(cart).total, 9022);
   assert.equal((await app.shop.s.get('SELECT COUNT(*) AS n FROM orders')).n, 0);
 });

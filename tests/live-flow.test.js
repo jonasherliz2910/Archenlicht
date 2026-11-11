@@ -65,7 +65,7 @@ async function fixture(t, overrides = {}) {
 
 test('Livekauf: signierte Zahlung, exakt eine MagSafe-Übergabe, manuelle Freigabe und Versandmail erst mit echtem Tracking', async t => {
   const f = await fixture(t), order = await f.order(), checkout = f.stripe.get(order.payment_id);
-  assert.equal(order.mode, 'live'); assert.equal(order.amount, 4499);
+  assert.equal(order.mode, 'live'); assert.equal(order.amount, 3999);
   assert.equal((await f.hook(order.payment_id)).status, 200);
   assert.equal(f.remote.size, 0); // unpaid completion-shaped event has no effect
   Object.assign(checkout, { status: 'complete', payment_status: 'paid' });
