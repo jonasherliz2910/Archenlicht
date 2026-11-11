@@ -29,7 +29,7 @@ test('Opening prices reach every variant; the server marks reductions and ignore
     assert.throws(() => priceNewsletterItems([item]), /nicht reduzierte/);
     assert.equal(item.plannedUnitPrice, price + 500);
     const html = casePriceMarkup(state.brand, item.configuration);
-    assert.match(html, /Eröffnungspreis/); assert.match(html, /<s class="opening-price-planned"/); assert.match(html, /Geplanter Preis nach der Eröffnungsaktion/); assert.doesNotMatch(html, /früher|statt|Countdown/);
+    assert.doesNotMatch(html, /opening-price-label|opening-price-explanation/); assert.match(html, /<s class="opening-price-planned"/); assert.match(html, /aria-label="Geplanter Preis nach der Eröffnungsaktion/); assert.doesNotMatch(html.replace(/<[^>]*>/g, ''), /Eröffnungspreis|Geplanter|früher|statt|Countdown/);
     assert.equal(linePriceMarkup(item), html);
     await shop.removeCart(session, item.id);
   }
