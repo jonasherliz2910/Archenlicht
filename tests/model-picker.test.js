@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { MODELS } from '../server/catalog.js';
-import { filterModels, modelAvailable } from '../public/model-picker.js';
+import { filterModels, modelAvailable, modelAvailabilityMode } from '../public/model-picker.js';
 
 test('Modellsuche findet Schreibweisen ohne Leerzeichen und Plus-Symbol über Markengrenzen hinweg', () => {
   assert.deepEqual(filterModels(MODELS, { brand: 'Apple', query: 'S26+' }).map(m => m.id), ['samsung-galaxy-s26-plus']);
@@ -29,4 +29,17 @@ test('Modellkarten lassen nur vorhandene, verfügbare und für das Motiv freigeg
   assert.equal(modelAvailable([{ ...variant, print_approved: 0 }], variant.model_id, variant.design_id), false);
   assert.equal(modelAvailable([variant], variant.model_id, 'ganz-nah'), false);
   assert.equal(modelAvailable([variant], variant.model_id, variant.design_id, 'live'), false);
+});
+
+test('Geschlossener Live-Shop erlaubt Vorschauvarianten, geöffneter Live-Shop verlangt Produktionsfreigabe', () => {
+  const variant = { model_id: 'iphone-14-pro', design_id: 'getragen', available: 1, print_approved: 1, approval_mode: 'test' };
+  const closed = { mode: 'live', checkoutEnabled: false, variantMode: 'test' };
+  assert.equal(modelAvailable([variant], variant.model_id, variant.design_id, modelAvailabilityMode(closed)), true);
+  // Compatibility with an older bootstrap response during deployment.
+  assert.equal(modelAvailabilityMode({ mode: 'live', checkoutEnabled: false }), 'test');
+  const open = { mode: 'live', checkoutEnabled: true, variantMode: 'live' };
+  assert.equal(modelAvailable([variant], variant.model_id, variant.design_id, modelAvailabilityMode(open)), false);
+  assert.equal(modelAvailable([{ ...variant, approval_mode: 'live' }], variant.model_id, variant.design_id, modelAvailabilityMode(open)), true);
+  for (const blocked of [{ available: 0 }, { print_approved: 0 }]) assert.equal(modelAvailable([{ ...variant, ...blocked }], variant.model_id, variant.design_id, modelAvailabilityMode(closed)), false);
+  assert.equal(modelAvailable([{ ...variant, available: 0, magsafe_available: 1 }], variant.model_id, variant.design_id, modelAvailabilityMode(closed)), true);
 });

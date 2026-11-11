@@ -8,6 +8,7 @@ import { PODBASE_MODEL_MAP } from '../server/podbase-catalog.js';
 import { PODBASE_MAGSAFE_MAP } from '../server/case-variants.js';
 import { TAX_TREATMENT } from '../server/payments.js';
 import { orderEmail } from '../server/mail-templates.js';
+import { modelAvailable, modelAvailabilityMode } from '../public/model-picker.js';
 import { neon } from '@neondatabase/serverless';
 
 const recipient = { name: 'Fixture Kunde', email: 'fixture@example.test', phone: '01721234567', street: 'Testweg 1', postalCode: '10115', city: 'Berlin', country: 'DE' };
@@ -94,6 +95,26 @@ test('Livekauf: signierte Zahlung, exakt eine MagSafe-Übergabe, manuelle Freiga
   mails = f.calls.filter(c => c.url === 'https://api.resend.com/emails'); assert.equal(mails.length, 2);
   assert.match(JSON.parse(mails[1].body).text, /TRACKING-FIXTURE/);
   assert.doesNotMatch(JSON.parse(mails[1].body).html, /Testbetrieb|simuliert/);
+});
+
+test('Live-Bootstrap liefert den Vorschau-Freigabemodus; Modellwahl und Warenkorb öffnen keine echten Bestellungen', async t => {
+  const f = await fixture(t, { checkoutEnabled: false, podbaseSubmissionEnabled: false });
+  const choice = { ...design, modelId: 'iphone-15', magsafe: false };
+  const state = await f.shop.publicState(f.session);
+  assert.equal(state.mode, 'live'); assert.equal(state.variantMode, 'test'); assert.equal(state.checkoutEnabled, false);
+  assert.equal(modelAvailable(state.variants, choice.modelId, choice.designId, modelAvailabilityMode(state)), true);
+  assert.equal(modelAvailable(state.variants, 'iphone-18-pro', choice.designId, modelAvailabilityMode(state)), false);
+  const [item] = await f.shop.saveCart(f.session, choice);
+  assert.equal(item.configuration.modelId, choice.modelId); assert.equal(item.available, true);
+  await assert.rejects(f.shop.checkout(f.session, { recipient, method: 'stripe' }), e => e.status === 503);
+  assert.equal((await f.shop.s.get('SELECT COUNT(*) AS n FROM orders')).n, 0);
+  assert.equal((await f.shop.s.get('SELECT COUNT(*) AS n FROM provider_orders')).n, 0);
+  assert.ok(f.calls.every(call => call.method === 'GET'));
+  f.config.checkoutEnabled = true; f.config.podbaseSubmissionEnabled = true;
+  const openState = await f.shop.publicState(f.session);
+  assert.equal(openState.variantMode, 'live');
+  assert.equal(modelAvailable(openState.variants, choice.modelId, choice.designId, modelAvailabilityMode(openState)), false);
+  assert.equal(modelAvailable(openState.variants, design.modelId, design.designId, modelAvailabilityMode(openState)), true);
 });
 
 test('Geschlossener Livecheckout und Testdaten können weder Zahlung noch Produktion auslösen', async t => {

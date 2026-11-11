@@ -29,6 +29,11 @@ export function modelAvailable(variants, modelId, designId, mode = 'test') {
   const variant = variants.find(v => v.model_id === modelId && v.design_id === designId);
   return Boolean((variant?.available || variant?.magsafe_available) && variant.print_approved && variant.approval_mode === mode);
 }
+// A live shop can still be closed for purchases while preview configuration is
+// enabled. Match the server's variant approval context, not the payment mode.
+export function modelAvailabilityMode(state) {
+  return state.variantMode ?? (state.checkoutEnabled === false ? 'test' : state.mode);
+}
 export function modelTriggerContent(model) {
   return `${device(model?.brand)}<span class="model-trigger-copy"><small>DEIN HANDYMODELL</small><strong>${esc(model?.name || 'Modell auswählen')}</strong></span><span class="model-trigger-change">Ändern <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></span>`;
 }
@@ -57,7 +62,7 @@ export function createModelPicker({ getState, getConfiguration, onSelect, onErro
     const state = getState(), configuration = getConfiguration(); if (!configuration) return;
     const query = input.value.trim(), models = filterModels(state.models, { brand: activeBrand, query });
     brandList.innerHTML = brands.map(brand => `<button type="button" data-picker-brand="${brand.id}" aria-pressed="${!query && brand.id === activeBrand}"><strong>${brand.name}</strong><span>${brand.family} <i>·</i> ${state.models.filter(m => m.brand === brand.id).length}</span></button>`).join('');
-    list.innerHTML = models.length ? cards(models, configuration.modelId, state.variants, configuration.designId, state.mode) : `<div class="model-empty">${searchIcon}<h3>Dein Modell ist noch nicht dabei.</h3><p>Versuche einen kürzeren Namen oder wähle eine Marke.</p><button type="button" class="text-button" data-clear-model-search>Suche zurücksetzen</button></div>`;
+    list.innerHTML = models.length ? cards(models, configuration.modelId, state.variants, configuration.designId, modelAvailabilityMode(state)) : `<div class="model-empty">${searchIcon}<h3>Dein Modell ist noch nicht dabei.</h3><p>Versuche einen kürzeren Namen oder wähle eine Marke.</p><button type="button" class="text-button" data-clear-model-search>Suche zurücksetzen</button></div>`;
     dialog.querySelector(`#${id}-count`).textContent = `${models.length} ${models.length === 1 ? 'Modell' : 'Modelle'}${query ? ' · alle Marken' : ` · ${activeBrand}`}`;
     const selected = state.models.find(m => m.id === configuration.modelId);
     dialog.querySelector('.model-picker-selected').textContent = `Aktuell ausgewählt: ${selected?.name || 'kein Modell'}`;
@@ -79,7 +84,7 @@ export function createModelPicker({ getState, getConfiguration, onSelect, onErro
     if (button.hasAttribute('data-clear-model-search')) { input.value = ''; paint(); input.focus(); }
     if (button.dataset.pickModel) {
       const state = getState(), configuration = getConfiguration(), model = state.models.find(m => m.id === button.dataset.pickModel);
-      if (!model || !modelAvailable(state.variants, model.id, configuration.designId, state.mode)) return;
+      if (!model || !modelAvailable(state.variants, model.id, configuration.designId, modelAvailabilityMode(state))) return;
       close();
       try { await onSelect(model.id); sync(); } catch (error) { onError?.(error); }
     }

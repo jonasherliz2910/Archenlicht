@@ -77,7 +77,7 @@ export function createFixedBundleUI({ getState, post, onAdded }) {
       preview(index);
     }
     root.querySelector('[data-bundle-items]').innerHTML = draft.items.map((_, index) => row(index)).join('');
-    const picker = createModelPicker({ id: 'bundle-model-picker', getState: () => ({ ...getState(), mode: getState().checkoutEnabled === false ? 'test' : getState().mode }), getConfiguration: () => draft.items[active], onOpen: trigger => { active = Number(trigger.closest('[data-bundle-slot]').dataset.bundleSlot); }, getTriggers: () => root.querySelectorAll(`[data-bundle-slot="${active}"] [data-model-picker]`), onSelect: id => {
+    const picker = createModelPicker({ id: 'bundle-model-picker', getState, getConfiguration: () => draft.items[active], onOpen: trigger => { active = Number(trigger.closest('[data-bundle-slot]').dataset.bundleSlot); }, getTriggers: () => root.querySelectorAll(`[data-bundle-slot="${active}"] [data-model-picker]`), onSelect: id => {
       draft.items[active].modelId = id;
       const reset = draft.items[active].magsafe && !variant(draft.items[active])?.magsafe_available;
       if (reset) draft.items[active].magsafe = false;
