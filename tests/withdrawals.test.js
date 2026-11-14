@@ -58,10 +58,10 @@ test('Withdrawal endpoint enforces CSRF and keeps admin records private; public 
   const admin=await fetch(base+'/api/admin/withdrawals',{headers:{cookie:adminCookie}});assert.equal(admin.status,200);assert.equal((await admin.json())[0].name,value.name);
 });
 
-test('Legal content preserves customer choices and excludes withdrawn private telephone; live mail carries an immutable durable copy', () => {
-  assert.equal(OPERATOR.phone,'');assert.doesNotMatch(CONTACT,/Telefon:/);
+test('Legal content uses the approved business contact; live mail carries an immutable durable copy', () => {
+  assert.equal(OPERATOR.phone,'+49 157 55862932');assert.ok(CONTACT.includes(`Telefon: ${OPERATOR.phone}`));
   assert.throws(()=>Shop.validateMode({...config(),shopMode:'live',checkoutEnabled:true,legalContactReady:false}),/Geschäfts-Telefonnummer/);
-  const all=JSON.stringify(LEGAL_PAGES);assert.doesNotMatch(all,/ec\.europa\.eu\/consumers\/odr|lokalen SQLite/);assert.doesNotMatch(LEGAL_PAGES['/impressum'][1],/tel:/);
+  const all=JSON.stringify(LEGAL_PAGES);assert.doesNotMatch(all,/ec\.europa\.eu\/consumers\/odr|lokalen SQLite/);assert.match(LEGAL_PAGES['/impressum'][1],/href="tel:\+4915755862932"/);
   assert.match(all,/5–10 Werktage/);assert.match(all,/Sie tragen die unmittelbaren Kosten/);assert.match(all,/Podbase, UAB/);
   const item={title:'Getragen',model:'iPhone 14 Pro',quantity:1,unitPrice:2999,configuration:{kind:'fixed'},printText:'Psalm 23'};
   const order={mode:'live',number:'AL-TEST',items:JSON.stringify([item]),recipient:JSON.stringify({name:'Anna',email:'anna@example.test',street:'Testweg 1',postalCode:'10115',city:'Berlin'}),amount:2999};

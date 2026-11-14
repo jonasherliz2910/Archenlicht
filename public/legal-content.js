@@ -1,11 +1,10 @@
 // Shared by the website and immutable order-mail snapshots. No runtime secrets.
-export const LEGAL_VERSION = '2026-11-11-v2';
+export const LEGAL_VERSION = '2026-11-14-v1';
 export const OPERATOR = Object.freeze({
   name: 'Herzly Marketing GbR', representatives: 'Julian Isaak und Laura Herliz',
   address: 'Stettiner Straße 27, 36251 Bad Hersfeld, Deutschland',
-  // A public business number must be supplied before opening checkout.
-  // The owner withdrew permission to publish their personal mobile number.
-  email: 'info@archenlicht.de', phone: '', phoneHref: ''
+  // Public Herzly business number, verified and approved on 2026-11-14.
+  email: 'info@archenlicht.de', phone: '+49 157 55862932', phoneHref: '+4915755862932'
 });
 export const DELIVERY = '5–10 Werktage (Montag bis Freitag, ausgenommen gesetzliche Feiertage)';
 export const CONTACT = `${OPERATOR.name}, ${OPERATOR.address}${OPERATOR.phone ? `, Telefon: ${OPERATOR.phone}` : ''}, E-Mail: ${OPERATOR.email}`;
@@ -47,7 +46,7 @@ Datum _____________________________________________
 (*) Unzutreffendes streichen.`;
 
 export const TERMS = `Allgemeine Geschäftsbedingungen und Kundeninformationen
-Stand: 11. November 2026 (${LEGAL_VERSION})
+Stand: 14. November 2026 (${LEGAL_VERSION})
 
 1. Anbieter und Geltungsbereich
 Archenlicht ist ein Angebot der ${OPERATOR.name}, vertreten durch ${OPERATOR.representatives}. Kontakt: ${CONTACT}. Diese Bedingungen gelten für Warenbestellungen von Verbrauchern über www.archenlicht.de. Wir liefern ausschließlich an Anschriften in Deutschland. Vertragssprache ist Deutsch.
@@ -78,7 +77,7 @@ export const contractInformation = () => [TERMS, WITHDRAWAL_NOTICE, PERSONALISAT
 export const textHtml = text => `<div class="legal-text">${escape(text).replace(/\n/g, '<br>')}</div>`;
 export const warrantyHtml = () => `<div class="warranty-notice"><h2>Deine gesetzlichen Gewährleistungsrechte</h2><a href="/assets/legal/eu-gewaehrleistung-de.svg" target="_blank" rel="noopener"><img src="/assets/legal/eu-gewaehrleistung-de.svg" alt="Gesetzliche Gewährleistung: mindestens zwei Jahre ab Erhalt für alle neuen Waren; kostenlose Reparatur oder Ersatz, unter bestimmten Voraussetzungen Preisminderung oder Rückerstattung. Ansprechpartner ist der Verkäufer. Weitere Informationen: europa.eu/youreurope/garantien." width="595" height="842"></a><p>Diese gesetzlichen Rechte gelten auch für personalisierte Hüllen. <a href="https://europa.eu/youreurope/citizens/consumers/shopping/guarantees-returns/index_de.htm" rel="noopener noreferrer">Weitere Informationen der Europäischen Union</a>.</p></div>`;
 
-const privacy = `<p>Stand: 10. November 2026</p><h2>1. Verantwortlicher und Kontakt</h2>${contactHtml}<p>Diese Erklärung betrifft den Archenlicht-Shop. Für Datenschutzanfragen und die Ausübung Ihrer Rechte schreiben Sie bitte an info@archenlicht.de.</p>
+const privacy = `<p>Stand: 14. November 2026</p><h2>1. Verantwortlicher und Kontakt</h2>${contactHtml}<p>Diese Erklärung betrifft den Archenlicht-Shop. Für Datenschutzanfragen und die Ausübung Ihrer Rechte schreiben Sie bitte an info@archenlicht.de.</p>
 <h2>2. Aufruf der Website und Sitzung</h2><p>Beim Aufruf verarbeiten Hosting-Systeme insbesondere IP-Adresse, Zeitpunkt, aufgerufene Adresse sowie Browser- und Verbindungsinformationen zur Bereitstellung, Fehlerbehebung und Abwehr von Missbrauch. Rechtsgrundlage ist Art. 6 Abs. 1 Buchst. f DSGVO; unser berechtigtes Interesse ist ein sicherer, funktionsfähiger Shop.</p><p>Das Cookie <code>archenlicht_session</code> ordnet Warenkorb, Anmeldung und Sicherheitsschlüssel Ihrer Sitzung zu. Es ist technisch erforderlich und läuft im regulären Betrieb nach zwei Stunden ab. Abgelaufene Sitzungen und ihre Warenkörbe werden bei der Bereinigung entfernt. Rechtsgrundlage ist § 25 Abs. 2 Nr. 2 TDDDG sowie Art. 6 Abs. 1 Buchst. b bzw. f DSGVO. Wenn Sie das Newsletter-Fenster schließen, merkt <code>sessionStorage</code> diese Auswahl für den Browser-Tab. Schriften werden vom Shop selbst geladen. Wir verwenden keine Werbepixel oder externen Analyse-Skripte.</p>
 <h2>3. Warenkorb, Gestaltung und Versberater</h2><p>Für Vorschau und Fertigung verarbeiten wir Modell, Motiv, Hintergrund, gewählten Vers, eigenen Text und eine gegebenenfalls eingegebene Widmung. Die ausgewählte Gestaltung wird im Warenkorb und bei Bestellung mit den Bestelldaten sowie als Druckdatei gespeichert. Dies dient der von Ihnen angeforderten Gestaltung und Vertragserfüllung (Art. 6 Abs. 1 Buchst. b DSGVO). Druckdateien werden über nicht öffentlich verlinkte Dateiadressen zur Vorschau und zum Abruf durch den Druckpartner bereitgestellt; wer eine solche Adresse erhält, kann die Datei aufrufen. Bitte teilen Sie persönliche Vorschau- oder Bestelllinks nicht öffentlich.</p><p>Der Versberater verarbeitet Ihre Situationsbeschreibung nur vorübergehend im Arbeitsspeicher der aktuellen Sitzung. Sie wird nicht in Bestellungen oder Shop-Auswertungen gespeichert und nicht an einen externen KI-Anbieter gesendet. Die Auswahl erfolgt regelbasiert. Bitte geben Sie dort keine Gesundheitsdaten oder andere besonders sensiblen Angaben über sich oder Dritte ein. Aus Motiv- und Versauswahl erstellen wir keine Religionsprofile.</p>
 <h2>4. Bestellungen, Lieferung und Kundenservice</h2><p>Wir verarbeiten Name, E-Mail-Adresse, Telefonnummer, Lieferanschrift, bestellte Produkte, Gestaltung, Preis, Zahlungs- und Versandstatus sowie den Schriftverkehr zur Anbahnung und Erfüllung des Vertrags (Art. 6 Abs. 1 Buchst. b DSGVO). Pflichtangaben sind für die jeweilige Funktion erforderlich; ohne Liefer- und Kontaktdaten kann eine Bestellung nicht abgewickelt werden. Gesetzliche Dokumentations- und Aufbewahrungspflichten beruhen auf Art. 6 Abs. 1 Buchst. c DSGVO. Die Bearbeitung und Dokumentation von Widerrufen einschließlich Eingangsbestätigung erfolgt zur Erfüllung gesetzlicher Pflichten sowie zur Vertragsabwicklung. Für die Abwehr von Missbrauch und die Geltendmachung oder Verteidigung von Ansprüchen verarbeiten wir notwendige Daten auf Grundlage von Art. 6 Abs. 1 Buchst. f DSGVO.</p>
