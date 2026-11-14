@@ -79,9 +79,12 @@ async function postgresStore(config) {
     const initialization = store.tx(async () => {
       if (!/^[a-z_][a-z0-9_]{0,60}$/.test(schema)) throw new Error('Ungültiges Datenbankschema.');
       await store.run(`CREATE SCHEMA IF NOT EXISTS "${schema}"`);
-      for (const table of TABLES) await store.run(table.replace(/\bINTEGER\b/g, 'BIGINT'));
-      await store.run('CREATE TABLE IF NOT EXISTS artwork_blobs(hash TEXT PRIMARY KEY,data_url TEXT NOT NULL)');
-      await store.run('CREATE TABLE IF NOT EXISTS print_files(hash TEXT PRIMARY KEY REFERENCES assets(hash),content TEXT NOT NULL)');
+      // These statements have no user parameters. One database round trip
+      // avoids a separate network wait for every table on a cold function.
+      await store.run([...TABLES.map(table => table.replace(/\bINTEGER\b/g, 'BIGINT')),
+        'CREATE TABLE IF NOT EXISTS artwork_blobs(hash TEXT PRIMARY KEY,data_url TEXT NOT NULL)',
+        'CREATE TABLE IF NOT EXISTS print_files(hash TEXT PRIMARY KEY REFERENCES assets(hash),content TEXT NOT NULL)'
+      ].join(';\n'));
       const values = [], params = [];
       for (const model of MODELS) for (const design of DESIGNS) { values.push('(?,?,1,1,?)'); params.push(model.id, design.id, 'test'); }
       await store.run(`INSERT OR IGNORE INTO variants VALUES${values.join(',')}`, ...params);

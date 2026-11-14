@@ -1,5 +1,6 @@
 import http from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
 import { resolve, extname, dirname, sep, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { Shop } from './shop.js';
@@ -12,12 +13,13 @@ import { fixedBundle } from '../public/fixed-bundles.js';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 export const defaultConfig = () => ({ openingOfferEnabled: process.env.OPENING_OFFER_ENABLED !== 'false', legalContactReady: Boolean(OPERATOR.phone), checkoutEnabled: process.env.CHECKOUT_ENABLED === undefined ? undefined : process.env.CHECKOUT_ENABLED === 'true', podbaseSubmissionEnabled: process.env.PODBASE_SUBMISSION_ENABLED === 'true', podbaseStoreId: process.env.PODBASE_STORE_ID, podbaseKey: process.env.PODBASE_API_KEY, podbaseBaseUrl: process.env.PODBASE_BASE_URL || 'https://open-api.podbase.com', shopMode: process.env.SHOP_MODE || 'test', podbaseMode: process.env.PODBASE_MODE || 'local', printMode: process.env.PRINT_MODE || 'preview', mailMode: process.env.MAIL_MODE || 'local', newsletterMode: process.env.NEWSLETTER_MODE || 'local', resendKey: process.env.RESEND_API_KEY, resendWebhook: process.env.RESEND_WEBHOOK_SECRET, mailPublicUrl: process.env.MAIL_PUBLIC_URL || 'https://www.archenlicht.de', mailTestRecipients: (process.env.MAIL_TEST_RECIPIENTS || '').split(',').map(v => v.trim().toLowerCase()).filter(Boolean), mailEnabledSince: process.env.MAIL_ENABLED_SINCE, paymentMode: process.env.PAYMENT_MODE || 'local', dataDir: resolve(process.env.DATA_DIR || 'data/test'), adminEmail: process.env.ADMIN_EMAIL || 'jonas@archenlicht.test', adminPassword: process.env.ADMIN_PASSWORD || undefined, sessionHours: Math.min(24, Math.max(1, Number(process.env.SESSION_HOURS) || 2)), baseUrl: process.env.BASE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : `http://localhost:${process.env.PORT || 3000}`), printBaseUrl: process.env.PRINT_BASE_URL || '', stripeKey: process.env.STRIPE_SECRET_KEY, stripeWebhook: process.env.STRIPE_WEBHOOK_SECRET, stripePaymentConfiguration: process.env.STRIPE_PAYMENT_CONFIGURATION, autoShip: true, storageMode: process.env.STORAGE_MODE || (process.env.VERCEL === '1' ? 'postgres' : 'sqlite'), databaseUrl: process.env.DATABASE_URL, databaseSchema: process.env.DATABASE_SCHEMA || 'public', serverless: process.env.VERCEL === '1', workerSecret: process.env.CRON_SECRET, platformOrigins: [process.env.VERCEL_URL, process.env.VERCEL_BRANCH_URL, process.env.VERCEL_PROJECT_PRODUCTION_URL].filter(Boolean).map(host => `https://${host}`).concat((process.env.SHOP_ALLOWED_ORIGINS || '').split(',').map(value => value.trim()).filter(value => /^https:\/\/[^/]+$/.test(value))) });
-const mime = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.webp': 'image/webp', '.ttf': 'font/ttf', '.txt': 'text/plain; charset=utf-8' };
+const mime = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.webp': 'image/webp', '.ttf': 'font/ttf', '.woff2': 'font/woff2', '.txt': 'text/plain; charset=utf-8' };
 function send(res, status, data, type = 'application/json; charset=utf-8') { res.writeHead(status, { 'Content-Type': type }); res.end(type.startsWith('application/json') ? JSON.stringify(data) : data); }
 async function rawBody(req, limit = 20000) { const chunks = []; let length = 0; for await (const chunk of req) { length += chunk.length; if (length > limit) throw new ShopError('Die Eingabe ist zu groß.', 413); chunks.push(chunk); } return Buffer.concat(chunks).toString('utf8'); }
 function readCookie(req, name) { return (req.headers.cookie || '').split(';').map(x => x.trim()).find(x => x.startsWith(`${name}=`))?.slice(name.length + 1); }
 const capability = req => /^Bearer ([A-Za-z0-9_-]{43})$/.exec(req.headers.authorization || '')?.[1];
 export async function createApp(config = defaultConfig()) {
+  const publicDir = config.publicDir || resolve(root, existsSync(join(root, 'dist/index.html')) ? 'dist' : 'public');
   const shop = (await Shop.create(config)); const authLimits = new Map();
   let orderWork = Promise.resolve();
   const continueOrder = async orderId => {
@@ -73,9 +75,9 @@ export async function createApp(config = defaultConfig()) {
         await continueOrder(order.id);
         return send(res, 200, { received: true });
       }
-      let secret = readCookie(req, 'archenlicht_session'), session = (await shop.session(secret));
       const setSession = value => res.setHeader('Set-Cookie', `archenlicht_session=${value}; HttpOnly; Path=/; SameSite=Lax; Max-Age=${Math.round(config.sessionHours * 3600)}${config.baseUrl.startsWith('https:') ? '; Secure' : ''}`);
       if (path.startsWith('/api/')) {
+        let secret = readCookie(req, 'archenlicht_session'), session = (await shop.session(secret));
         if (!session) {
           const created = (await shop.createSession()); session = created.session; secret = created.secret; setSession(secret);
         }
@@ -217,16 +219,16 @@ export async function createApp(config = defaultConfig()) {
       if (print) { const data = await shop.printFile(print[1], print[2]); res.setHeader('Cache-Control', 'public, max-age=31536000, immutable'); return send(res, 200, data, print[2].endsWith('svg') ? mime['.svg'] : mime['.png']); }
       const art = /^\/assets\/design-([a-z-]+)\.svg$/.exec(path);
       if (art && DESIGNS.some(d => d.id === art[1])) { const layout = renderLayout({ kind: 'fixed', designId: art[1], modelId: MODELS[0].id }); return send(res, 200, layout.svg, mime['.svg']); }
-      const staticPath = resolve(root, 'public', `.${decodeURIComponent(path)}`);
-      if (staticPath.startsWith(resolve(root, 'public') + sep) && extname(path)) {
+      const staticPath = resolve(publicDir, `.${decodeURIComponent(path)}`);
+      if (staticPath.startsWith(publicDir + sep) && extname(path)) {
         try { if ((await stat(staticPath)).isFile()) return send(res, 200, await readFile(staticPath), mime[extname(path)] || 'application/octet-stream'); } catch {}
         throw new ShopError('Datei nicht gefunden.', 404);
       }
-      let html = await readFile(join(root, 'public/index.html'), 'utf8');
+      let html = await readFile(join(publicDir, 'index.html'), 'utf8');
       const product = /^\/kollektion\/([a-z-]+)$/.exec(path), design = product && DESIGNS.find(d => d.id === product[1]);
       const bundlePath = /^\/bundle\/([a-z-]+)$/.exec(path), bundle = bundlePath && fixedBundle(bundlePath[1]);
       const valid = ['/', '/admin', '/admin/kunden', '/admin/sicherheit', '/admin/widerrufe', '/newsletter', '/newsletter/bestaetigen', '/newsletter/abmelden', '/kollektion', '/bundle', '/gestalten', '/warenkorb', '/kasse', '/konto', '/auswertung', '/ueber-uns', '/faq', '/impressum', '/datenschutz', '/agb', '/widerruf', '/versand', '/vertrag-widerrufen', '/gewaehrleistung'].includes(path) || design || /^\/(bestellung|testzahlung|zahlungsrueckkehr)\/[a-f0-9-]{36}$/.test(path);
-      html = html.replace('<!--PAGE_TITLE-->', design ? `${design.title} · ${design.reference} | Archenlicht` : bundle ? `${bundle.title} · Dreier-Bundle | Archenlicht` : 'Archenlicht · Ein Vers für deinen Alltag');
+      html = html.replace(/<title>.*?<\/title>/, `<title>${design ? `${design.title} · ${design.reference} | Archenlicht` : bundle ? `${bundle.title} · Dreier-Bundle | Archenlicht` : 'Archenlicht · Ein Vers für deinen Alltag'}</title>`);
       return send(res, valid || bundle ? 200 : 404, html, mime['.html']);
     } catch (e) {
       config.onError?.(e);

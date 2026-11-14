@@ -69,7 +69,7 @@ export function mountLifestylePhotos(root) {
   const entries=[...root.querySelectorAll('[data-lifestyle-view]')].map(slide=>({slide,canvas:slide.querySelector('canvas'),status:slide.querySelector('[data-photo-status]'),thumbnail:root.querySelector(`[data-lifestyle-thumbnail="${slide.dataset.lifestyleView}"]`),thumbnailStatus:root.querySelector(`[data-thumbnail-status="${slide.dataset.lifestyleView}"]`),visible:false,rendered:0}));
   let revision=0,current=null,disposed=false;
   async function draw(entry) {
-    if(!current||(!entry.visible&&!entry.thumbnail)||entry.rendered===revision||disposed)return;
+    if(!current||(!entry.visible&&!entry.thumbnailVisible)||entry.rendered===revision||disposed)return;
     const ticket=revision, snapshot=current;entry.rendered=ticket;
     const view=Number(entry.slide.dataset.lifestyleView), sceneId=lifestyleScenes(snapshot.preview.configuration.designId)[view];
     try{
@@ -96,6 +96,11 @@ export function mountLifestylePhotos(root) {
     for(const item of items){const entry=entries.find(e=>e.slide===item.target);entry.visible=item.isIntersecting;draw(entry);}
   },{root:root.querySelector('.preview-track'),threshold:.05});
   entries.forEach(e=>observer.observe(e.slide));
+  // Hidden mobile thumbnails must not download/render both offscreen scenes.
+  const thumbnailObserver=new IntersectionObserver(items=>{
+    for(const item of items){const entry=entries.find(e=>e.thumbnail?.closest('button')===item.target);if(entry){entry.thumbnailVisible=item.isIntersecting;draw(entry);}}
+  },{threshold:.05});
+  entries.forEach(e=>{const button=e.thumbnail?.closest('button');if(button)thumbnailObserver.observe(button);});
   function invalidate(message='Dein Foto wird vorbereitet …') {
     revision++;current=null;
     for(const e of entries){e.canvas.hidden=true;e.canvas.removeAttribute('data-print-hash');e.status.hidden=false;e.status.textContent=message;e.slide.setAttribute('aria-busy','true');if(e.thumbnail){e.thumbnail.hidden=true;e.thumbnail.removeAttribute('data-print-hash');if(e.thumbnailStatus)e.thumbnailStatus.hidden=false;}}
@@ -103,6 +108,6 @@ export function mountLifestylePhotos(root) {
   return {
     invalidate,
     update(preview,model,design){invalidate();current={preview,model,design};entries.forEach(draw);},
-    dispose(){disposed=true;revision++;observer.disconnect();}
+    dispose(){disposed=true;revision++;observer.disconnect();thumbnailObserver.disconnect();}
   };
 }

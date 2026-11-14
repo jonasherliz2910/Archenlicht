@@ -7,6 +7,7 @@
     "node": "24.x"
   },
   "scripts": {
+    "build": "node scripts/build-web.mjs",
     "start": "node --env-file-if-exists=.env server/index.js",
     "dev": "node --env-file-if-exists=.env --watch server/index.js",
     "test": "node --test --test-concurrency=1 tests/*.test.js",
@@ -22,5 +23,8 @@
     "resend": "6.37.0",
     "sharp": "0.35.5",
     "stripe": "23.1.0"
+  },
+  "devDependencies": {
+    "esbuild": "0.27.2"
   }
 }

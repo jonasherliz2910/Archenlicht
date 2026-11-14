@@ -26,7 +26,7 @@ const money = value => new Intl.NumberFormat('de-DE', { style: 'currency', curre
 const date = value => new Intl.DateTimeFormat('de-DE', { dateStyle: 'medium' }).format(new Date(value));
 const paths = { arrow: 'M7 17 17 7M7 7h10v10', right: 'M4 12h16m-6-6 6 6-6 6', bag: 'M6 7h12l2 14H4L6 7Zm3 0V5a3 3 0 0 1 6 0v2', user: 'M20 21a8 8 0 0 0-16 0M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0', gift: 'M3 8h18v4H3zM5 12v9h14v-9M12 8v13M12 8H7.5A2.5 2.5 0 1 1 10 5.5L12 8Zm0 0h4.5A2.5 2.5 0 1 0 14 5.5L12 8Z', truck: 'M1 4h14v13H1zM15 9h4l4 5v3h-8M8 18a2 2 0 1 1-4 0 2 2 0 0 1 4 0m13 0a2 2 0 1 1-4 0 2 2 0 0 1 4 0', check: 'm5 12 4 4L19 6', heart: 'M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z', leaf: 'M20 3C9 2 2 8 5 15s13 6 15-12ZM4 21 15 10', close: 'm6 6 12 12M6 18 18 6', menu: 'M4 7h16M4 12h16M4 17h16', shield: 'M12 2 3 6v6c0 5 9 10 9 10s9-5 9-10V6Z M8 12l3 3 5-6', chevron: 'm6 9 6 6 6-6', back: 'M20 12H4m6-6-6 6 6 6', mail: 'M3 5h18v14H3zM3 5l9 8 9-8', edit: 'm16 3 5 5-12 12H4v-5L16 3Z', spark: 'm12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5L12 3Z' };
 const icon = (name, cls = '') => `<svg class="icon ${cls}" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${paths[name] || paths.heart}"/></svg>`;
-const logo = () => `<a href="/" class="wordmark" aria-label="${esc(state.brand.name)} Startseite"><img src="${esc(state.brand.logo)}" alt="${esc(state.brand.name)} – Originalzeichen mit offenem Bootsrumpf" width="176" height="88"></a>`;
+const logo = () => `<a href="/" class="wordmark" aria-label="${esc(state.brand.name)} Startseite"><img src="/assets/web-v1/archenlicht-logo.webp" alt="${esc(state.brand.name)} – Originalzeichen mit offenem Bootsrumpf" width="176" height="88" decoding="async"></a>`;
 let state, config, currentPreview, previewSequence = 0, previewTimer, previewPending = false, currentStep = 0, registerMode = false, statusTimer, routeSequence = 0;
 let textChoice, advisorResults, situation = '', adviceOpen = false, advisorPending = false;
 const textIsReady = () => hasConfiguredText(config, state.verses);
@@ -237,8 +237,10 @@ async function updatePreview() {
     $$('[data-preview-thumb-device]').forEach(thumb => { thumb.innerHTML = schematicPhone(d.id, { url: preview.svgUrl, model: model.name, caseOnly: thumb.dataset.previewThumbDevice === '1', backgroundId: preview.configuration.backgroundId }); });
     if ($('.preview-stage')) $('.preview-stage').style.setProperty('--card-bg', d.color);
     $$('[data-preview-model]').forEach(label => { label.textContent = model.name; });
-    photoGallery?.update(preview,model,d);
-    studioGallery?.update(preview,model,d);
+    // Give the currently visible studio photo priority over the extra scenes.
+    Promise.resolve(studioGallery?.update(preview,model,d)).then(() => {
+      if (seq === previewSequence) photoGallery?.update(preview,model,d);
+    });
     const available = state.variants.find(v => v.model_id === config.modelId && v.design_id === config.designId);
     const error = !textIsReady() ? 'Bitte gib deinen eigenen Text ein oder wähle einen Vers aus.' : !caseAvailable(available, config) ? (config.magsafe ? 'MagSafe ist für diese Kombination gerade nicht verfügbar. Entferne den Haken oder wähle ein anderes Modell.' : 'Diese Kombination ist gerade nicht verfügbar. Bitte wähle ein anderes Modell oder Motiv.') : '';
     if ($('#preview-error')) $('#preview-error').textContent = error;
@@ -531,13 +533,16 @@ window.addEventListener('popstate', () => render());
 async function start() {
   try {
     const { source, campaign } = visitSource();
-    state = await api(`/api/bootstrap?source=${source}&campaign=${encodeURIComponent(campaign)}`);
+    const initial = window.archenlichtInitialResponse;
+    delete window.archenlichtInitialResponse;
+    state = initial ? await readJsonResponse(await initial) : await api(`/api/bootstrap?source=${source}&campaign=${encodeURIComponent(campaign)}`);
+    armExpiry(state);
     modelPicker = createModelPicker({ getState: () => state, getConfiguration: () => config, onSelect: async id => { config.modelId = id; modelPicker.sync(); syncCaseSelection(); await updatePreview(); }, onError: error => toast(error.message) });
     newsletterUI = createNewsletterUI({ post });
     fixedBundleUI = createFixedBundleUI({ getState: () => state, post, onAdded: async cart => { state.cart = cart; toast('Dein Dreier-Set ist im Warenkorb.'); await navigate('/warenkorb'); } });
     // A visitor may already have chosen while the bootstrap request was pending.
-    if (readConsent(document.cookie)) await syncConsent();
     await render();
+    if (readConsent(document.cookie)) void syncConsent();
   } catch { $('#inhalt').innerHTML = startupError(); }
 }
 start();

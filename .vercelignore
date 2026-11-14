@@ -9,6 +9,7 @@ test-results
 tmp
 .pnpm-store
 node_modules
+dist
 docs
 tests
 Archenlicht-Designpaket

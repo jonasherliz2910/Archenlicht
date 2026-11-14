@@ -61,7 +61,7 @@ export class Shop {
   async createSession() {
     const secret = token(), id = digest(secret), visit = randomUUID(), now = Date.now(), csrf = token();
     await this.s.run('INSERT INTO sessions VALUES(?,?,?,?,?,?)', id, csrf, null, visit, now + this.config.sessionHours * 3600000, now);
-    return { secret, session: (await this.s.get('SELECT * FROM sessions WHERE id=?', id)) };
+    return { secret, session: { id, csrf, user_id: null, visit_id: visit, expires: now + this.config.sessionHours * 3600000, created: now } };
   }
   async recordVisit(session, source = 'unbekannt', campaign = null) {
     if (session.statisticsConsent !== true) return;
@@ -97,16 +97,18 @@ export class Shop {
   }
   async publicState(session) {
     // Optional aggregate information must never block shopping if analytics fail.
-    const productInterest = await monthlyProductInterest(this.s, { mode: this.config.shopMode, excludeVisitId: session.visit_id }).catch(() => ({}));
-    const snapshot = await this.podbaseCatalog?.snapshot();
-    const variants = (await this.s.all('SELECT * FROM variants')).map(v => {
+    const [productInterest, snapshot, rows, user, account, cart] = await Promise.all([
+      monthlyProductInterest(this.s, { mode: this.config.shopMode, excludeVisitId: session.visit_id }).catch(() => ({})),
+      this.podbaseCatalog?.snapshot(), this.s.all('SELECT * FROM variants'), this.user(session), this.accountDetails(session), this.cart(session)
+    ]);
+    const variants = rows.map(v => {
       const ready = Boolean(v.available && v.print_approved && v.approval_mode === this.variantMode);
       const inStock = magsafe => this.podbaseCatalog ? catalogVariant(snapshot, { modelId: v.model_id, magsafe })?.inStock : !magsafe || Boolean(magneticVariant(v.model_id));
       const printable = magsafe => this.config.printMode !== 'podbase' || Boolean(officialTemplate(v.model_id, magsafe));
       return { ...v, available: ready && inStock(false) && printable(false) ? 1 : 0, magsafe_available: ready && inStock(true) && printable(true) ? 1 : 0 };
     });
     const models = MODELS.map(m => this.podbaseCatalog ? { ...m, podbase: snapshot?.models.find(v => v.modelId === m.id) || null } : m);
-    return { brand: this.brand, designs: DESIGNS, models, verses: VERSES, variants, productInterest, podbase: { ...(this.podbaseCatalog?.summary(snapshot) || { mode: 'local', connected: false }), fulfillmentMode: this.config.shopMode === 'live' ? 'podbase' : 'simulated', orderSubmissionEnabled: this.config.shopMode === 'live' && this.config.podbaseSubmissionEnabled === true }, mode: this.config.shopMode, variantMode: this.variantMode, checkoutEnabled: this.checkoutEnabled, printMode: this.config.printMode || 'preview', paymentMode: this.config.paymentMode, taxNotice: TAX_NOTICE, csrf: session.csrf, user: (await this.user(session)), account: (await this.accountDetails(session)), cart: (await this.cart(session)), sessionExpires: session.expires, sessionHours: this.config.sessionHours };
+    return { brand: this.brand, designs: DESIGNS, models, verses: VERSES, variants, productInterest, podbase: { ...(this.podbaseCatalog?.summary(snapshot) || { mode: 'local', connected: false }), fulfillmentMode: this.config.shopMode === 'live' ? 'podbase' : 'simulated', orderSubmissionEnabled: this.config.shopMode === 'live' && this.config.podbaseSubmissionEnabled === true }, mode: this.config.shopMode, variantMode: this.variantMode, checkoutEnabled: this.checkoutEnabled, printMode: this.config.printMode || 'preview', paymentMode: this.config.paymentMode, taxNotice: TAX_NOTICE, csrf: session.csrf, user, account, cart, sessionExpires: session.expires, sessionHours: this.config.sessionHours };
   }
   async track(session, type, kind, designId) {
     if (!['view', 'cart'].includes(type) || !['fixed', 'custom'].includes(kind) || !findDesign(designId)) throw new ShopError('Ungültiges Ereignis.');

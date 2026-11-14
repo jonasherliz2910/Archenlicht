@@ -1,8 +1,22 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
+  "buildCommand": "pnpm run build",
+  "outputDirectory": "dist",
   "regions": ["fra1"],
   "headers": [
+    {
+      "source": "/_app/:path*",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+    },
+    {
+      "source": "/assets/web-v1/:path*",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+    },
+    {
+      "source": "/fonts/:path*",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=86400" }]
+    },
     {
       "source": "/(.*)",
       "headers": [
@@ -17,10 +31,15 @@
   "functions": {
     "api/shop.js": {
       "maxDuration": 180,
-      "includeFiles": "{server/**,public/**}"
+      "includeFiles": "{server/**,public/**,dist/index.html}"
     }
   },
   "rewrites": [
+    { "source": "/kollektion", "destination": "/_pages/kollektion.html" },
+    { "source": "/gestalten", "destination": "/_pages/gestalten.html" },
+    { "source": "/bundle", "destination": "/_pages/bundle.html" },
+    { "source": "/kollektion/:design(unter-seinen-fluegeln|nach-dem-sturm|absetzen|ganz-nah|im-schatten|getragen)", "destination": "/_pages/kollektion/:design.html" },
+    { "source": "/bundle/:bundle(hoffnung|geborgenheit)", "destination": "/_pages/bundle/:bundle.html" },
     { "source": "/api/:path*", "destination": "/api/shop?__shop_path=api/:path*" },
     { "source": "/prints/:path*", "destination": "/api/shop?__shop_path=prints/:path*" },
     { "source": "/assets/design-:design.svg", "destination": "/api/shop?__shop_path=assets/design-:design.svg" },
