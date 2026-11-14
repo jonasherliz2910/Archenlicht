@@ -5,6 +5,13 @@ export const FIXED_BUNDLES = Object.freeze([
 
 export const fixedBundle = id => FIXED_BUNDLES.find(bundle => bundle.id === id);
 
+// Recognize the actual set contents, including existing carts and individually
+// added matching cases. Never grant a discount from a client-supplied bundle ID.
+export function matchingFixedBundle(items) {
+  if (items.length !== 3 || items.some(item => item.quantity !== 1 || item.configuration?.kind !== 'fixed')) return;
+  return FIXED_BUNDLES.find(bundle => bundle.designs.every(designId => items.some(item => item.configuration.designId === designId)));
+}
+
 // Only the fit, colour and case type vary. Text and motifs belong to the set.
 export function fixedBundleConfigurations(id, items) {
   const bundle = fixedBundle(id);

@@ -5,8 +5,9 @@ import { resolve } from 'node:path';
 import { createApp, defaultConfig } from '../server/index.js';
 import { Shop } from '../server/shop.js';
 import { FIXED_BUNDLES } from '../public/fixed-bundles.js';
-import { summarizePricing } from '../public/bundle-pricing.js';
+import { priceBundleItems, priceNewsletterItems, summarizePricing } from '../public/bundle-pricing.js';
 import { podbasePayload } from '../server/podbase.js';
+import { orderEmail } from '../server/mail-templates.js';
 
 const configuration = () => ({ ...defaultConfig(), shopMode: 'test', paymentMode: 'local', podbaseMode: 'local', printMode: 'preview', mailMode: 'local', newsletterMode: 'local', storageMode: 'sqlite', dataDir: resolve('test-results', randomUUID()), serverless: true, autoShip: false });
 const selection = (index = 0) => ({ bundleId: FIXED_BUNDLES[index].id, requestId: randomUUID(), items: FIXED_BUNDLES[index].designs.map((designId, i) => ({ kind: 'fixed', designId, modelId: ['iphone-14-pro', 'samsung-galaxy-s25', 'google-pixel-9'][i], backgroundId: ['light-blue', 'mint', 'lilac'][i], magsafe: i === 0 })) });
@@ -21,10 +22,15 @@ test('Fixed sets preserve all three models, colours, prints and MagSafe through 
     for (const name of ['designId', 'modelId', 'backgroundId', 'magsafe']) assert.equal(item.configuration[name], first.items[i][name]);
     assert.equal(item.quantity, 1); assert.equal(item.unitPrice, i === 0 ? 3499 : 2999);
   }
-  assert.equal(summarizePricing(cart).percent, 5); assert.equal(summarizePricing(cart).total, 9022);
+  assert.equal(summarizePricing(cart).percent, 10); assert.equal(summarizePricing(cart).total, 8547);
   const checkout = await shop.checkout(session, { recipient, method: 'card' });
   const order = await shop.s.get('SELECT * FROM orders WHERE id=?', checkout.orderId);
   const stored = JSON.parse(order.items);
+  assert.equal(order.amount, 8547);
+  assert.equal(summarizePricing(stored).total, order.amount);
+  const mail = orderEmail({ order, kind: 'confirmation', statusUrl: 'https://example.test/order' });
+  assert.match(mail.text, /Bundle-Rabatt \(10 %\): −9,50/);
+  assert.match(mail.text, /85,47/);
   assert.deepEqual(stored.map(i => i.configuration), cart.map(i => i.configuration));
   assert.deepEqual(stored.map(i => i.hash), cart.map(i => i.hash));
   const payload = podbasePayload(order, 'https://example.test');
@@ -33,6 +39,37 @@ test('Fixed sets preserve all three models, colours, prints and MagSafe through 
   const both = await shop.saveFixedBundle(session, selection(1));
   assert.equal(both.length, 6); assert.equal(summarizePricing(both).percent, 10);
   assert.deepEqual(both.map(i => i.configuration.designId), FIXED_BUNDLES.flatMap(b => b.designs));
+});
+
+test('Both complete sets get 10 percent, while duplicates, custom cases and incomplete sets keep normal quantity pricing', () => {
+  for (const bundle of FIXED_BUNDLES) {
+    const original = bundle.designs.map(designId => ({ configuration: { kind: 'fixed', designId }, unitPrice: 2999, quantity: 1 }));
+    const priced = priceBundleItems(original);
+    assert.deepEqual(summarizePricing(priced), { quantity: 3, subtotal: 8997, discount: 900, total: 8097, percent: 10, isBundle: true });
+    assert.deepEqual(priceBundleItems(priced), priced, 'Discount is not compounded');
+    assert.equal(summarizePricing(priceBundleItems([...original].reverse())).percent, 10);
+    assert.throws(() => priceNewsletterItems(priced), /nicht.*kombinierbar/);
+    const old = original.map(item => ({ ...item, pricing: { version: 'bundle-5-10-v2', percent: 5, subtotal: 2999, discount: 150, total: 2849 } }));
+    assert.equal(summarizePricing(old).total, 8547, 'Existing order snapshots keep their original 5 percent');
+    for (const items of [original.slice(0, 2), [original[0], original[0], original[2]], [original[0], original[1], { ...original[2], configuration: { ...original[2].configuration, kind: 'custom' } }]]) {
+      assert.equal(summarizePricing(priceBundleItems(items.map(item => ({ ...item, bundleId: bundle.id, discount: 100 })))).percent, 5);
+    }
+  }
+});
+
+test('Editing fit, colour or MagSafe keeps set savings; changing a motif or removing a case recalculates them', async t => {
+  const { shop, session } = await fixture(t), input = selection();
+  let cart = await shop.saveFixedBundle(session, input);
+  const item = cart[0], changed = { ...input.items[0], modelId: 'iphone-15', backgroundId: 'black', magsafe: false };
+  cart = await shop.saveCart(session, changed, item.id);
+  assert.equal(summarizePricing(cart).percent, 10); assert.equal(summarizePricing(cart).total, 8097);
+  cart = await shop.saveCart(session, { ...changed, designId: 'getragen' }, item.id);
+  assert.equal(summarizePricing(cart).percent, 5);
+  cart = await shop.saveCart(session, changed, item.id);
+  assert.equal(summarizePricing(cart).percent, 10);
+  cart = await shop.removeCart(session, item.id);
+  assert.equal(summarizePricing(cart).percent, 5); assert.equal(summarizePricing(cart).total, 5698);
+  assert.equal((await shop.s.get('SELECT COUNT(*) AS n FROM provider_orders')).n, 0);
 });
 
 test('A fixed set is atomic; altered motifs, missing choices and unavailable third case never leave a partial set', async t => {
@@ -73,6 +110,6 @@ test('The bundle endpoint requires CSRF and returns exactly three correctly pric
   assert.equal((await fetch(base + '/api/cart/bundle', { method: 'POST', headers, body })).status, 403);
   const response = await fetch(base + '/api/cart/bundle', { method: 'POST', headers: { ...headers, 'X-CSRF-Token': state.csrf }, body });
   assert.equal(response.status, 200); const cart = await response.json();
-  assert.equal(cart.length, 3); assert.equal(summarizePricing(cart).total, 9022);
+  assert.equal(cart.length, 3); assert.equal(summarizePricing(cart).total, 8547);
   assert.equal((await app.shop.s.get('SELECT COUNT(*) AS n FROM orders')).n, 0);
 });

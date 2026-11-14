@@ -101,7 +101,7 @@ function bundleDiscountRow(pricing) {
   return pricing.discount ? `<div class="bundle-discount" data-bundle-discount><span>${pricing.source === 'newsletter' ? 'Newsletter' : 'Bundle'}-Rabatt (${pricing.percent} %)</span><strong>−${money(pricing.discount)}</strong></div>` : '';
 }
 function bundleTeaser() {
-  return `<div class="bundle-teaser"><div><span class="eyebrow">FÜR DICH. UND DEINE LIEBSTEN.</span><h3>Drei Motive. Ein Set voller Hoffnung.</h3><p>Entdecke unsere zwei festen Dreier-Sets und spare 5 %. Handymodell, Farbe und MagSafe wählst du für jede Hülle einzeln.</p></div><a class="button primary" href="/bundle">Die beiden Sets entdecken ${icon('arrow')}</a></div>`;
+  return `<div class="bundle-teaser"><div><span class="eyebrow">FÜR DICH. UND DEINE LIEBSTEN.</span><h3>Drei Motive. Ein Set voller Hoffnung.</h3><p>Entdecke unsere zwei festen Dreier-Sets und spare 10 %. Handymodell, Farbe und MagSafe wählst du für jede Hülle einzeln.</p></div><a class="button primary" href="/bundle">Die beiden Sets entdecken ${icon('arrow')}</a></div>`;
 }
 function bundleCartNotice(pricing) {
   return `<div class="bundle-cart-notice" role="status"><div><strong>${pricing.isBundle ? `${pricing.quantity} Hüllen · ${pricing.percent} % Mengenrabatt` : 'Ab zwei Hüllen automatisch 5 % sparen'}</strong><p>${pricing.isBundle ? `Du sparst ${money(pricing.discount)} gegenüber dem Einzelkauf. Jede Hülle bleibt einzeln bearbeitbar.` : 'Oder entdecke unsere beiden festen Dreier-Sets mit aufeinander abgestimmten Motiven.'}</p></div><a class="button secondary" href="/bundle">Die beiden Sets ansehen ${icon('arrow')}</a></div>`;
@@ -192,7 +192,7 @@ function fixedProduct(d) {
           <div class="price-line"><span data-config-price aria-live="polite">${casePriceMarkup(state.brand, config)}</span><span>Endpreis inkl. Versand in DE & Geschenkkarte</span></div>
           <div id="preview-error" class="form-error" role="alert"></div>
           <button class="button primary full" id="add-cart" data-action="add-cart">${new URLSearchParams(location.search).has('bearbeiten') ? 'Änderung im Warenkorb speichern' : 'In den Warenkorb'} ${icon('bag')}</button>
-          <p class="bundle-product-note">Ab zwei Hüllen 5 %, ab vier Hüllen 10 % sparen – automatisch im Warenkorb. <a href="/bundle">Entdecke unsere beiden Dreier-Sets.</a></p>
+          <p class="bundle-product-note">Ab zwei Hüllen 5 %, ab vier Hüllen 10 % sparen – automatisch im Warenkorb. <a href="/bundle">Entdecke unsere beiden Dreier-Sets mit 10 % Rabatt.</a></p>
         </div>
       </div>
     </div>
