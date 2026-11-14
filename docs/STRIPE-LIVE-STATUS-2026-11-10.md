@@ -1,5 +1,11 @@
 # Stripe-Liveintegration – 10. November 2026
 
+Aktualisierung 14.11.2026: Livekonto und Live-Webhook erneut gelesen und aktiv.
+Bestellverarbeitung, Fehlerwiederholung und parallele Aufrufe geprüft und
+korrigiert; Details und verbleibende Grenzen in
+[BESTELLABLAUF-PRUEFUNG-2026-11-14.md](BESTELLABLAUF-PRUEFUNG-2026-11-14.md).
+Checkout und Produktionsübergabe bleiben geschlossen.
+
 ## Verifizierter Kontostand
 
 Das Livekonto `acct_1UZFl50jS9LUiVLq` gehört zu Herzly Marketing GbR.

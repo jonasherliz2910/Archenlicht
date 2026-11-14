@@ -182,8 +182,8 @@ test('Parallele Worker beanspruchen einen Auftrag nur einmal und versenden eine 
   try {
     const { session } = (await a.createSession()); (await a.saveCart(session, fixed)); const result = await a.checkout(session, { recipient, method: 'card' }); const o = (await a.s.get('SELECT * FROM orders WHERE id=?', result.orderId));
     (await a.acceptPayment({ id: 'evt-workers', orderId: o.id, paymentId: o.payment_id, amount: o.amount, currency: 'EUR', completed: true }));
-    await Promise.all([(await a.tick()), (await b.tick())]); assert.equal((await a.s.get('SELECT COUNT(*) AS n FROM provider_orders')).n, 1); assert.equal((await a.s.get('SELECT attempts FROM fulfillment')).attempts, 1);
-    (await a.podbase.advance(o.id)); await Promise.all([(await a.tick()), (await b.tick())]); assert.equal((await a.s.get("SELECT COUNT(*) AS n FROM mail_outbox WHERE kind='shipping'")).n, 1);
+    await Promise.all([a.tick(), b.tick()]); assert.equal((await a.s.get('SELECT COUNT(*) AS n FROM provider_orders')).n, 1); assert.equal((await a.s.get('SELECT attempts FROM fulfillment')).attempts, 1);
+    (await a.podbase.advance(o.id)); await Promise.all([a.tick(), b.tick()]); assert.equal((await a.s.get("SELECT COUNT(*) AS n FROM mail_outbox WHERE kind='shipping'")).n, 1);
   } finally { (await a.close()); (await b.close()); }
 });
 

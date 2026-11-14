@@ -148,6 +148,61 @@ test('Livezahlung mit falschem Betrag bleibt unbestätigt; verlorene Podbase-Ant
   assert.equal(f.calls.filter(c => c.url === 'https://open-api.podbase.com/orders' && c.method === 'POST').length, 1);
 });
 
+test('Ein Verbindungsfehler vor dem ersten Podbase-POST wird wiederholt; die Bestellmail wartet nicht auf Podbase', async t => {
+  const f = await fixture(t), order = await f.order();
+  Object.assign(f.stripe.get(order.payment_id), { status: 'complete', payment_status: 'paid' });
+  const find = f.shop.podbase.find.bind(f.shop.podbase);
+  let mailBeforeProvider = false;
+  f.shop.podbase.find = async () => {
+    mailBeforeProvider = f.calls.some(c => c.url === 'https://api.resend.com/emails');
+    throw new Error('Temporary connection failure before submitting anything');
+  };
+  assert.equal((await f.hook(order.payment_id)).status, 200);
+  assert.equal(mailBeforeProvider, true, 'Confirmation must not wait for provider reconciliation');
+  let job = await f.shop.s.get('SELECT * FROM fulfillment WHERE order_id=?', order.id);
+  assert.equal(job.attempts, 0); assert.equal(job.state, 'ready');
+  assert.equal(f.remote.size, 0);
+  f.shop.podbase.find = find;
+  await f.shop.tick();
+  job = await f.shop.s.get('SELECT * FROM fulfillment WHERE order_id=?', order.id);
+  assert.equal(job.state, 'awaiting_approval'); assert.equal(job.attempts, 1);
+  assert.equal(f.remote.size, 1);
+  assert.equal(f.calls.filter(c => c.url === 'https://open-api.podbase.com/orders' && c.method === 'POST').length, 1);
+});
+
+test('Ein laufender Hintergrundabgleich verschluckt keine gleichzeitig bestätigte zweite Bestellung', async t => {
+  const f = await fixture(t), orders = [];
+  for (let i = 0; i < 2; i++) {
+    const order = await f.order();
+    Object.assign(f.stripe.get(order.payment_id), { status: 'complete', payment_status: 'paid' });
+    await f.shop.acceptPayment(await f.shop.payments.verify(order), { flush: false });
+    orders.push(order);
+  }
+  const find = f.shop.podbase.find.bind(f.shop.podbase);
+  let release, entered;
+  const blocked = new Promise(r => { release = r; }), started = new Promise(r => { entered = r; });
+  f.shop.podbase.find = async (...args) => { if (args[0] === orders[0].id) { entered(); await blocked; } return find(...args); };
+  const first = f.shop.tick({ orderId: orders[0].id });
+  await started;
+  const second = f.shop.tick({ orderId: orders[1].id });
+  release();
+  await Promise.all([first, second]);
+  assert.equal(f.remote.size, 2);
+  assert.equal(f.calls.filter(c => c.url === 'https://api.resend.com/emails').length, 2);
+});
+
+test('Nach einem möglicherweise angenommenen POST bleibt ein erfolgloser Abgleich gesperrt statt doppelt zu bestellen', async t => {
+  const f = await fixture(t), order = await f.order();
+  Object.assign(f.stripe.get(order.payment_id), { status: 'complete', payment_status: 'paid' });
+  f.loseCreateResponse();
+  assert.equal((await f.hook(order.payment_id)).status, 200);
+  f.shop.podbase.find = async () => null;
+  await f.shop.tick(); await f.shop.tick();
+  const job = await f.shop.s.get('SELECT * FROM fulfillment WHERE order_id=?', order.id);
+  assert.equal(job.state, 'uncertain'); assert.equal(job.attempts, 1);
+  assert.equal(f.calls.filter(c => c.url === 'https://open-api.podbase.com/orders' && c.method === 'POST').length, 1);
+});
+
 test('Startkonfiguration lehnt vermischte Schlüssel, Testadapter und offene Kasse ohne Übergabe ab', () => {
   const config = settings(); assert.doesNotThrow(() => Shop.validateMode(config));
   for (const change of [{ stripeKey: 'rk_test_fixture' }, { stripeWebhook: '' }, { shopMode: 'test' }, { paymentMode: 'sandbox' }, { podbaseMode: 'local' }, { podbaseSubmissionEnabled: false }, { printMode: 'preview' }, { mailMode: 'resend-test' }, { baseUrl: 'http://localhost:3000' }]) assert.throws(() => Shop.validateMode({ ...config, ...change }));

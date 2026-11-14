@@ -50,7 +50,7 @@ export class Shop {
     this.withdrawals = new Withdrawals(this);
     this.adminCustomers = new AdminCustomers(this.s);
     this.podbaseCatalog = config.podbaseMode !== 'local' ? new PodbaseCatalog({ apiKey: config.podbaseKey, baseUrl: config.podbaseBaseUrl }) : null;
-    this.situations = new Map(); this.advisorScenario = 'ok'; this.busy = false;
+    this.situations = new Map(); this.advisorScenario = 'ok'; this.work = Promise.resolve();
     this.printLayouts = new Map();
     if (!store.remote) mkdirSync(join(config.dataDir, 'prints'), { recursive: true });
   }
@@ -420,8 +420,17 @@ export class Shop {
     if (inserted.changes) await this.mailer.enqueue(id, orderId, kind, body, status);
   }
   async alert(order, reason) { (await this.mail(order.id, 'fulfillment-error', this.config.adminEmail, `Handlungsbedarf · ${order.number}`, `SIMULIERTE ADMIN-E-MAIL\nBestellung ${order.number} wurde bezahlt, bleibt aber offen.\n${reason}\nGeschützter Auftragslink (Admin-Anmeldung): ${this.config.baseUrl}/bestellung/${order.id}`)); }
-  async tick({ orderId = null, limit = 10, budgetMs = 40000 } = {}) {
-    if (this.busy) return; this.busy = true;
+  tick(options = {}) {
+    // A webhook may arrive while a cron/status request is processing another
+    // order. Queue its work instead of silently dropping that first attempt.
+    const task = this.work.then(() => this.runJobs(options));
+    this.work = task.catch(() => {});
+    return task;
+  }
+  async runJobs({ orderId = null, limit = 10, budgetMs = 40000 } = {}) {
+    // Confirmation is already durable after payment. A slow/unavailable print
+    // provider must not delay this independent delivery.
+    await this.mailer.safeFlush({ orderId });
     const deadline = Date.now() + budgetMs;
     try {
       (await this.cleanup());
@@ -434,6 +443,7 @@ export class Shop {
         const claimed = (await this.s.run("UPDATE fulfillment SET lease_until=?,state=CASE WHEN state='ready' THEN 'sending' ELSE state END WHERE order_id=? AND lease_until<?", lease, job.order_id, Date.now()));
         if (!claimed.changes) continue;
         const order = (await this.s.get('SELECT * FROM orders WHERE id=?', job.order_id));
+        let mayHaveSubmitted = job.attempts > 0 || ['sending', 'uncertain'].includes(job.state);
         try {
           if (job.provider_id) {
             if (this.config.shopMode === 'test' && this.config.autoShip && Date.now() - job.paid_at > 16000) (await this.podbase.advance(order.id));
@@ -443,27 +453,30 @@ export class Shop {
           } else {
             // Reconcile before every possible create, including restarts and unknown network outcomes.
             let remote = await this.podbase.find(order.id, { deadline });
-            if (!remote && ['sending', 'uncertain'].includes(job.state)) throw new Error('Unklarer Übermittlungsstatus; keine automatische Neusendung.');
+            if (!remote && mayHaveSubmitted) throw new Error('Unklarer Übermittlungsstatus; keine automatische Neusendung.');
             if (!remote) {
               for (const item of JSON.parse(order.items)) (await this.assertAvailable(item.configuration, { mode: order.mode }));
               const payload = podbasePayload(order, this.config.printBaseUrl || this.config.baseUrl, { requireOfficialPrint: this.config.shopMode === 'live' });
               // Fence the single POST: an expired worker must never create an
               // order after another worker has taken over its lease.
               if (Date.now() > deadline - 16000) throw new Error('Zeit für sichere Übergabe abgelaufen.');
-              const permitted = await this.s.run("UPDATE fulfillment SET attempts=attempts+1,updated=? WHERE order_id=? AND state='sending' AND lease_until=? AND lease_until>?", Date.now(), order.id, lease, Date.now() + 16000);
+              const permitted = await this.s.run("UPDATE fulfillment SET attempts=attempts+1,updated=? WHERE order_id=? AND state='sending' AND attempts=0 AND lease_until=? AND lease_until>?", Date.now(), order.id, lease, Date.now() + 16000);
               if (!permitted.changes) continue;
+              mayHaveSubmitted = true;
               remote = await this.podbase.create(payload);
             }
             await this.applyProviderStatus(order, remote, lease);
           }
         } catch (e) {
           const rejected = Boolean(e.rejected || e.status === 409), reason = rejected ? e.message : 'Antwort unterbrochen. Der Anbieterstatus wird vor einer erneuten Übergabe abgeglichen.';
-          const changed = await this.s.run('UPDATE fulfillment SET state=?,error=?,updated=? WHERE order_id=? AND lease_until=?', rejected ? 'rejected' : 'uncertain', reason, Date.now(), order.id, lease);
+          // Before the fenced POST there is no possible remote order from us.
+          // Retry that preparation safely; after a possible POST only reconcile.
+          const state = rejected ? 'rejected' : !job.provider_id && !mayHaveSubmitted ? 'ready' : 'uncertain';
+          const changed = await this.s.run('UPDATE fulfillment SET state=?,error=?,updated=? WHERE order_id=? AND lease_until=?', state, reason, Date.now(), order.id, lease);
           if (changed.changes) await this.alert(order, reason);
         } finally { (await this.s.run('UPDATE fulfillment SET lease_until=0 WHERE order_id=? AND lease_until=?', order.id, lease)); }
       }
-    } finally { this.busy = false; }
-    await this.mailer.safeFlush({ orderId });
+    } finally { await this.mailer.safeFlush({ orderId }); }
   }
   async applyProviderStatus(order, remote, lease) {
     if (!remote?.orderId || remote.externalOrderId !== order.id) throw new Error('Anbieter-ID und externe Bestell-ID passen nicht zusammen.');
