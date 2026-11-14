@@ -18,6 +18,7 @@ import { recipientFields, accountSettings, localCardOptions } from './account-ui
 import { readJsonResponse, SHOP_UNAVAILABLE } from './api-client.js';
 import { readConsent } from './cookie-policy.js';
 import { bundleCatalog, createFixedBundleUI } from './bundle-ui.js';
+import { PREVIEW_MODEL, PREVIEW_ONLY_NOTICE } from './preview-model.js';
 
 const $ = (s, p = document) => p.querySelector(s);
 const $$ = (s, p = document) => [...p.querySelectorAll(s)];
@@ -82,11 +83,11 @@ function footer() {
 }
 const designImage = id => `/assets/design-${id}.svg`;
 function phone(id, options = {}) {
-  const model = state.models.find(m => m.name === options.model) || state.models.find(m => m.id === 'iphone-15');
+  const model = state.models.find(m => m.name === options.model) || state.models.find(m => m.id === PREVIEW_MODEL.id);
   return studioCardMarkup({designId:id,model,imageUrl:options.url,backgroundId:options.backgroundId,label:options.alt||`${state.designs.find(d=>d.id===id)?.title||''}, ${model.name} – Fotovorschau`});
 }
 function schematicPhone(id, options = {}) {
-  const model = state.models.find(m => m.name === options.model) || state.models.find(m => m.id === 'iphone-15');
+  const model = state.models.find(m => m.name === options.model) || state.models.find(m => m.id === PREVIEW_MODEL.id);
   return phoneMockup(model, { imageUrl: options.url || designImage(id), color: caseColor(options.backgroundId)?.hex, className: options.cls || '', caseOnly: Boolean(options.caseOnly), label: options.alt });
 }
 
@@ -152,7 +153,7 @@ function previewPanel({ product = false } = {}) {
   const d = state.designs.find(d => d.id === config.designId), model = state.models.find(m => m.id === config.modelId);
   const labels=['Hülle am Handy','Hülle mit offener Kameraaussparung','Lifestyle-Foto in einer Hand','Lifestyle-Foto auf einem Tisch'];
   const slides = [false, true].map((caseOnly, index) => `<div class="preview-slide studio-slide" data-studio-view="${index}" data-studio-ready="false" aria-busy="true" role="group" aria-roledescription="Bild" aria-label="${index + 1} von 4: ${labels[index]}"><span class="preview-tag">${caseOnly ? 'DEINE HÜLLE · OFFENE AUSSPARUNG' : 'DEINE HÜLLE AM HANDY'}</span><div id="${caseOnly ? 'case-phone' : 'live-phone'}" class="preview-device">${config.kind === 'custom' && !currentPreview ? '<p class="preview-placeholder">Deine Vorschau wird erstellt …</p>' : schematicPhone(d.id, { url: currentPreview?.svgUrl, cls: 'detail-phone', model: model.name, caseOnly, backgroundId: config.backgroundId })}</div><span class="preview-subtitle">Fotovorschau · <span data-preview-model>${esc(model.name)}</span></span></div>`).join('');
-  const photos=[0,1].map(view=>`<div class="preview-slide lifestyle-slide" data-lifestyle-view="${view}" role="group" aria-roledescription="Bild" aria-label="${view+3} von 4: ${labels[view+2]}" aria-busy="true"><canvas role="img" aria-label="${labels[view+2]}" hidden></canvas><p class="preview-placeholder" data-photo-status>Dein Foto wird vorbereitet …</p><span class="lifestyle-caption">Designbeispiel · iPhone 14 Pro</span></div>`).join('');
+  const photos=[0,1].map(view=>`<div class="preview-slide lifestyle-slide" data-lifestyle-view="${view}" role="group" aria-roledescription="Bild" aria-label="${view+3} von 4: ${labels[view+2]}" aria-busy="true"><canvas role="img" aria-label="${labels[view+2]}" hidden></canvas><p class="preview-placeholder" data-photo-status>Dein Foto wird vorbereitet …</p><span class="lifestyle-caption">Designbeispiel · ${PREVIEW_MODEL.name}</span></div>`).join('');
   const dots=labels.map((label,index)=>`<button type="button" data-preview-slide="${index}" aria-label="Bild ${index+1}: ${label}" aria-pressed="${index===0}"><span aria-hidden="true"></span></button>`).join('');
   const thumbnails = product ? `<div class="preview-thumbnails" role="group" aria-label="Ansicht wählen">${labels.map((label, index) => `<button type="button" data-preview-slide="${index}" aria-label="Bild ${index + 1}: ${label}" aria-pressed="${index === 0}">${index < 2 ? `<span class="preview-thumb-device" data-preview-thumb-device="${index}">${schematicPhone(d.id, { url: currentPreview?.svgUrl, model: model.name, caseOnly: index === 1, backgroundId: config.backgroundId })}</span>` : `<canvas data-lifestyle-thumbnail="${index - 2}" aria-hidden="true" hidden></canvas><span data-thumbnail-status="${index - 2}" aria-hidden="true">0${index + 1}</span>`}</button>`).join('')}</div>` : '';
   return `<div class="preview-panel"><section class="preview-stage preview-gallery ${product ? 'product-gallery' : ''}" aria-label="Hüllenansichten" aria-roledescription="Karussell" style="--card-bg:${d.color}">${thumbnails}<div class="preview-main"><div class="preview-track" tabindex="0" aria-label="Hüllenansichten: mit Pfeiltasten oder Wischen wechseln">${slides}${photos}</div>${product ? `<div class="preview-arrows"><button type="button" data-preview-previous aria-label="Vorheriges Bild">${icon('back')}</button><button type="button" data-preview-next aria-label="Nächstes Bild">${icon('right')}</button></div>` : ''}</div>${product ? '' : `<div class="preview-controls"><div class="preview-tabs" role="group" aria-label="Ansicht wählen">${dots}</div></div>`}<span class="visually-hidden" data-preview-status aria-live="polite">1 von 4: ${labels[0]}</span></section></div>`;
@@ -242,7 +243,7 @@ async function updatePreview() {
       if (seq === previewSequence) photoGallery?.update(preview,model,d);
     });
     const available = state.variants.find(v => v.model_id === config.modelId && v.design_id === config.designId);
-    const error = !textIsReady() ? 'Bitte gib deinen eigenen Text ein oder wähle einen Vers aus.' : !caseAvailable(available, config) ? (config.magsafe ? 'MagSafe ist für diese Kombination gerade nicht verfügbar. Entferne den Haken oder wähle ein anderes Modell.' : 'Diese Kombination ist gerade nicht verfügbar. Bitte wähle ein anderes Modell oder Motiv.') : '';
+    const error = !textIsReady() ? 'Bitte gib deinen eigenen Text ein oder wähle einen Vers aus.' : preview.exampleOnly ? PREVIEW_ONLY_NOTICE : !caseAvailable(available, config) ? (config.magsafe ? 'MagSafe ist für diese Kombination gerade nicht verfügbar. Entferne den Haken oder wähle ein anderes Modell.' : 'Diese Kombination ist gerade nicht verfügbar. Bitte wähle ein anderes Modell oder Motiv.') : '';
     if ($('#preview-error')) $('#preview-error').textContent = error;
     if ($('#add-cart')) $('#add-cart').disabled = Boolean(error);
   } catch (e) { if (seq === previewSequence) {
@@ -336,12 +337,12 @@ async function render({ scroll = true } = {}) {
       const d = state.designs.find(d => d.id === path.split('/')[2]);
       if (!d) html = notFound(); else {
         const edit = state.cart.find(i => i.id === new URLSearchParams(location.search).get('bearbeiten'));
-        config = edit ? { ...edit.configuration } : { kind: 'fixed', magsafe: false, designId: d.id, modelId: 'iphone-15', backgroundId: 'white', dedication: '' }; currentPreview = null;
+        config = edit ? { ...edit.configuration } : { kind: 'fixed', magsafe: false, designId: d.id, modelId: PREVIEW_MODEL.id, backgroundId: 'white', dedication: '' }; currentPreview = null;
         html = fixedProduct(d); trackView(config.kind, d.id);
       }
     } else if (path === '/gestalten') {
       const query = new URLSearchParams(location.search), edit = state.cart.find(i => i.id === query.get('bearbeiten'));
-      config = edit ? { ...edit.configuration } : { kind: 'custom', magsafe: false, designId: state.designs.some(d => d.id === query.get('motiv')) ? query.get('motiv') : 'unter-seinen-fluegeln', modelId: 'iphone-15', backgroundId: 'white', verseId: state.verses[0]?.id, dedication: '' };
+      config = edit ? { ...edit.configuration } : { kind: 'custom', magsafe: false, designId: state.designs.some(d => d.id === query.get('motiv')) ? query.get('motiv') : 'unter-seinen-fluegeln', modelId: PREVIEW_MODEL.id, backgroundId: 'white', verseId: state.verses[0]?.id, dedication: '' };
       textChoice = createTextChoice(config, state.verses); config = applyTextChoice(config, textChoice);
       advisorResults = null; situation = ''; adviceOpen = false; advisorPending = false; currentStep = 0; currentPreview = null;
       html = customizer(); trackView('custom', config.designId);
@@ -393,7 +394,7 @@ function rerenderWizard() {
   $('#wizard-content').innerHTML = wizardContent();
   $('.wizard-steps').innerHTML = ['Dein Text', 'Motiv', 'Modell', 'Widmung'].map((label, i) => `<button data-step="${i}" class="${currentStep === i ? 'active' : ''}" aria-current="${currentStep === i ? 'step' : 'false'}"><span>${i < currentStep ? icon('check') : i + 1}</span>${label}</button>`).join('');
   $('.wizard-navigation').innerHTML = `${currentStep ? `<button class="text-button" data-action="previous-step">${icon('back')} Zurück</button>` : '<span></span>'}${currentStep < 3 ? `<button class="button primary" data-action="next-step">Weiter ${icon('right')}</button>` : `<button class="button primary" id="add-cart" data-action="add-cart">${new URLSearchParams(location.search).has('bearbeiten') ? 'Änderung speichern' : 'In den Warenkorb'} ${icon('bag')}</button>`}`;
-  if ($('#add-cart')) $('#add-cart').disabled = previewPending || !currentPreview || !textIsReady() || !caseAvailable(state.variants.find(v => v.model_id === config.modelId && v.design_id === config.designId), config);
+  if ($('#add-cart')) $('#add-cart').disabled = previewPending || !currentPreview || currentPreview.exampleOnly || !textIsReady() || !caseAvailable(state.variants.find(v => v.model_id === config.modelId && v.design_id === config.designId), config);
 }
 
 async function selectTextChoice(focusSelector) {
@@ -468,7 +469,7 @@ document.addEventListener('click', async event => {
       currentStep += action === 'next-step' ? 1 : -1; rerenderWizard();
     }
     if (action === 'add-cart') {
-      if (previewPending || !currentPreview) return;
+      if (previewPending || !currentPreview || currentPreview.exampleOnly) return;
       button.disabled = true; const id = new URLSearchParams(location.search).get('bearbeiten');
       state.cart = await api(`/api/cart${id ? `/${id}` : ''}`, { method: id ? 'PUT' : 'POST', body: { ...currentPreview.configuration, quantity: state.cart.find(i => i.id === id)?.quantity || 1 } });
       toast(id ? 'Deine Gestaltung wurde aktualisiert.' : 'Dein kleiner Begleiter liegt im Warenkorb.'); await navigate('/warenkorb');

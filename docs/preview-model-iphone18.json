@@ -1,0 +1,50 @@
+{
+  "defaultModel": "iPhone 18 Pro",
+  "purpose": "Display-only examples. No official production template is inferred from these photographs.",
+  "tool": "image_gen.imagegen",
+  "artwork": "Original Archenlicht artwork is composited by code, unchanged.",
+  "photos": [
+    {
+      "type": "bundle",
+      "id": "hoffnung",
+      "file": "exec-1ae05c9a-ae08-4464-a9fb-eeda8a8b402e.png",
+      "prompt": "Edit target: first reference image, a blank three-phone bundle photograph on a warm pale beige stone table. Second reference image is supporting hardware reference only: the wide camera plateau used by this shop's iPhone 18 Pro / 17 Pro case family. Make a precise photographic product edit of the FIRST image. Preserve its exact 4:3 composition, camera viewpoint, three parallel phone positions and sizes, case silhouettes, blank white case material, entire background, light, shadows and cloth. Replace ONLY the camera island and white case opening of EACH of the three phones to match the wide plateau in the SECOND image: broad rounded horizontal rectangular silver camera island spanning almost the full case width, three lifelike black lenses arranged in a triangle on the left, small white flash top right and black lidar lower right. Match the original scene's lighting in the new hardware. The three cases must remain perfectly blank WHITE, no art, text, logo, Apple logo, magnetic ring, symbols or watermark. Preserve the original three case body outlines and bottom corners and all phone positions, since original artwork will be precisely composited onto this blank photo later. Make all three camera plateaus consistent. Photorealistic optical coatings, raised white lip and subtle black liner. Do not change the perspective or device size. Return the edited first image only, same 1448 x 1086 composition.",
+      "asset": "public/assets/bundles-v2/hoffnung-scene.webp"
+    },
+    {
+      "type": "bundle",
+      "id": "geborgenheit",
+      "file": "exec-1b419878-ef0c-4ab2-bf99-9bcfd5706163.png",
+      "prompt": "Edit target: first reference image, a blank three-phone bundle photograph on a muted pale sage green table. Second reference image is supporting hardware reference only: the wide camera plateau used by this shop's iPhone 18 Pro / 17 Pro case family. Make a precise photographic product edit of the FIRST image. Preserve its exact 4:3 composition, camera viewpoint, three parallel phone positions and sizes, case silhouettes, blank white case material, entire background, light, shadows and cloth. Replace ONLY the camera island and white case opening of EACH of the three phones to match the wide plateau in the SECOND image: broad rounded horizontal rectangular silver camera island spanning almost the full case width, three lifelike black lenses arranged in a triangle on the left, small white flash top right and black lidar lower right. Match the original scene's lighting in the new hardware. The three cases must remain perfectly blank WHITE, no art, text, logo, Apple logo, magnetic ring, symbols or watermark. Preserve the original three case body outlines and bottom corners and all phone positions, since original artwork will be precisely composited onto this blank photo later. Make all three camera plateaus consistent. Photorealistic optical coatings, raised white lip and subtle black liner. Do not change the perspective or device size. Return the edited first image only, same 1448 x 1086 composition.",
+      "asset": "public/assets/bundles-v2/geborgenheit-scene.webp"
+    },
+    {
+      "type": "lifestyle",
+      "id": "female-hand",
+      "file": "exec-9b20902f-f056-4c0c-9502-20f1ccd95e41.png",
+      "prompt": "Edit target: FIRST reference image, the existing blank white case lifestyle photograph (female-hand). Second reference is the precise wide camera plateau hardware reference used for the shop's iPhone 18 Pro / 17 Pro family. Preserve EXACT composition, background, hands, all fingers, skin, clothing, table, plants, natural light and shadows of the FIRST photo. Preserve exact phone body silhouette, pose, perspective, position, dimensions and blank WHITE case. Replace ONLY the rear camera module and corresponding white case camera lip with the broad horizontal rounded-rectangle silver plateau from the SECOND reference. This plateau spans nearly the full upper phone width; three black optical lenses in a triangle on LEFT, white flash at top RIGHT and black lidar at bottom RIGHT. Rotate/perspective-match hardware to this phone. Realistic optical reflections and physically fitting raised white rim, small black liner. Do not move or alter any fingers or other parts of the image. No lettering, illustration, brand logo, Apple logo, ring or watermark on the blank white case. Entire back below camera must be blank. Keep the same 1122 x 1402 composition. Only change camera hardware and hole to match reference. Return first photograph edited, not a collage.",
+      "asset": "public/assets/lifestyle-v2/female-hand.webp"
+    },
+    {
+      "type": "lifestyle",
+      "id": "female-table",
+      "file": "exec-de52786e-6c5a-427b-9ecf-ac7706297bc8.png",
+      "prompt": "Edit target: FIRST reference image, the existing blank white case lifestyle photograph (female-table). Second reference is the precise wide camera plateau hardware reference used for the shop's iPhone 18 Pro / 17 Pro family. Preserve EXACT composition, background, hands, all fingers, skin, clothing, table, plants, natural light and shadows of the FIRST photo. Preserve exact phone body silhouette, pose, perspective, position, dimensions and blank WHITE case. Replace ONLY the rear camera module and corresponding white case camera lip with the broad horizontal rounded-rectangle silver plateau from the SECOND reference. This plateau spans nearly the full upper phone width; three black optical lenses in a triangle on LEFT, white flash at top RIGHT and black lidar at bottom RIGHT. Rotate/perspective-match hardware to this phone. Realistic optical reflections and physically fitting raised white rim, small black liner. Do not move or alter any fingers or other parts of the image. No lettering, illustration, brand logo, Apple logo, ring or watermark on the blank white case. Entire back below camera must be blank. Keep the same 1122 x 1402 composition. Only change camera hardware and hole to match reference. Return first photograph edited, not a collage.",
+      "asset": "public/assets/lifestyle-v2/female-table.webp"
+    },
+    {
+      "type": "lifestyle",
+      "id": "male-hand",
+      "file": "exec-6f875797-b64f-4510-a639-df98347e5378.png",
+      "prompt": "Edit target: FIRST reference image, the existing blank white case lifestyle photograph (male-hand). Second reference is the precise wide camera plateau hardware reference used for the shop's iPhone 18 Pro / 17 Pro family. Preserve EXACT composition, background, hands, all fingers, skin, clothing, table, plants, natural light and shadows of the FIRST photo. Preserve exact phone body silhouette, pose, perspective, position, dimensions and blank WHITE case. Replace ONLY the rear camera module and corresponding white case camera lip with the broad horizontal rounded-rectangle silver plateau from the SECOND reference. This plateau spans nearly the full upper phone width; three black optical lenses in a triangle on LEFT, white flash at top RIGHT and black lidar at bottom RIGHT. Rotate/perspective-match hardware to this phone. Realistic optical reflections and physically fitting raised white rim, small black liner. Do not move or alter any fingers or other parts of the image. No lettering, illustration, brand logo, Apple logo, ring or watermark on the blank white case. Entire back below camera must be blank. Keep the same 1122 x 1402 composition. Only change camera hardware and hole to match reference. Return first photograph edited, not a collage.",
+      "asset": "public/assets/lifestyle-v2/male-hand.webp"
+    },
+    {
+      "type": "lifestyle",
+      "id": "male-table",
+      "file": "exec-6d15389b-0dc3-4b45-acf7-be49534f4cb7.png",
+      "prompt": "Edit target: FIRST reference image, the existing blank white case lifestyle photograph (male-table). Second reference is the precise wide camera plateau hardware reference used for the shop's iPhone 18 Pro / 17 Pro family. Preserve EXACT composition, background, hands, all fingers, skin, clothing, table, plants, natural light and shadows of the FIRST photo. Preserve exact phone body silhouette, pose, perspective, position, dimensions and blank WHITE case. Replace ONLY the rear camera module and corresponding white case camera lip with the broad horizontal rounded-rectangle silver plateau from the SECOND reference. This plateau spans nearly the full upper phone width; three black optical lenses in a triangle on LEFT, white flash at top RIGHT and black lidar at bottom RIGHT. Rotate/perspective-match hardware to this phone. Realistic optical reflections and physically fitting raised white rim, small black liner. Do not move or alter any fingers or other parts of the image. No lettering, illustration, brand logo, Apple logo, ring or watermark on the blank white case. Entire back below camera must be blank. Keep the same 1122 x 1402 composition. Only change camera hardware and hole to match reference. Return first photograph edited, not a collage.",
+      "asset": "public/assets/lifestyle-v2/male-table.webp"
+    }
+  ]
+}

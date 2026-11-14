@@ -7,9 +7,10 @@ import { renderLayout } from '../server/layout.js';
 import { MODELS } from '../server/catalog.js';
 import { deviceProfile, printFrame } from '../public/device-preview.js';
 import { FIXED_BUNDLES } from '../public/fixed-bundles.js';
+import { PREVIEW_MODEL } from '../public/preview-model.js';
 
-const directory = resolve('public/assets/bundles-v1');
-const model = MODELS.find(m => m.id === 'iphone-14-pro'), profile = deviceProfile(model), frame = printFrame(model, profile);
+const directory = resolve('public/assets/bundles-v2');
+const model = MODELS.find(m => m.id === PREVIEW_MODEL.id), profile = deviceProfile(model), frame = printFrame(model, profile);
 const placements = {
   hoffnung: [[135,187,356,695],[548,187,356,695],[964,187,356,695]],
   geborgenheit: [[173,234,316,625],[568,234,316,625],[961,234,316,625]]

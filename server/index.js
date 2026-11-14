@@ -111,7 +111,7 @@ export async function createApp(config = defaultConfig()) {
           const discount = await shop.newsletter.discount(body.code, body.email, await shop.cart(session));
           return send(res, 200, { items: discount.items });
         }
-        if (path === '/api/preview' && method === 'POST') return send(res, 200, (await shop.preview(body)));
+        if (path === '/api/preview' && method === 'POST') return send(res, 200, (await shop.displayPreview(body)));
         if (path === '/api/events' && method === 'POST') { (await shop.track(session, body.type, body.kind, body.designId)); return send(res, 200, { ok: true }); }
         if (path === '/api/cart' && method === 'GET') return send(res, 200, (await shop.cart(session)));
         if (path === '/api/cart' && method === 'POST') return send(res, 200, (await shop.saveCart(session, body)));

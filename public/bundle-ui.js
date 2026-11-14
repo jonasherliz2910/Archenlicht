@@ -5,13 +5,14 @@ import { priceMarkup, casePriceMarkup } from './price-display.js';
 import { CASE_COLORS, caseColor } from './case-colors.js';
 import { modelTrigger, createModelPicker } from './model-picker.js';
 import { studioCardMarkup } from './studio-photography.js';
+import { PREVIEW_MODEL, PREVIEW_ONLY_NOTICE } from './preview-model.js';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const money = value => new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(value / 100);
 const price = (state, items, planned = false) => summarizePricing(priceBundleItems(items.map(item => ({ unitPrice: (planned ? plannedCasePrice : casePrice)(state.brand, item), quantity: 1 }))));
 const example = (state, planned = false) => price(state, Array.from({ length: 3 }, () => ({ kind: 'fixed', magsafe: false })), planned);
 const photo = bundle => `<img src="${bundle.image}" alt="${esc(bundle.title)}: alle drei Motivhüllen nebeneinander auf einem Tisch" width="1448" height="1086" decoding="async">`;
-const note = '<p class="bundle-photo-note">Fotomontage mit Originalmotiven · Bildbeispiel: iPhone 14 Pro in Weiß.</p>';
+const note = `<p class="bundle-photo-note">Fotomontage mit Originalmotiven · Bildbeispiel: ${PREVIEW_MODEL.name} in Weiß.</p>`;
 const terms = '<p class="bundle-terms">Jedes Set enthält die drei gezeigten Motive, jeweils eine Hülle. Du wählst Modell, Farbe und MagSafe für jede Hülle einzeln. Ein Dreier-Set erhält 5 % Mengenrabatt; ab vier Hüllen in derselben Bestellung gelten 10 % auf alle Hüllen. Kein zusätzlicher Newsletter-Rabatt. Versand innerhalb Deutschlands inklusive, Lieferung an eine gemeinsame Adresse.</p>';
 
 export function bundleCatalog(state) {
@@ -23,7 +24,7 @@ export function createFixedBundleUI({ getState, post, onAdded }) {
   const drafts = new Map();
   let cleanup;
   function draftFor(bundle) {
-    if (!drafts.has(bundle.id)) drafts.set(bundle.id, { requestId: crypto.randomUUID(), items: bundle.designs.map((designId, index) => ({ kind: 'fixed', designId, modelId: 'iphone-14-pro', backgroundId: bundle.backgrounds[index], magsafe: false, dedication: '' })) });
+    if (!drafts.has(bundle.id)) drafts.set(bundle.id, { requestId: crypto.randomUUID(), items: bundle.designs.map((designId, index) => ({ kind: 'fixed', designId, modelId: PREVIEW_MODEL.id, backgroundId: bundle.backgrounds[index], magsafe: false, dedication: '' })) });
     return drafts.get(bundle.id);
   }
   function page(id) {
@@ -45,7 +46,7 @@ export function createFixedBundleUI({ getState, post, onAdded }) {
       const p = price(state, draft.items), plannedPricing = price(state, draft.items, true);
       root.querySelector('[data-bundle-price]').innerHTML = `<span class="eyebrow">DEIN SET · 3 HÜLLEN</span><div class="bundle-total"><span data-fixed-bundle-total>${priceMarkup(p.total, { ...state.brand, plannedPrice: plannedPricing.total })}</span><span>statt ${money(p.subtotal)} einzeln</span></div><span class="bundle-discount">5 % gespart · ${money(p.discount)}</span>`;
       add.disabled = submitting || status.some(s => !s.ready || s.failed) || draft.items.some(item => !available(item));
-      if (draft.items.some(item => !available(item))) error.textContent = 'Eine Hüllenvariante ist gerade nicht verfügbar. Bitte wähle ein verfügbares Modell oder eine andere Hüllenart.';
+      if (draft.items.some(item => !available(item))) error.textContent = draft.items.some(item => item.modelId === PREVIEW_MODEL.id && !available(item)) ? PREVIEW_ONLY_NOTICE : 'Eine Hüllenvariante ist gerade nicht verfügbar. Bitte wähle ein verfügbares Modell oder eine andere Hüllenart.';
     }
     function row(index) {
       const item = draft.items[index], design = state.designs.find(d => d.id === item.designId), color = caseColor(item.backgroundId);

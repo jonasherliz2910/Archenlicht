@@ -1,6 +1,6 @@
 import { caseColor } from './case-colors.js';
 import { deviceProfile, printFrame } from './device-preview.js';
-import { LIFESTYLE_MODEL, LIFESTYLE_SCENES, lifestyleScenes, inversePerspective, projectToCase } from './lifestyle-scenes.js';
+import { LIFESTYLE_MODEL, LIFESTYLE_ASSETS, LIFESTYLE_SCENES, lifestyleScenes, inversePerspective, projectToCase } from './lifestyle-scenes.js';
 
 const sourceWidth=1122,sourceHeight=1402,renderWidth=840;
 const assets=new Map(), scenes=new Map();
@@ -19,7 +19,7 @@ async function prepareScene(id) {
   if(!scenes.has(id)){
     const promise=(async()=>{
       const scene=LIFESTYLE_SCENES[id];
-      const [image,maskImage]=await Promise.all([loadImage(`/assets/lifestyle-v1/${id}.webp`),loadImage(`/assets/lifestyle-v1/${id}-mask.png`)]);
+      const [image,maskImage]=await Promise.all([loadImage(`${LIFESTYLE_ASSETS}/${id}.webp`),loadImage(`${LIFESTYLE_ASSETS}/${id}-mask.png`)]);
       const width=renderWidth,height=Math.round(width*sourceHeight/sourceWidth), scale=width/sourceWidth;
       const canvas=canvasOf(width,height),ctx=canvas.getContext('2d',{willReadFrequently:true});
       ctx.drawImage(image,0,0,width,height);const photo=ctx.getImageData(0,0,width,height);
@@ -77,7 +77,7 @@ export function mountLifestylePhotos(root) {
       if(disposed||ticket!==revision)return;
       entry.canvas.width=result.width;entry.canvas.height=result.height;
       entry.canvas.getContext('2d').drawImage(result,0,0);
-      entry.canvas.setAttribute('aria-label',`${snapshot.design.title}, ${caseColor(snapshot.preview.configuration.backgroundId).name}, ${view?'auf einem Tisch':'in einer Hand'} – Designbeispiel am iPhone 14 Pro`);
+      entry.canvas.setAttribute('aria-label',`${snapshot.design.title}, ${caseColor(snapshot.preview.configuration.backgroundId).name}, ${view?'auf einem Tisch':'in einer Hand'} – Designbeispiel am ${LIFESTYLE_MODEL.name}`);
       entry.canvas.dataset.printHash=snapshot.preview.hash;
       entry.canvas.dataset.scene=sceneId;entry.canvas.hidden=false;entry.status.hidden=true;
       if(entry.thumbnail){

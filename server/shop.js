@@ -19,6 +19,7 @@ import { casePrice, plannedCasePrice } from '../public/case-options.js';
 import { priceBundleItems, summarizePricing } from '../public/bundle-pricing.js';
 import { fixedBundleConfigurations } from '../public/fixed-bundles.js';
 import { monthlyProductInterest } from './product-interest.js';
+import { PREVIEW_MODEL } from '../public/preview-model.js';
 
 export class Shop {
   static async create(config) {
@@ -125,6 +126,14 @@ export class Shop {
       const snapshot = await this.podbaseCatalog.snapshot({ strict: true });
       if (!catalogVariant(snapshot, c)?.inStock) throw new ShopError('Die gewählte Hüllenart ist für dein Modell beim Druckpartner gerade nicht verfügbar. Bitte wähle eine andere Hülle.', 409);
     }
+  }
+  async displayPreview(input) {
+    // Only the storefront may show the selected example without an official guide.
+    // Cart, checkout and fulfillment still call the strict production preview below.
+    if (input?.modelId === PREVIEW_MODEL.id && this.config.printMode === 'podbase' && !officialTemplate(input.modelId, input.magsafe === true)) {
+      return { ...await this.preview(input, { printMode: 'preview' }), exampleOnly: true };
+    }
+    return this.preview(input);
   }
   async preview(input, { printMode = this.config.printMode } = {}) {
     let layout = renderLayout(input, { allowEmptyCustomText: true });

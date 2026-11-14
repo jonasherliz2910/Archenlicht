@@ -2,6 +2,7 @@ import {caseColor} from './case-colors.js';
 import {deviceProfile,printFrame} from './device-preview.js';
 import {STUDIO_SCENES,STUDIO_SOURCE,studioSceneId} from './studio-scenes.js';
 import {prepareStudioMap,composeStudioPixels} from './studio-compositor.js';
+import {PREVIEW_MODEL,PREVIEW_CATALOG} from './preview-model.js';
 
 const photos=new Map(),images=new Map();
 const canvasOf=(w,h)=>{const c=document.createElement('canvas');c.width=w;c.height=h;return c;};
@@ -39,7 +40,7 @@ const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;
 export function studioCardMarkup({designId,model,imageUrl,backgroundId='white',label,hash=''}){
  const alt=label||`${model.name} – Fotovorschau der Hülle`;
  // Collection images are already composed: fast first paint without a renderer.
- if(!imageUrl&&backgroundId==='white')return `<div class="studio-product-photo" data-studio-card-ready="true"><img src="/assets/studio-v2/catalog/${esc(designId)}.webp" width="672" height="840" alt="${esc(alt)}" loading="lazy" decoding="async"></div>`;
+ if(!imageUrl&&backgroundId==='white'&&model.id===PREVIEW_MODEL.id)return `<div class="studio-product-photo" data-studio-card-ready="true" data-studio-model="${PREVIEW_MODEL.id}"><img src="${PREVIEW_CATALOG}/${esc(designId)}.webp" width="672" height="840" alt="${esc(alt)}" loading="lazy" decoding="async"></div>`;
  return `<div class="studio-product-photo" data-studio-card data-studio-model="${esc(model.id)}" data-studio-art="${esc(imageUrl||`/assets/design-${designId}.svg`)}" data-studio-color="${esc(backgroundId)}" data-print-hash="${esc(hash)}" data-studio-card-ready="false" role="img" aria-label="${esc(alt)}" aria-busy="true"><span class="studio-card-status">Foto wird vorbereitet …</span></div>`;
 }
 export function mountStudioCards(root,models){

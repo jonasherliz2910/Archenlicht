@@ -26,11 +26,13 @@ test('Every motif has a hand and table scene, with usable matching masks',async(
   }
   assert.equal(used.size,4);
   for(const id of used){
-    const photo=await sharp(`public/assets/lifestyle-v1/${id}.webp`).metadata();
-    const {data,info}=await sharp(`public/assets/lifestyle-v1/${id}-mask.png`).greyscale().raw().toBuffer({resolveWithObject:true});
+    const photo=await sharp(`public/assets/lifestyle-v2/${id}.webp`).metadata();
+    const {data,info}=await sharp(`public/assets/lifestyle-v2/${id}-mask.png`).greyscale().raw().toBuffer({resolveWithObject:true});
     assert.equal(info.width,photo.width);assert.equal(info.height,photo.height);
     assert.equal(data[0],0);assert.equal(data.at(-1),0);
     const coverage=data.reduce((n,p)=>n+Number(p>127),0)/data.length;
-    assert.ok(coverage>.15&&coverage<.4,`${id}: plausible printable case area`);
+    assert.ok(coverage>.12&&coverage<.4,`${id}: plausible printable case area below the wider camera island`);
+    const [flashX, flashY] = { 'female-hand':[700,300], 'female-table':[855,345], 'male-hand':[700,270], 'male-table':[525,365] }[id];
+    assert.equal(data[flashY*info.width+flashX], 0, `${id}: the wide camera island stays unprinted`);
   }
 });
