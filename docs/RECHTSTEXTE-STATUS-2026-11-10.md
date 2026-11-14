@@ -6,6 +6,8 @@ Kontaktaktualisierung am 14.11.2026: Auf ausdrücklichen Nutzerauftrag die öffe
 
 Musterprüfung am 14.11.2026: Der Nutzer bestätigt Druck, Passform, MagSafe, Kartenbeilage und Lieferung innerhalb 5–10 Werktagen für iPhone 14 Pro / MagSafe / „Nach dem Sturm“ / Hellblau. Umfang und noch fehlende Nachweise stehen in [MUSTERPRUEFUNG-2026-11-14.md](MUSTERPRUEFUNG-2026-11-14.md). Dies ersetzt keine Prüfung aller Varianten oder des vollständigen Live-Kaufwegs.
 
+Podbase-Angaben am 14.11.2026: Veröffentlichte Herstelleradresse, Hersteller-E-Mail und Pflegehinweise auf den Motiv-, Personalisierungs- und Bundle-Seiten ergänzt. Quellen und verbleibende Grenzen unter [PODBASE-PRODUKTANGABEN.md](PODBASE-PRODUKTANGABEN.md). Keine pauschale Erledigung aller GPSR-/Verpackungspflichten daraus abgeleitet.
+
 Frühere Veröffentlichung: Code-Commit `3230e00`, Deployment `dpl_5SbSvPLyJ53Uz8H2iLhMWuKB6iYf`, https://archenlicht-a0pioj4bh-jonas-4eb6.vercel.app, auf https://www.archenlicht.de hochgestuft. 11 geschützte Deployment-Prüfungen bestanden, anschließend 10 öffentliche Browserprüfungen bei 390/1440 Pixeln. Damals noch kein Telefonlink im Impressum; Checkout und Produktionsübergabe geschlossen. Bei diesen Prüfungen wurden keine Widerrufserklärungen oder echten E-Mails ausgelöst.
 
 ## Bestätigte Entscheidungen
