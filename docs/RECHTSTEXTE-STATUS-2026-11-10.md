@@ -4,6 +4,8 @@ Stand: 14. November 2026. Technisch umgesetzt und getestet; keine anwaltliche Fr
 
 Kontaktaktualisierung am 14.11.2026: Auf ausdrücklichen Nutzerauftrag die öffentliche Herzly-Geschäftsnummer `+49 157 55862932` mit Telefonlink `tel:+4915755862932` übernommen. Direktabruf von https://herzly.de/impressum bestätigt Nummer und Telefonlink. Gemeinsame Textversion `2026-11-14-v1` gilt für Impressum, Datenschutz, Widerruf, AGB und neu erzeugte Vertragsunterlagen; vorhandene Bestell-Snapshots werden nicht verändert.
 
+Musterprüfung am 14.11.2026: Der Nutzer bestätigt Druck, Passform, MagSafe, Kartenbeilage und Lieferung innerhalb 5–10 Werktagen für iPhone 14 Pro / MagSafe / „Nach dem Sturm“ / Hellblau. Umfang und noch fehlende Nachweise stehen in [MUSTERPRUEFUNG-2026-11-14.md](MUSTERPRUEFUNG-2026-11-14.md). Dies ersetzt keine Prüfung aller Varianten oder des vollständigen Live-Kaufwegs.
+
 Frühere Veröffentlichung: Code-Commit `3230e00`, Deployment `dpl_5SbSvPLyJ53Uz8H2iLhMWuKB6iYf`, https://archenlicht-a0pioj4bh-jonas-4eb6.vercel.app, auf https://www.archenlicht.de hochgestuft. 11 geschützte Deployment-Prüfungen bestanden, anschließend 10 öffentliche Browserprüfungen bei 390/1440 Pixeln. Damals noch kein Telefonlink im Impressum; Checkout und Produktionsübergabe geschlossen. Bei diesen Prüfungen wurden keine Widerrufserklärungen oder echten E-Mails ausgelöst.
 
 ## Bestätigte Entscheidungen
@@ -30,7 +32,7 @@ Frühere Veröffentlichung: Code-Commit `3230e00`, Deployment `dpl_5SbSvPLyJ53Uz
 
 1. Betreiber muss die für seine Verträge geltenden Texte prüfen/freigeben; insbesondere individuelle Texte/religiöse Angaben nach Art. 9 DSGVO, Löschfristen und Verfahren, vollständige Dienstleister-Verträge/Transfergrundlagen sowie gegebenenfalls W-IdNr. und sonstige Pflichtangaben. Ein religiöses Motiv ist nicht automatisch ein Religionsprofil; die Bewertung der konkreten Verarbeitung ist offen. Es wird keine pauschale Art.-9-Einwilligung aus dem Kauf unterstellt.
 2. Aktuellen abschließenden Stripe-Zahlungsschritt vor Freischaltung auf vollständige Produktmerkmale, Vertragserklärung, Pflichtinformationen und Gewährleistungshinweis prüfen. Die eigene Checkout-Seite wurde ergänzt; die rechtliche Abnahme der gesamten externen Zahlungsoberfläche steht aus.
-3. Reale Muster-/Druckfreigabe, Einhaltung der Lieferzeit, GPSR-/Verpackungs-/Rechtefragen, geeigneter kommerzieller Hostingtarif und zuverlässige häufige Hintergrundverarbeitung sind weiterhin eigene Startvoraussetzungen. Der aktuelle tägliche Cron ist für schnelle Wiederholungen fehlgeschlagener E-Mails nicht ausreichend; unmittelbarer Erstversuch und dauerhafter Auftrag sind vorhanden. Fehlgeschlagene Zustellungen müssen überwacht werden.
+3. Die konkrete Musterprüfung ist dokumentiert; Freigabe der übrigen angebotenen Varianten, laufende Einhaltung der Lieferzeit, GPSR-/Verpackungs-/Rechtefragen, geeigneter kommerzieller Hostingtarif und zuverlässige häufige Hintergrundverarbeitung bleiben zu klären. Der aktuelle tägliche Cron ist für schnelle Wiederholungen fehlgeschlagener E-Mails nicht ausreichend; unmittelbarer Erstversuch und dauerhafter Auftrag sind vorhanden. Fehlgeschlagene Zustellungen müssen überwacht werden.
 4. Verantwortliche Person muss Widerrufseingänge im Adminbereich/Postfach bearbeiten und eine mögliche Podbase-Fertigung rechtzeitig stoppen. Die technische Eingangsbestätigung entscheidet nicht über Wirksamkeit oder Erstattung.
 
 ## Verifikation

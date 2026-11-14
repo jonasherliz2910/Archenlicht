@@ -99,8 +99,10 @@ Die Screenshots liegen lokal unter `test-results/live-release/`.
 1. Verbindliche Rechtstexte und Versand-/Rückgabebedingungen ersetzen die
    öffentlich sichtbaren Arbeitsentwürfe. Die technischen Änderungen sind keine
    rechtliche Freigabe dieser Entwürfe.
-2. Reale Druck- und Musterprüfung sowie ausdrückliche Freigabe der angebotenen
-   Modellvarianten. Das MagSafe-Muster ist vorbereitet, aber nicht durch uns bestellt.
+2. Aktualisierung 14.11.2026: Der Nutzer hat das MagSafe-Muster für iPhone 14 Pro,
+   „Nach dem Sturm“, Hellblau erhalten und alle fünf Prüfpunkte bestätigt.
+   Siehe [Musterprüfung](MUSTERPRUEFUNG-2026-11-14.md). Andere Varianten und die
+   vollständige Live-Bestellkette sind dadurch noch nicht physisch geprüft.
 3. Kartenbeilage: Aktivierung vom Betreiber bestätigt; **eine Karte je Hülle**
    bei Mehrfachbestellungen ist noch nicht durch Podbase belegt.
 4. Produktions-/Versand-/Karten-/Zahlungskosten und Lieferzeit abschließend prüfen.
