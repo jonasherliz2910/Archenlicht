@@ -2,8 +2,8 @@
 // Camera/skin/background pixels are excluded from the printable case mask.
 import { PREVIEW_MODEL } from './preview-model.js';
 export const LIFESTYLE_MODEL = PREVIEW_MODEL;
-export const LIFESTYLE_ASSETS = '/assets/lifestyle-v2';
-export const LIFESTYLE_SCENES = Object.freeze({
+export const LIFESTYLE_ASSETS = '/assets/lifestyle-v3';
+const CALIBRATIONS = Object.freeze({
   'female-hand': {
     quad:[[368,230],[770,235],[756,1020],[352,1017]],
     body:'M455 230 C413 229 374 246 369 292 L356 924 C355 979 382 1015 439 1019 L675 1019 C725 1018 752 994 755 948 L765 325 C766 266 742 235 682 233 Z',
@@ -26,9 +26,23 @@ export const LIFESTYLE_SCENES = Object.freeze({
   }
 });
 
+// Every motif has its own two photographs. Only the calibrated product geometry
+// is shared, so original artwork and all case colours still remain exact.
+const SETTINGS = Object.freeze({
+  'unter-seinen-fluegeln': { base: 'female', description: 'Am hellen Fenster' },
+  'nach-dem-sturm': { base: 'male', description: 'An der Küste nach dem Regen' },
+  'absetzen': { base: 'male', description: 'Bei einer Pause im Grünen' },
+  'ganz-nah': { base: 'female', description: 'In einer gemütlichen Leseecke' },
+  'im-schatten': { base: 'female', description: 'Im Schatten der Olivenblätter' },
+  'getragen': { base: 'male', description: 'In einer ruhigen Buchhandlung' }
+});
+export const LIFESTYLE_SCENES = Object.freeze(Object.fromEntries(Object.entries(SETTINGS).flatMap(([designId, setting]) =>
+  ['hand', 'table'].map(view => [`${designId}-${view}`, Object.freeze({ ...CALIBRATIONS[`${setting.base}-${view}`], base: `${setting.base}-${view}`, description: setting.description })])
+)));
+
 export function lifestyleScenes(designId) {
-  const setting = ['getragen','absetzen','im-schatten'].includes(designId) ? 'male' : 'female';
-  return [`${setting}-hand`,`${setting}-table`];
+  if (!SETTINGS[designId]) throw new Error('Unbekanntes Motiv für die Fotoansicht.');
+  return [`${designId}-hand`, `${designId}-table`];
 }
 
 // Solve the inverse projective map: photographic pixel -> flat case coordinates.

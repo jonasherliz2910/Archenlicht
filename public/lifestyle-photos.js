@@ -35,7 +35,9 @@ async function prepareScene(id) {
       }
       return {width,height,photo,pixels:new Float32Array(pixels)};
     })();
-    scenes.set(id,promise);promise.catch(()=>scenes.delete(id));
+    scenes.set(id,promise);promise.catch(()=>{if(scenes.get(id)===promise)scenes.delete(id);});
+    // Keep two recent photo pairs instead of retaining all twelve pixel maps.
+    if(scenes.size>4)scenes.delete(scenes.keys().next().value);
   }
   return scenes.get(id);
 }
@@ -77,7 +79,7 @@ export function mountLifestylePhotos(root) {
       if(disposed||ticket!==revision)return;
       entry.canvas.width=result.width;entry.canvas.height=result.height;
       entry.canvas.getContext('2d').drawImage(result,0,0);
-      entry.canvas.setAttribute('aria-label',`${snapshot.design.title}, ${caseColor(snapshot.preview.configuration.backgroundId).name}, ${view?'auf einem Tisch':'in einer Hand'} – Designbeispiel am ${LIFESTYLE_MODEL.name}`);
+      entry.canvas.setAttribute('aria-label',`${snapshot.design.title}, ${caseColor(snapshot.preview.configuration.backgroundId).name}, ${view?'auf einem Tisch':'in einer Hand'}. ${LIFESTYLE_SCENES[sceneId].description} – Designbeispiel am ${LIFESTYLE_MODEL.name}`);
       entry.canvas.dataset.printHash=snapshot.preview.hash;
       entry.canvas.dataset.scene=sceneId;entry.canvas.hidden=false;entry.status.hidden=true;
       if(entry.thumbnail){

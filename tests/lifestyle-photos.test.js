@@ -1,8 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import sharp from 'sharp';
+import { createHash } from 'node:crypto';
+import { readFile } from 'node:fs/promises';
 import { DESIGNS } from '../server/catalog.js';
-import { LIFESTYLE_SCENES, lifestyleScenes, inversePerspective, projectToCase } from '../public/lifestyle-scenes.js';
+import { LIFESTYLE_ASSETS, LIFESTYLE_SCENES, lifestyleScenes, inversePerspective, projectToCase } from '../public/lifestyle-scenes.js';
 
 test('Photographic perspective preserves all four print corners and rejects a collapsed frame',()=>{
   for(const scene of Object.values(LIFESTYLE_SCENES)){
@@ -17,22 +19,29 @@ test('Photographic perspective preserves all four print corners and rejects a co
   assert.throws(()=>inversePerspective([[0,0],[0,0],[0,0],[0,0]]));
 });
 
-test('Every motif has a hand and table scene, with usable matching masks',async()=>{
+test('All six motifs have exclusive hand and table photos, with usable matching masks',async()=>{
   const used=new Set();
   for(const design of DESIGNS){
     const scenes=lifestyleScenes(design.id);
     assert.equal(scenes.length,2);assert.ok(scenes[0].endsWith('-hand'));assert.ok(scenes[1].endsWith('-table'));
-    scenes.forEach(id=>{assert.ok(LIFESTYLE_SCENES[id]);used.add(id);});
+    scenes.forEach(id=>{assert.ok(LIFESTYLE_SCENES[id]);assert.ok(!used.has(id), 'No photograph is reused for another motif');used.add(id);});
   }
-  assert.equal(used.size,4);
+  assert.equal(used.size,12);
+  assert.equal(new Set(Object.values(LIFESTYLE_SCENES).map(s=>s.description)).size,6);
+  assert.throws(()=>lifestyleScenes('unknown'),/Unbekanntes Motiv/);
+  const imageHashes=new Set();
   for(const id of used){
-    const photo=await sharp(`public/assets/lifestyle-v2/${id}.webp`).metadata();
-    const {data,info}=await sharp(`public/assets/lifestyle-v2/${id}-mask.png`).greyscale().raw().toBuffer({resolveWithObject:true});
+    const bytes=await readFile(`public${LIFESTYLE_ASSETS}/${id}.webp`);
+    imageHashes.add(createHash('sha256').update(bytes).digest('hex'));
+    const photo=await sharp(bytes).metadata();
+    const {data,info}=await sharp(`public${LIFESTYLE_ASSETS}/${id}-mask.png`).greyscale().raw().toBuffer({resolveWithObject:true});
+    assert.equal(photo.width,1122);assert.equal(photo.height,1402);
     assert.equal(info.width,photo.width);assert.equal(info.height,photo.height);
     assert.equal(data[0],0);assert.equal(data.at(-1),0);
     const coverage=data.reduce((n,p)=>n+Number(p>127),0)/data.length;
     assert.ok(coverage>.12&&coverage<.4,`${id}: plausible printable case area below the wider camera island`);
-    const [flashX, flashY] = { 'female-hand':[700,300], 'female-table':[855,345], 'male-hand':[700,270], 'male-table':[525,365] }[id];
+    const [flashX, flashY] = { 'female-hand':[700,300], 'female-table':[855,345], 'male-hand':[700,270], 'male-table':[525,365] }[LIFESTYLE_SCENES[id].base];
     assert.equal(data[flashY*info.width+flashX], 0, `${id}: the wide camera island stays unprinted`);
   }
+  assert.equal(imageHashes.size,12,'Each scene must contain a different photograph');
 });
