@@ -32,6 +32,9 @@ nav{font-size:12px}
 .footer-main p,.footer-main>div>a:not(.wordmark){font-size:12px}
 .footer-main h3{font-size:12px}
 .footer-main small{font-size:10px}
+/* Blend the logo's light paper into the footer without changing the source image. */
+#footer{isolation:isolate}
+#footer .wordmark>img{mix-blend-mode:darken;filter:brightness(1.02)}
 .prose-page p{font-size:16px}
 .faq-page summary{font-size:15px}
 .faq-page details p{font-size:15px}
