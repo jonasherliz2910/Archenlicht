@@ -77,7 +77,9 @@ supporting `allowBuilds`. Cloudflare reads this exact version from
 `package.json`; no extra dashboard variable or credential is required.
 Verified a fresh local frozen-lockfile installation with pnpm 11.25.0, native
 Sharp/esbuild execution, the trial build and the Wrangler deployment dry run.
-The next remote build is still pending the dashboard branch change.
+After the dashboard branch change, commit `4abee52` was deployed successfully.
+Cloudflare build `3c365e2b-3f56-4421-8cb9-f8d0c066742c` reported success through
+GitHub Checks; the dashboard showed version `0c13b474` as Ready.
 
 ## Reproduce locally
 
@@ -119,10 +121,40 @@ not establish actual Cloudflare production CPU consumption or availability.
   local render times of roughly 2.8–4.2 seconds and scrypt test time of 105 ms
   are wall times, not measurements of Cloudflare production CPU billing.
 
+### Completed deployed checks
+
+Test URL: https://archenlicht-cloudflare-test.jonas-herliz2910.workers.dev/
+
+`node scripts/check-cloudflare-deployment.mjs` exercises only this fixed trial
+host, not the production shop. On 15 November the deployed test passed:
+
+- HTML, JavaScript, CSS, logo, health and catalog returned HTTP 200. The catalog
+  contains six designs, nine colors and 64 models with templates.
+- Ten remote PNGs matched native reference geometry, template hashes, 300 DPI
+  and sRGB: all six motifs on black, Nach dem Sturm on light blue, plus custom
+  text/dedication on iPhone 14 Pro MagSafe, Pixel 9 Pro and Galaxy S24 Ultra.
+- Worst mean channel difference was 0.0592 on the 0–255 scale; no sampled
+  channel differed by more than 40. Network round trips were 3.7–4.8 seconds.
+- The fixed-value scrypt positive/negative check passed without creating an
+  account. No customer database, payment, email or Podbase integration is
+  connected to the trial.
+- Wrong-origin requests, missing templates, oversized text, checkout and
+  Stripe webhooks were rejected with the expected 403/409/400/404 responses.
+- A separate headless Edge check rendered a custom light-blue MagSafe print
+  and completed the password check at the deployed URL. Both 390 px and
+  1440 px layouts had no horizontal overflow and no JavaScript errors.
+
+Evidence is in ignored `test-results/cloudflare-deployed/report.json`,
+`browser.json` and the corresponding PNGs. Workers' clock-based elapsed values
+were zero for CPU-only execution, so those values are not useful CPU timings;
+the round trips above were measured by the external client. Actual account
+plan, billed usage, peak memory and concurrency capacity remain unverified.
+
 ## Remaining after this trial
 
-1. Deploy the trial to the user's free Cloudflare account and inspect actual
-   runtime/CPU/memory failures and cold starts.
+1. Verify the account is on Workers Free and inspect actual CPU/memory usage,
+   cold starts and concurrent demand. The deployed functional checks passed;
+   they do not establish a complete production shop's free-tier capacity.
 2. Implement and verify the full backend, session handling, database access,
    webhooks, reliable background processing, print persistence and authenticated
    administration. None of those services is migrated by this print trial.
