@@ -1,8 +1,7 @@
-import opentype from 'opentype.js';
-import sharp from 'sharp';
 import { createHash } from 'node:crypto';
-import { readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
+import { font, FONT_VERSION } from './layout-font.js';
+export { FONT_VERSION } from './layout-font.js';
+export { rasterize } from './rasterizer.js';
 import { findDesign, findModel, findVerse } from './catalog.js';
 import { designAsset } from './design-assets.js';
 import { caseColor } from '../public/case-colors.js';
@@ -10,9 +9,6 @@ import { printExclusions } from '../public/device-preview.js';
 import { MAX_CUSTOM_TEXT } from '../public/custom-text.js';
 
 export const LAYOUT_VERSION = 'archenlicht-package-layout-v8-retouched-edges';
-const fontPath = new URL('../public/fonts/Caveat.ttf', import.meta.url);
-const font = opentype.loadSync(fileURLToPath(fontPath));
-export const FONT_VERSION = `Caveat-${createHash('sha256').update(readFileSync(fontPath)).digest('hex')}`;
 export class ShopError extends Error { constructor(message, status = 400) { super(message); this.status = status; } }
 const fail = text => { throw new ShopError(text); };
 const labels = { reference: 'Die Versstelle', excerpt: 'Der Versauszug', dedication: 'Die Widmung', customText: 'Dein Text' };
@@ -146,8 +142,4 @@ export function renderLayout(configuration, options) {
   const hash = createHash('sha256').update(JSON.stringify(c)).update(svg).digest('hex');
   const printText = (freeText ? [c.customText, c.dedication] : [c.verseExcerpt, c.verseReference, c.dedication]).filter(Boolean).join('\n');
   return { configuration: c, svg, hash, printText, reference: c.verseReference, width, height, camera: model.template.camera, imagePlacement: image, contentBounds, maximumScale, illustrationInset, typography, simulatedTemplate: true, productionApproved: false, sourcePixels: source };
-}
-export async function rasterize(svg) {
-  const input = Buffer.from(svg), { width, height } = await sharp(input).metadata();
-  return sharp(input, { density: 300 }).resize(width, height).png().withMetadata({ density: 300 }).toBuffer();
 }

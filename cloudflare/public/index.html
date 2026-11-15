@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Cloudflare-Drucktest | Archenlicht</title>
+  <link rel="stylesheet" href="/style.css">
+  <script src="/test.js" type="module"></script>
+</head>
+<body>
+  <header><img src="/logo.webp" alt="Archenlicht" width="200"><span>Technische Testversion</span></header>
+  <main>
+    <section class="intro"><p class="eyebrow">Vorbereitung des Hosting-Wechsels</p><h1>Originalmotiv. Neue Druckverarbeitung.</h1>
+      <p>Hier prüfen wir die Druckdateierstellung auf Cloudflare. Diese Testseite ist kein Shop. Es werden keine Kundenkonten, Zahlungen, E-Mails oder Podbase-Aufträge angelegt.</p></section>
+    <div class="layout">
+      <form id="print-form">
+        <h2>Drucktest zusammenstellen</h2>
+        <label>Motiv<select name="designId" required></select></label>
+        <label>Handymodell mit Druckvorlage<select name="modelId" required></select></label>
+        <label>Hintergrundfarbe<select name="backgroundId" required></select></label>
+        <label class="check"><input type="checkbox" name="magsafe"> MagSafe-Vorlage testen</label>
+        <label>Beschriftung<select name="kind"><option value="fixed">Originaltext des Motivs</option><option value="custom">Eigenen Testtext schreiben</option></select></label>
+        <div id="custom-fields" hidden><label>Testtext<textarea name="customText" maxlength="180" rows="3">Du bist gehalten.</textarea></label><label>Widmung (optional)<input name="dedication" maxlength="60" placeholder="Für deinen Weg"></label></div>
+        <button id="render-button" type="submit" disabled>Druckvorschau erstellen</button>
+        <p id="status" role="status">Testkatalog wird geladen …</p>
+      </form>
+      <section class="preview"><h2>Erzeugte Druckdatei</h2><p id="empty">Wähle ein Motiv und starte den Drucktest.</p><img id="print" alt="Erzeugte Druckdatei" hidden><p id="details"></p><a id="download" hidden download="archenlicht-drucktest.png">PNG herunterladen</a><p class="note">Die flache Druckdatei enthält die bedruckte Fläche einschließlich Beschnitt. Sie ist keine fertige Hüllenansicht. Ein erfolgreicher Techniktest ist noch keine Druck- oder Verkaufsfreigabe.</p></section>
+    </div>
+    <section class="password"><h2>Passwortverfahren prüfen</h2><p>Prüft das bestehende Passwortverfahren mit festen Testwerten. Dein eigenes Passwort wird nicht benötigt.</p><button id="password-button" type="button">Technischen Passworttest starten</button><p id="password-status" role="status"></p></section>
+  </main>
+</body>
+</html>

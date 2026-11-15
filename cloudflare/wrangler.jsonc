@@ -1,0 +1,23 @@
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "archenlicht-cloudflare-test",
+  "main": "../dist-cloudflare/worker/worker.js",
+  "compatibility_date": "2026-11-15",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": true,
+  "no_bundle": true,
+  "find_additional_modules": true,
+  "assets": {
+    "directory": "../dist-cloudflare/public",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*"]
+  },
+  "durable_objects": {
+    "bindings": [{ "name": "PRINT_TEST", "class_name": "PrintTest" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["PrintTest"] }],
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1
+  }
+}

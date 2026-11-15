@@ -1,11 +1,11 @@
-import { readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
-import sharp from 'sharp';
+import { rasterPixels, rasterMask, MASK_CACHE_SIZE } from './rasterizer.js';
+import { PODBASE_PRINT_TEMPLATES } from './print-templates.js';
+export { PODBASE_PRINT_TEMPLATES } from './print-templates.js';
 import { deviceProfile, printFrame } from '../public/device-preview.js';
 import { caseColor } from '../public/case-colors.js';
 import { ShopError } from './layout.js';
 
-export const PODBASE_PRINT_TEMPLATES = JSON.parse(readFileSync(new URL('./podbase-print-templates.json', import.meta.url), 'utf8'));
 export const officialTemplate = (modelId, magsafe = false) => (magsafe ? PODBASE_PRINT_TEMPLATES.magsafeTemplates : PODBASE_PRINT_TEMPLATES.templates)?.find(t => t.modelId === modelId);
 const masks = new Map();
 const digest = text => createHash('sha256').update(text).digest('hex');
@@ -15,8 +15,8 @@ async function allowedPixels(template) {
   if (!masks.has(template.hash)) {
     const { width, height, clearance } = template;
     const guides = `<rect width="${width}" height="${height}" fill="black"/><path d="${template.safeArea.path}" fill="white" stroke="black" stroke-width="${clearance * 2}"/>${template.cameraExclusions.map(c => `<path d="${c.path}" fill="black" stroke="black" stroke-width="${clearance * 2}"/>`).join('')}`;
-    if (masks.size >= 8) masks.delete(masks.keys().next().value);
-    const promise = sharp(Buffer.from(svgDocument(guides, width, height))).removeAlpha().greyscale().raw().toBuffer();
+    if (masks.size >= MASK_CACHE_SIZE) masks.delete(masks.keys().next().value);
+    const promise = rasterMask(svgDocument(guides, width, height));
     masks.set(template.hash, promise);
     promise.catch(() => masks.delete(template.hash));
   }
@@ -27,7 +27,7 @@ export async function inspectProductionInk(marks, template) {
   // Include outside pixels so clipping at the canvas boundary cannot pass validation.
   const padding = 96, width = template.width + padding * 2, height = template.height + padding * 2;
   const [ink, allowed] = await Promise.all([
-    sharp(Buffer.from(svgDocument(`<g transform="translate(${padding} ${padding})">${marks}</g>`, width, height))).ensureAlpha().raw().toBuffer(),
+    rasterPixels(svgDocument(`<g transform="translate(${padding} ${padding})">${marks}</g>`, width, height)),
     allowedPixels(template)
   ]);
   let markedPixels = 0, unsafePixels = 0, outsideCanvasPixels = 0;
