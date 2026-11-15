@@ -4,6 +4,7 @@ import { Client, neon, types } from '@neondatabase/serverless';
 import { openStore, token, passwordHash } from './store.js';
 import { TABLES } from './schema.js';
 import { MODELS, DESIGNS } from './catalog.js';
+import { postgresTransaction } from './postgres-transaction.js';
 
 types.setTypeParser(20, value => Number(value));
 const transactions = new AsyncLocalStorage(), localGates = new Map(), prepared = new Map();
@@ -64,14 +65,10 @@ async function postgresStore(config) {
     async tx(work) {
       if (transactions.getStore()?.identity === identity) throw new Error('Verschachtelte Transaktionen werden nicht unterstützt.');
       const connection = new Client({ connectionString: config.databaseUrl, connectionTimeoutMillis: 15000 });
-      await connection.connect();
-      try {
-        await connection.query('BEGIN');
+      return postgresTransaction(connection, async () => {
         await connection.query('SELECT pg_advisory_xact_lock($1)', [LOCK]);
-        const result = await transactions.run({ identity, connection }, work);
-        await connection.query('COMMIT'); return result;
-      } catch (error) { await connection.query('ROLLBACK').catch(() => {}); throw error; }
-      finally { await connection.end(); }
+        return transactions.run({ identity, connection }, work);
+      });
     },
     async close() {} // HTTP queries own no persistent connections; each tx closes its client.
   };

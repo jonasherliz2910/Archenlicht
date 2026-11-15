@@ -1,13 +1,10 @@
 import { DatabaseSync } from 'node:sqlite';
 import { mkdirSync, writeFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { randomBytes, createHash, scryptSync, timingSafeEqual } from 'node:crypto';
+import { token, passwordHash } from './credentials.js';
 import { DESIGNS, MODELS } from './catalog.js';
 import { TABLES } from './schema.js';
-export const token = () => randomBytes(32).toString('base64url');
-export const digest = value => createHash('sha256').update(String(value)).digest('hex');
-export function passwordHash(value) { const salt = randomBytes(16).toString('hex'); return `${salt}:${scryptSync(value, salt, 64).toString('hex')}`; }
-export function passwordMatches(value, encoded) { const [salt, hash] = encoded.split(':'); const candidate = scryptSync(value, salt, 64); return timingSafeEqual(candidate, Buffer.from(hash, 'hex')); }
+export { token, digest, passwordHash, passwordMatches } from './credentials.js';
 export function openStore(dir, options = {}) {
   mkdirSync(dir, { recursive: true });
   const db = new DatabaseSync(join(dir, 'shop.sqlite'));

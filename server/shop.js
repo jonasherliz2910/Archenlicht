@@ -135,16 +135,24 @@ export class Shop {
     }
     return this.preview(input);
   }
-  async preview(input, { printMode = this.config.printMode } = {}) {
+  async preview(input, options) {
+    const work = () => this.renderPreview(input, options);
+    return this.config.serializePreview ? this.config.serializePreview(work) : work();
+  }
+  async renderPreview(input, { printMode = this.config.printMode } = {}) {
+    if (this.config.prepareDesign) await this.config.prepareDesign(normalizeConfiguration(input, { allowEmptyCustomText: true }).designId);
     let layout = renderLayout(input, { allowEmptyCustomText: true });
     if (printMode === 'podbase') {
       const key = layout.hash;
       if (!this.printLayouts.has(key)) {
-        if (this.printLayouts.size >= 24) this.printLayouts.delete(this.printLayouts.keys().next().value);
+        if (this.printLayouts.size >= (this.config.printLayoutCacheSize || 24)) this.printLayouts.delete(this.printLayouts.keys().next().value);
         const pending = productionPrint(layout, findModel(layout.configuration.modelId));
         this.printLayouts.set(key, pending); pending.catch(() => this.printLayouts.delete(key));
       }
       layout = await this.printLayouts.get(key);
+    }
+    if (this.config.printRenderer) {
+      layout = { ...layout, hash: digest(`${layout.hash}:${this.config.printRenderer}`), configuration: { ...layout.configuration, printRenderer: this.config.printRenderer } };
     }
     let svg = layout.svg;
     if (this.s.remote) {
@@ -168,6 +176,7 @@ export class Shop {
       if (format === 'svg' || format === 'preview.svg') return format === 'svg' ? asset.svg : previewFromProduction(asset.svg, JSON.parse(asset.configuration));
       let cached = await this.s.get('SELECT content FROM print_files WHERE hash=?', hash);
       if (!cached) {
+        if (this.config.printRenderer && JSON.parse(asset.configuration).printRenderer !== this.config.printRenderer) throw new ShopError('Diese ältere Druckdatei muss vor dem Hosting-Wechsel übernommen werden.', 409);
         const content = (await rasterize(asset.svg)).toString('base64');
         await this.s.run('INSERT OR IGNORE INTO print_files VALUES(?,?)', hash, content);
         cached = await this.s.get('SELECT content FROM print_files WHERE hash=?', hash);

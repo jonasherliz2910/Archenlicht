@@ -12,6 +12,8 @@
     "build:cloudflare-test": "node scripts/build-cloudflare-test.mjs",
     "dev:cloudflare-test": "wrangler dev --config cloudflare/wrangler.jsonc",
     "deploy:cloudflare-test": "wrangler deploy --config cloudflare/wrangler.jsonc",
+    "build:cloudflare-shop": "node scripts/build-web.mjs && node scripts/build-cloudflare-shop.mjs",
+    "deploy:cloudflare-shop": "wrangler deploy --config cloudflare/wrangler-shop.jsonc",
     "start": "node --env-file-if-exists=.env server/index.js",
     "dev": "node --env-file-if-exists=.env --watch server/index.js",
     "test": "node --test --test-concurrency=1 tests/*.test.js",
