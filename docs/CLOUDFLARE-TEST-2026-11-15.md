@@ -56,13 +56,28 @@ of a complete free production shop.
 | Build command | `pnpm run build:cloudflare-test` |
 | Deploy command | `pnpm run deploy:cloudflare-test` |
 | Preview builds | disabled for the first trial |
+| Package manager | `pnpm@11.25.0`, pinned in `package.json` |
 | Secrets / provider keys | none |
 
-Do not deploy the current `main` branch with these commands: the trial scripts
-exist only on the trial branch. If the initial Cloudflare screen does not
-allow the branch to be selected, do not perform a knowingly failing main-branch
-deployment; connect the prepared branch using the supported project setup.
+The trial scripts exist only on the trial branch. The initial dashboard setup
+did not offer a branch selector and created the project against `main`. Before
+the next build, select `codex/cloudflare-test` in Settings > Build > Branch
+control. A retry of an old `main` build must not be mistaken for a new build
+of the trial branch; check the branch and commit in the new build details.
 Keep the account on Workers Free. Do not connect `archenlicht.de` at this stage.
+
+### Initial remote installation failure
+
+The first dashboard build used `main` and the build image's default pnpm 9.10.0.
+It failed during dependency installation with `packages field missing or empty`,
+before reaching the build command. The workspace file previously only declared
+the pnpm 11 build-script allowlist. The trial now explicitly includes the root
+package and pins pnpm 11.25.0, matching the locally tested installation and
+supporting `allowBuilds`. Cloudflare reads this exact version from
+`package.json`; no extra dashboard variable or credential is required.
+Verified a fresh local frozen-lockfile installation with pnpm 11.25.0, native
+Sharp/esbuild execution, the trial build and the Wrangler deployment dry run.
+The next remote build is still pending the dashboard branch change.
 
 ## Reproduce locally
 
