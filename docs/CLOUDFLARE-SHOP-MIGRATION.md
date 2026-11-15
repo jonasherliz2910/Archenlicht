@@ -28,6 +28,10 @@ Die produktive Domain, der Hauptbranch und die Verkaufssperre bleiben unverände
 - Fehler während einer Datenbanktransaktion führen weiterhin zum Abbruch/Rollback.
   Nach einem bestätigten Commit auftretende WebSocket-Schließfehler machen die
   bereits gespeicherte Bestellung nicht nachträglich zu einem fehlgeschlagenen Vorgang.
+- Persistierte Durable-Object-Alarme nehmen offene Aufträge und Mailversuche wieder
+  auf. Der Wecktermin wird vor möglichen geschäftlichen Änderungen gespeichert.
+  Abgelaufene Auftrags-Leases und vorhandene Anbieter-IDs bleiben maßgeblich;
+  unklare Übergaben werden zunächst abgeglichen. Ohne offene Arbeit endet der Alarm.
 
 ## Prüfungen
 
@@ -102,6 +106,36 @@ gegen Cloudflare erfolgreich geprüft. Nach erfolgreicher Registrierung wechselt
 das Formular für eine spätere Anmeldung jetzt zurück in den Anmeldemodus.
 Prüfprotokoll: `test-results/cloudflare-shop-deployed/account-login.json`.
 
+### Hintergrundverarbeitung und parallele Anfragen
+
+Version `ddffae03-e51f-44e0-801a-d74a4211ee28` enthält den Alarm-Scheduler.
+Sechs zusätzliche Tests prüfen Wiederaufnahme nach Serverneustart, verlorene
+Anbieterantworten ohne zweiten POST, aktive Leases, Versand ohne doppelte Mail,
+Mail-Retryzeiten und dauerhafte Wiederholungen bei Datenbankausfall.
+
+In der veröffentlichten Vorschau wurde eine simuliert bezahlte Bestellung mit
+aktiver Lease gespeichert und danach erneut deployt. Ohne weitere Shopanfrage
+übernahm ein Alarm den Auftrag nach Ablauf der Lease. Genau ein simulierter
+Druckauftrag und ein Übergabeversuch wurden gespeichert. Die Beobachtung erfolgte
+direkt in der isolierten Datenbank. Rechner- und Worker-Uhr können abweichen;
+daraus wird keine Latenz abgeleitet.
+
+Sechs gleichzeitige Sitzungen hatten getrennte CSRF-Token. Drei parallele
+Wunschtext-Vorschauen mit verschiedenen Motiven/Farben und einer MagSafe-Variante
+behielten ihre jeweilige Konfiguration und lieferten unterschiedliche gültige
+PNGs. Die Gruppen dauerten 594 ms (Bootstrap), 5755 ms (Vorschauen) und 5816 ms
+(PNG-Abfragen). Das sind Netzwerk-Wandzeiten, kein CPU- oder Lastkapazitätsnachweis.
+
+Nachweise: `test-results/cloudflare-shop-deployed/recovery.json` und
+`parallel.json`. Reproduzierbar mit `scripts/check-cloudflare-recovery.mjs`
+(`prepare`, anschließend Deploy, danach `check`; separat `parallel`).
+
+Der Scheduler bearbeitet maximal drei fällige Aufträge je Lauf. Er berücksichtigt
+Mail-Leases und Retryzeiten, gleicht Produktionsstände standardmäßig alle 30
+Minuten ab und erhöht bei Datenbankfehlern die Pause bis auf 15 Minuten. Manuell
+angehaltene Simulationen erzeugen keine endlose Statusabfrage. Ein größerer
+Lasttest und die Beobachtung tatsächlicher Free-Kontingente stehen noch aus.
+
 Benötigte Secrets: `DATABASE_URL`, `DATABASE_SCHEMA`, `ADMIN_PASSWORD`,
 `MIGRATION_ACCESS_PASSWORD` (mindestens 24 Zeichen), `MIGRATION_JOB_SECRET`.
 Lokale Werte stehen ausschließlich in der ignorierten `cloudflare/.dev.vars`.
@@ -111,10 +145,10 @@ verwenden. Für lokale Tests: Wrangler-Port 8793, danach
 
 ## Vor einem Produktionsumzug noch offen
 
-1. In der veröffentlichten Vorschau noch kalte Starts, Ressourcenverbrauch und
-   parallele Nutzung prüfen; die funktionalen Kaufwegtests sind bestanden.
-2. Dauerhafte Hintergrundverarbeitung mit Wiederholungen und Versandabgleich
-   einrichten. Die Vorschau verarbeitet simulierte Folgeaktionen noch direkt.
+1. Das erwartete Lastprofil und den tatsächlichen Ressourcenverbrauch im
+   kostenlosen Tarif prüfen; die kleinen Parallel- und Wiederaufnahmetests bestehen.
+2. Den Alarm-Scheduler mit den echten Anbieterabläufen abnehmen. Persistierte
+   Wiederholungen, Leases und Wiederaufnahme über einen Deploy sind geprüft.
 3. Stripe-/Resend-Webhooks und Podbase-Anbindung in der neuen Laufzeit separat
    testen. Ein erfolgreicher simuliert bezahlter Kauf belegt diese Dienste nicht.
 4. Bestehende Daten sichern; fehlende historische PNGs vorab im alten Renderer
@@ -129,4 +163,5 @@ verwenden. Für lokale Tests: Wrangler-Port 8793, danach
 - https://developers.cloudflare.com/workers/platform/pricing/
 - https://developers.cloudflare.com/durable-objects/platform/pricing/
 - https://developers.cloudflare.com/durable-objects/platform/limits/
+- https://developers.cloudflare.com/durable-objects/api/alarms/
 - https://github.com/neondatabase/serverless

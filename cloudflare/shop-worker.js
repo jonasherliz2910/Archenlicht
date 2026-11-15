@@ -2,30 +2,43 @@ import { DurableObject } from 'cloudflare:workers';
 import { migrationConfig } from './migration-config.js';
 import { nodeHandlerResponse } from './node-handler.js';
 import { migrationAccess } from './migration-access.js';
+import { JobScheduler, mayQueueWork } from './job-scheduler.js';
 
 export class MigrationShop extends DurableObject {
-  constructor(ctx, env) { super(ctx, env); this.queue = Promise.resolve(); this.printQueue = Promise.resolve(); this.application = null; }
-  fetch(request) {
-    const task = this.queue.then(() => this.handle(request));
+  constructor(ctx, env) {
+    super(ctx, env); this.queue = Promise.resolve(); this.printQueue = Promise.resolve(); this.application = null;
+    this.scheduler = new JobScheduler(ctx.storage, async origin => (await this.getApplication(origin)).shop);
+  }
+  serial(work) {
+    const task = this.queue.then(work);
     this.queue = task.catch(() => {});
     return task;
   }
+  fetch(request) { return this.serial(() => this.handle(request)); }
+  alarm() { return this.serial(() => this.scheduler.run()); }
+  async getApplication(origin) {
+    if (!this.application) {
+      this.application = (async () => {
+        const { createApp } = await import('../server/index.js');
+        const { prepareDesign } = await import('../server/design-assets.js');
+        const config = migrationConfig(this.env, origin);
+        return createApp({ ...config, prepareDesign: id => prepareDesign(id, this.env.ASSETS), serializePreview: work => {
+          const task = this.printQueue.then(work);
+          this.printQueue = task.catch(() => {});
+          return task;
+        } });
+      })();
+      this.application.catch(() => { this.application = null; });
+    }
+    return this.application;
+  }
   async handle(request) {
     try {
-      if (!this.application) {
-        this.application = (async () => {
-          const { createApp } = await import('../server/index.js');
-          const { prepareDesign } = await import('../server/design-assets.js');
-          const config = migrationConfig(this.env, new URL(request.url).origin);
-          return createApp({ ...config, prepareDesign: id => prepareDesign(id, this.env.ASSETS), serializePreview: work => {
-            const task = this.printQueue.then(work);
-            this.printQueue = task.catch(() => {});
-            return task;
-          } });
-        })();
-        this.application.catch(() => { this.application = null; });
-      }
-      const { handler } = await this.application;
+      const origin = new URL(request.url).origin;
+      // Arm before a request can commit payment, email or fulfillment work.
+      // A first request also discovers outstanding work from an earlier runtime.
+      if (!this.application || mayQueueWork(request)) await this.scheduler.arm(origin);
+      const { handler } = await this.getApplication(origin);
       return await nodeHandlerResponse(handler, request, request.headers.get('x-forwarded-for') || 'unknown');
     } catch {
       console.error('Protected Cloudflare migration could not start; no credentials or request data logged.');
