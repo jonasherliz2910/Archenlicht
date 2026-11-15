@@ -4,7 +4,7 @@ export function migrationConfig(env, baseUrl) {
   if (env.MIGRATION_ACCESS_PASSWORD.length < 24) throw new Error('Migration access password is too short.');
   return {
     baseUrl, printBaseUrl: baseUrl, platformOrigins: [],
-    shopMode: 'test', paymentMode: 'local', podbaseMode: 'local',
+    shopMode: 'test', isolatedPreview: true, paymentMode: 'local', podbaseMode: 'local',
     mailMode: 'local', newsletterMode: 'local', printMode: 'podbase',
     checkoutEnabled: true, podbaseSubmissionEnabled: false, autoShip: false,
     storageMode: 'postgres', databaseUrl: env.DATABASE_URL, databaseSchema: env.DATABASE_SCHEMA,

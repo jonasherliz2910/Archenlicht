@@ -88,6 +88,20 @@ Die Cloudflare-CLI ist angemeldet; alle fünf benötigten Konfigurationswerte
 wurden als Secrets hochgeladen. GitHub ist bisher nur mit dem vorherigen
 Drucktest verbunden; diese Vorschau wurde über die CLI veröffentlicht.
 
+Die Vorschau hat eigene Benutzerkonten. Der Browser-Zugang mit Benutzername
+`preview` ist kein Shop-Login. Ein verifizierter Testkunden-Zugang und der
+separate Testadmin stehen in der ignorierten lokalen Datei
+`.tools/cloudflare-vorschau-zugang.txt` im ursprünglichen Projektordner.
+Bestehende produktive Kunden und Administratoren wurden nicht kopiert.
+Die Konto-Anmeldeseite erklärt dies nur in der isolierten Vorschau.
+
+Nachtrag zur Anmeldung, Version `775fc0fc-dbf5-47bf-a2d1-ce7c049792bc`:
+Registrierung, Abmeldung, erneute Anmeldung und Seitenneuladen des Testkunden
+sowie Testadmin-Anmeldung und Zugriff auf die Administration wurden im Browser
+gegen Cloudflare erfolgreich geprüft. Nach erfolgreicher Registrierung wechselt
+das Formular für eine spätere Anmeldung jetzt zurück in den Anmeldemodus.
+Prüfprotokoll: `test-results/cloudflare-shop-deployed/account-login.json`.
+
 Benötigte Secrets: `DATABASE_URL`, `DATABASE_SCHEMA`, `ADMIN_PASSWORD`,
 `MIGRATION_ACCESS_PASSWORD` (mindestens 24 Zeichen), `MIGRATION_JOB_SECRET`.
 Lokale Werte stehen ausschließlich in der ignorierten `cloudflare/.dev.vars`.

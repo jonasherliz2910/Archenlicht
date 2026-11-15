@@ -12,6 +12,7 @@ test('Migration uses isolated data and simulated services even when live setting
   const env = { DATABASE_URL: 'postgresql://fixture', DATABASE_SCHEMA: 'cf_preview_fixture', ADMIN_PASSWORD: 'Test-only-admin-password', MIGRATION_ACCESS_PASSWORD: 'Test-only-migration-access-password', SHOP_MODE: 'live', PAYMENT_MODE: 'live', PODBASE_SUBMISSION_ENABLED: 'true', STRIPE_SECRET_KEY: 'sk_live_fixture' };
   const config = migrationConfig(env, 'https://migration.example');
   assert.equal(config.shopMode, 'test'); assert.equal(config.paymentMode, 'local');
+  assert.equal(config.isolatedPreview, true);
   assert.equal(config.podbaseMode, 'local'); assert.equal(config.mailMode, 'local');
   assert.equal(config.podbaseSubmissionEnabled, false); assert.equal(config.stripeKey, undefined);
   assert.throws(() => migrationConfig({ ...env, DATABASE_SCHEMA: 'public' }, 'https://migration.example'));
