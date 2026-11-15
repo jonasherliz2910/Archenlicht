@@ -5,7 +5,8 @@ Stand: 15. November 2026. Branch: `codex/cloudflare-shop`.
 Der Nutzer hat im Cloudflare-Dashboard den aktiven Tarif **Free / $0** gezeigt.
 Es wurde kein Tarifwechsel vorgenommen. Der vorherige reine Drucktest ist
 weiterhin auf `archenlicht-cloudflare-test.jonas-herliz2910.workers.dev` erreichbar.
-Die hier vorbereitete vollständige Shop-Vorschau wurde noch nicht hochgeladen.
+Die vollständige geschützte Shop-Vorschau wurde erfolgreich hochgeladen:
+https://archenlicht-shop-preview.jonas-herliz2910.workers.dev/
 Die produktive Domain, der Hauptbranch und die Verkaufssperre bleiben unverändert.
 
 ## Umfang
@@ -45,7 +46,31 @@ Die produktive Domain, der Hauptbranch und die Verkaufssperre bleiben unverände
   Bundles und Konto mit HTTP 200, ohne JavaScript-Fehler oder horizontales Überlaufen.
 - Paketbau und Wrangler-Probelauf erfolgreich, etwa 1,45 MiB komprimierter Upload.
 
-Nachweise liegen ignoriert unter `test-results/cloudflare-shop/`. Die
+### Prüfung der veröffentlichten Vorschau
+
+Version nach Konfiguration der fünf Secrets:
+`744a7cbf-6050-462a-95a3-64600965aca2`.
+
+Der auf die zwei erlaubten Testadressen beschränkte Prüfablauf wurde ebenfalls
+gegen die veröffentlichte Vorschau ausgeführt:
+
+```sh
+node scripts/check-cloudflare-shop.mjs https://archenlicht-shop-preview.jonas-herliz2910.workers.dev
+```
+
+Gast- und Kontokauf, persönliche MagSafe-Hülle, Druckdateien, wiederholte
+Zahlungsbestätigung, CSRF, Bestellzugriff, Admin-Anmeldung, Dreier-Bundle mit
+10 % Rabatt und Abbruch bestanden. Ohne Vorschau-Anmeldung wird HTTP 401
+zurückgegeben. Alle Anbieteraktionen waren simuliert; es wurde kein echter
+Produktionsauftrag, keine echte Zahlung und keine E-Mail ausgelöst.
+
+Auch die Browserprüfung wurde auf der veröffentlichten Vorschau wiederholt:
+alle fünf genannten Seiten bei 390 und 1440 Pixeln mit HTTP 200, ohne
+JavaScript-Fehler oder horizontales Überlaufen. Die Produktansicht wurde
+zusätzlich als Bildschirmbild geprüft.
+
+Lokale Nachweise liegen ignoriert unter `test-results/cloudflare-shop/`.
+Remote-Nachweise liegen unter `test-results/cloudflare-shop-deployed/`. Die
 Ausführungszeit lokaler Tests beweist keine CPU-Auslastung oder Kapazität im
 kostenlosen Cloudflare-Tarif. Die Vorschau verarbeitet Anfragen seriell; ihre
 Belastbarkeit muss vor einem Produktionsumzug gesondert geprüft werden.
@@ -59,8 +84,9 @@ pnpm exec wrangler deploy --dry-run --config cloudflare/wrangler-shop.jsonc
 
 Projektname: `archenlicht-shop-preview`. Die Datei `cloudflare/wrangler-shop.jsonc`
 enthält bewusst keine produktive Domain oder kostenpflichtige Zusatzdienste.
-Zur Veröffentlichung und verschlüsselten Konfiguration fehlt die Anmeldung der
-Cloudflare-CLI. GitHub ist bisher nur mit dem vorherigen Drucktest verbunden.
+Die Cloudflare-CLI ist angemeldet; alle fünf benötigten Konfigurationswerte
+wurden als Secrets hochgeladen. GitHub ist bisher nur mit dem vorherigen
+Drucktest verbunden; diese Vorschau wurde über die CLI veröffentlicht.
 
 Benötigte Secrets: `DATABASE_URL`, `DATABASE_SCHEMA`, `ADMIN_PASSWORD`,
 `MIGRATION_ACCESS_PASSWORD` (mindestens 24 Zeichen), `MIGRATION_JOB_SECRET`.
@@ -71,8 +97,8 @@ verwenden. Für lokale Tests: Wrangler-Port 8793, danach
 
 ## Vor einem Produktionsumzug noch offen
 
-1. Geschützte Vorschau bei Cloudflare veröffentlichen und dort dieselben Abläufe
-   einschließlich kalter Starts, Ressourcenverbrauch und paralleler Nutzung prüfen.
+1. In der veröffentlichten Vorschau noch kalte Starts, Ressourcenverbrauch und
+   parallele Nutzung prüfen; die funktionalen Kaufwegtests sind bestanden.
 2. Dauerhafte Hintergrundverarbeitung mit Wiederholungen und Versandabgleich
    einrichten. Die Vorschau verarbeitet simulierte Folgeaktionen noch direkt.
 3. Stripe-/Resend-Webhooks und Podbase-Anbindung in der neuen Laufzeit separat

@@ -6,13 +6,14 @@ import sharp from 'sharp';
 import { FIXED_BUNDLES } from '../public/fixed-bundles.js';
 import { summarizePricing } from '../public/bundle-pricing.js';
 
-// Local Workers runtime with a deliberately isolated PostgreSQL schema only.
-const base = 'http://127.0.0.1:8793';
+// Only isolated migration instances; never run fixture purchases on production.
+const base = process.argv[2] || 'http://127.0.0.1:8793';
+assert.ok(['http://127.0.0.1:8793', 'https://archenlicht-shop-preview.jonas-herliz2910.workers.dev'].includes(base), 'Only the isolated migration preview may be tested.');
 const env = parseEnv(await readFile('cloudflare/.dev.vars', 'utf8'));
 assert.match(env.DATABASE_SCHEMA, /^cf_preview_[a-z0-9_]{1,40}$/);
 const auth = 'Basic ' + Buffer.from('preview:' + env.MIGRATION_ACCESS_PASSWORD).toString('base64');
-const report = { started: new Date().toISOString(), schema: env.DATABASE_SCHEMA, journeys: [] };
-const out = 'test-results/cloudflare-shop'; await mkdir(out, { recursive: true });
+const report = { base, started: new Date().toISOString(), schema: env.DATABASE_SCHEMA, journeys: [] };
+const out = base.startsWith('https:') ? 'test-results/cloudflare-shop-deployed' : 'test-results/cloudflare-shop'; await mkdir(out, { recursive: true });
 const client = () => {
   const cookies = new Map(); let csrf = '';
   return async (path, method = 'GET', body, extra = {}) => {
