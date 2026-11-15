@@ -23,7 +23,7 @@ test('Katalog ordnet 74 Modelle einschließlich expliziter Namensvarianten zu; a
   assert.equal(snapshot.models.every(m => m.productionApproved === false), true);
   assert.equal(calls[0].url, 'https://open-api.podbase.com/catalog');
   assert.equal(calls[0].options.method, 'GET');
-  assert.equal(calls[0].options.redirect, 'error');
+  assert.equal(calls[0].options.redirect, 'manual');
   assert.equal(calls[0].options.headers['x-api-key'], key);
   assert.equal(client.create, undefined);
   assert.equal(client.summary().orderSubmissionEnabled, false);

@@ -50,7 +50,7 @@ export class PodbaseAPI {
     this.apiKey = apiKey; this.baseUrl = baseUrl; this.approved = productionApproved; this.storeId = storeId;
   }
   async request(path, method = 'GET', body) {
-    const res = await fetch(`${this.baseUrl}${path}`, { method, headers: { 'x-api-key': this.apiKey, 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined, redirect: 'error', signal: AbortSignal.timeout(15000) });
+    const res = await fetch(`${this.baseUrl}${path}`, { method, headers: { 'x-api-key': this.apiKey, 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined, redirect: 'manual', signal: AbortSignal.timeout(15000) });
     if (!res.ok) { const e = new Error(`Podbase-Anfrage fehlgeschlagen (HTTP ${res.status}).`); e.rejected = [400, 403, 422].includes(res.status); throw e; }
     return res.json();
   }

@@ -69,7 +69,7 @@ export class Mailer {
       await this.s.run('UPDATE mail_deliveries SET first_attempt=COALESCE(first_attempt,?),attempts=attempts+1 WHERE mail_id=? AND lease_token=?',now,job.mail_id,lease);
       let response,data;
       try {
-        response=await fetch('https://api.resend.com/emails',{method:'POST',headers:{Authorization:`Bearer ${this.config.resendKey}`,'Content-Type':'application/json','Idempotency-Key':`archenlicht-mail-${job.mail_id}`},body:job.payload,redirect:'error',signal:AbortSignal.timeout(8000)});
+        response=await fetch('https://api.resend.com/emails',{method:'POST',headers:{Authorization:`Bearer ${this.config.resendKey}`,'Content-Type':'application/json','Idempotency-Key':`archenlicht-mail-${job.mail_id}`},body:job.payload,redirect:'manual',signal:AbortSignal.timeout(8000)});
         data=await response.json();
       } catch { /* The request may have been accepted. Retry the identical payload/key only inside the safe window. */ }
       if(response?.ok&&typeof data?.id==='string'&&messageId.test(data.id)) {

@@ -147,10 +147,15 @@ verwenden. Für lokale Tests: Wrangler-Port 8793, danach
 
 1. Das erwartete Lastprofil und den tatsächlichen Ressourcenverbrauch im
    kostenlosen Tarif prüfen; die kleinen Parallel- und Wiederaufnahmetests bestehen.
-2. Den Alarm-Scheduler mit den echten Anbieterabläufen abnehmen. Persistierte
-   Wiederholungen, Leases und Wiederaufnahme über einen Deploy sind geprüft.
-3. Stripe-/Resend-Webhooks und Podbase-Anbindung in der neuen Laufzeit separat
-   testen. Ein erfolgreicher simuliert bezahlter Kauf belegt diese Dienste nicht.
+2. Eine abschließende Anbieter-Abnahme beim geplanten Umzug durchführen.
+   SDKs, Signaturen, Alarm-Scheduler und verlorene Antworten sind in workerd
+   mit abgefangenen Anbieteraufrufen geprüft; echte Zahlungen, Mailzustellung
+   und Produktion wurden dabei nicht ausgelöst.
+3. Die endgültige Cloudflare-Konfiguration für Livebetrieb und öffentliche,
+   signaturgeschützte Webhooks/Druckdateien bereitstellen. Die jetzige Vorschau
+   bleibt absichtlich vollständig passwortgeschützt und simuliert. Falls die
+   Domain unverändert bleibt, können die bisherigen Webhook-URLs bleiben;
+   ihre Erreichbarkeit muss nach der DNS-Umstellung geprüft werden.
 4. Bestehende Daten sichern; fehlende historische PNGs vorab im alten Renderer
    erzeugen. Produktionsrollen, Berechtigungen und Wiederherstellung prüfen.
 5. GitHub-Deployment der neuen Anwendung, statische Seitentitel/SEO-Routen,
@@ -165,3 +170,80 @@ verwenden. Für lokale Tests: Wrangler-Port 8793, danach
 - https://developers.cloudflare.com/durable-objects/platform/limits/
 - https://developers.cloudflare.com/durable-objects/api/alarms/
 - https://github.com/neondatabase/serverless
+
+## Anbieterprüfung und behobene Umzugsfehler – 15. November 2026
+
+Zwei bisher durch einfache HTTP-Mocks verdeckte Laufzeitprobleme wurden behoben:
+
+- Stripe wählt im Workers-Paket Web Crypto. Die synchrone Signaturprüfung
+  lehnte dadurch auch gültige Webhooks ab. Der Shop wartet jetzt auf
+  `constructEventAsync`; falsche, veränderte und abgelaufene Signaturen bleiben
+  gesperrt. Der bestehende Node-Server verwendet denselben geprüften Ablauf.
+- Workers unterstützt `redirect: 'error'` nicht. Podbase-Katalog, Auftrags-API
+  und Resend-Versand verwenden jetzt `manual`. Weiterleitungen werden nicht
+  verfolgt und gelten nicht als erfolgreiche Antwort. Zugangsdaten werden
+  dadurch weiterhin nicht an ein Weiterleitungsziel übertragen.
+
+`node scripts/check-cloudflare-providers.mjs` baut eine getrennte Testdatei mit
+denselben Ressourcen-/WASM-Ersetzungen wie die Shop-Vorschau. Sie läuft in der
+von Wrangler mitgelieferten workerd-/Durable-Object-Laufzeit mit echter Neon-
+Datenbank, aber in einem neu erzeugten, anschließend gelöschten Testschema.
+Alle Anbieterzugänge sind feste Dummywerte; fremde Fetch-Ziele werden blockiert.
+Native Request-Erzeugung vor den Mocks verhindert, dass ungültige Fetch-Optionen
+erneut unbemerkt bleiben. Testdateien sind im deploybaren Shop ausdrücklich verboten.
+
+Bestanden: Stripe-Checkout über das echte SDK; unveränderte UTF-8-Rohdaten;
+Signatur-, Modus- und Betragsprüfung; keine Produktion vor bestätigter Zahlung;
+MagSafe-Variante samt Wunschtext, Farbe und Druckdatei; Wiederaufnahme nach
+verlorener Podbase-Antwort ohne zweiten POST; Resend-Wiederholung mit gleichem
+Idempotenzschlüssel und Inhalt; einmalige Fehlermeldung an den Betreiber;
+signierte Resend-Zustellung ohne doppelte Ereignisse; genau eine Versandmail
+erst bei vorhandener Sendungsnummer; Ende des Alarms bei erledigten Aufgaben.
+
+Zusätzlich wurde ein kurzlebiger, geschützter Prüf-Worker tatsächlich bei
+Cloudflare veröffentlicht und anschließend gelöscht. Er führte ausschließlich
+fest definierte GET-Abfragen aus. Die vorhandenen Schlüssel wurden nur für
+diese HTTPS-Anfrage im Arbeitsspeicher verarbeitet, nicht als Worker-Secrets
+gespeichert. Die Ergebnisse um 20:32 UTC:
+
+- Stripe: HTTP 200, Zahlungen und Auszahlungen aktiv. Der Live-Webhook auf
+  `https://www.archenlicht.de/api/webhooks/stripe` ist aktiviert und enthält
+  die vier benötigten Checkout-Ereignisse.
+- Podbase: Katalog und Bestellabfrage HTTP 200; 28 Katalogprodukte. Der
+  bestehende alte Verbindungstest steht inzwischen auf `REJECTED`; eine
+  Begründung liefert die API nicht. Er wurde nicht neu angelegt oder freigegeben.
+- Resend: erreichbar, Schlüssel ausdrücklich auf Versand beschränkt. Der
+  Domain-Verwaltungsaufruf liefert deshalb `restricted_api_key` (HTTP 401).
+  Das beweist keine aktuelle Zustellung und erfordert keine Rechteausweitung.
+  DKIM, Return-Path-SPF/MX, DMARC und die Hostinger-Postfach-MX waren bei der
+  zusätzlichen DNS-Prüfung vorhanden. Die signierte Verarbeitung im Shop ist
+  mit Dummyereignissen geprüft; eine neue echte Mail wurde nicht versendet.
+
+Die lesende Podbase-Zuordnungsprüfung bestätigte weiterhin 74 verfügbare
+zugeordnete Modelle, davon 64 mit Standard-Druckvorlage und 38 druckbare
+MagSafe-Varianten. Fehlende Originalvorlagen bleiben Kaufhindernisse.
+
+Begleitende native Regression: 50 Tests bestanden, ein optionaler Neon-Livetest
+übersprungen. Nach der Redirect-Korrektur erneut 25 relevante Tests bestanden,
+ein optionaler Neon-Livetest übersprungen. Keine fehlgeschlagenen Prüfungen.
+Paketbau und Wrangler-Probelauf bestehen; etwa 1,45 MiB komprimierter Upload.
+Die Korrekturen sind in Vorschau-Version
+`48afc61f-3017-48ba-b886-6da79f10af50` veröffentlicht. Gastkauf, Konto mit
+Wunschtext/MagSafe, Druckdateien, doppelte Zahlungsbestätigung, fremder Zugriff,
+Admin, Dreier-Bundle und Abbruch bestanden anschließend erneut auf der
+geschützten Cloudflare-Adresse. Dort bleiben alle Anbieteraktionen simuliert.
+
+Lokale Nachweise (ignoriert): `test-results/cloudflare-providers/report.json`,
+`native-tests.log`, `provider-native-tests.log`,
+`test-results/cloudflare-provider-access/report.json` und
+`test-results/cloudflare-shop-deployed/provider-access-local.json`.
+Die temporäre externe Prüfung lässt sich mit
+`node scripts/check-cloudflare-provider-access.mjs <ursprünglicher Projektordner>`
+wiederholen; sie verändert weder Anbieter-Einstellungen noch den Live-Shop.
+
+Quellen zu den tatsächlich aufgetretenen Laufzeitproblemen und Berechtigungen:
+
+- https://github.com/stripe/stripe-node/blob/master/src/crypto/SubtleCryptoProvider.ts
+- https://developers.cloudflare.com/workers/runtime-apis/request/
+- https://resend.com/changelog/new-api-key-permissions
+- https://help.podbase.com/hc/en-us/articles/26709382744604-Podbase-API-integration-guide

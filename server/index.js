@@ -58,7 +58,7 @@ export async function createApp(config = defaultConfig()) {
         const raw = await rawBody(req, 256000); let event; try { event = JSON.parse(raw); } catch { throw new ShopError('Ungültiges Ereignis.'); }
         let order;
         if (path === '/api/webhooks/stripe') {
-          if (!shop.payments.verifyStripeSignature(raw, req.headers['stripe-signature'])) throw new ShopError('Ungültige Webhook-Signatur.', 401);
+          if (!await shop.payments.verifyStripeSignature(raw, req.headers['stripe-signature'])) throw new ShopError('Ungültige Webhook-Signatur.', 401);
           if (!['checkout.session.completed', 'checkout.session.async_payment_succeeded', 'checkout.session.async_payment_failed', 'checkout.session.expired'].includes(event.type)) return send(res, 200, { ignored: true });
           if (!event.id || event.livemode !== (config.paymentMode === 'live')) throw new ShopError('Ereignis und Zahlungsumgebung stimmen nicht überein.', 400);
           order = (await shop.s.get('SELECT * FROM orders WHERE payment_id=?', event.data?.object?.id || ''));

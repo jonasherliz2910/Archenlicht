@@ -216,7 +216,7 @@ test('CSRF, geschützte Adminaktionen, fremde Positionen und private Dateien', a
 
 test('Stripe-Signaturprüfung lehnt Fälschungen und alte Events ab; Produktionsadapter bleibt gesperrt', async () => {
   const payments = new Payments({ stripeWebhook: 'only-a-local-fixture' }), raw = JSON.stringify({ id: 'evt-test' }), timestamp = Math.floor(Date.now() / 1000), sig = createHmac('sha256', 'only-a-local-fixture').update(`${timestamp}.${raw}`).digest('hex');
-  assert.equal(payments.verifyStripeSignature(raw, `t=${timestamp},v1=${sig}`), true); assert.equal(payments.verifyStripeSignature(`${raw} `, `t=${timestamp},v1=${sig}`), false); assert.equal(payments.verifyStripeSignature(raw, `t=1,v1=${sig}`), false);
+  assert.equal(await payments.verifyStripeSignature(raw, `t=${timestamp},v1=${sig}`), true); assert.equal(await payments.verifyStripeSignature(`${raw} `, `t=${timestamp},v1=${sig}`), false); assert.equal(await payments.verifyStripeSignature(raw, `t=1,v1=${sig}`), false);
   (await assert.rejects(async () => (await Shop.create({ ...configuration(), shopMode: 'live' })), /Livebetrieb/));
   assert.throws(() => new PodbaseAPI({ apiKey: 'fake' }).create({}), /gesperrt/);
 });

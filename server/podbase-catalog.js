@@ -27,7 +27,9 @@ export class PodbaseCatalog {
   async load() {
     const response = await this.fetch('https://open-api.podbase.com/catalog', {
       method: 'GET', headers: { 'x-api-key': this.key, Accept: 'application/json' },
-      redirect: 'error', signal: AbortSignal.timeout(10000),
+      // Workers do not support redirect:error. Manual mode plus !ok below
+      // rejects redirects without forwarding the API key to another origin.
+      redirect: 'manual', signal: AbortSignal.timeout(10000),
     });
     if (!response.ok) throw unavailable();
     const products = await response.json();

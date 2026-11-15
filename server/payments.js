@@ -118,10 +118,12 @@ export class Payments {
     const expired = await this.request(client => client.checkout.sessions.expire(order.payment_id));
     if (expired.status !== 'expired' || expired.id !== order.payment_id) throw new ShopError('Die Zahlung konnte noch nicht abgebrochen werden.', 409);
   }
-  verifyStripeSignature(raw, signature) {
+  async verifyStripeSignature(raw, signature) {
     if (!this.config.stripeWebhook || !signature) return false;
     const timestamp = /(?:^|,)t=(\d+)(?:,|$)/.exec(signature)?.[1];
     if (!timestamp || Math.abs(Date.now() / 1000 - Number(timestamp)) > 300) return false;
-    try { Stripe.webhooks.constructEvent(raw, signature, this.config.stripeWebhook); return true; } catch { return false; }
+    // Workers use Web Crypto, whose HMAC implementation is asynchronous. The
+    // sync SDK method rejects even valid events in the browser/Workers build.
+    try { await Stripe.webhooks.constructEventAsync(raw, signature, this.config.stripeWebhook); return true; } catch { return false; }
   }
 }

@@ -22,7 +22,7 @@ test('Echte Übergabe verlangt bezahlten Liveauftrag, passende Originalvorlage u
   assert.throws(() => adapter.create(payload), /gesperrt/); assert.equal(calls.length, 0);
   adapter.approved = true;
   assert.equal((await adapter.create(payload)).status, 'UNAPPROVED');
-  assert.equal(calls.length, 1); assert.equal(calls[0].options.redirect, 'error');
+  assert.equal(calls.length, 1); assert.equal(calls[0].options.redirect, 'manual');
   assert.match(JSON.parse(calls[0].options.body).items[0].printFile, /\.png$/);
   assert.throws(() => adapter.create({ ...payload, items: [{ ...payload.items[0], printFile: base + '/gestalten' }] }));
   globalThis.fetch = async () => Response.json({ orders: [] });

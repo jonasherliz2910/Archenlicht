@@ -7,7 +7,8 @@ import { DESIGN_PACKAGE, designAsset } from '../server/design-assets.js';
 import { PODBASE_PRINT_TEMPLATES } from '../server/print-templates.js';
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
-const out = resolve(root, 'dist-cloudflare-shop');
+export async function buildCloudflareShop({ providerFixture = false } = {}) {
+const out = resolve(root, providerFixture ? 'test-results/cloudflare-providers/build' : 'dist-cloudflare-shop');
 await mkdir(resolve(out, 'worker'), { recursive: true });
 await cp(resolve(root, 'dist'), resolve(out, 'public'), { recursive: true });
 const font = await readFile(resolve(root, 'public/fonts/Caveat.ttf'));
@@ -41,7 +42,7 @@ for (const [name, json] of [['case-variants', 'podbase-magsafe-map'], ['podbase-
   generated.set(path, source.replace("import { readFileSync } from 'node:fs';", '').replace(expression, literal));
 }
 const result = await build({
-  entryPoints: [resolve(root, 'cloudflare/shop-worker.js')], outfile: resolve(out, 'worker/worker.js'),
+  entryPoints: [resolve(root, providerFixture ? 'tests/fixtures/cloudflare-providers-worker.js' : 'cloudflare/shop-worker.js')], outfile: resolve(out, 'worker/worker.js'),
   bundle: true, format: 'esm', platform: 'browser', target: 'es2022', minify: true, metafile: true,
   external: ['node:*', 'cloudflare:*'],
   plugins: [{ name: 'cloudflare-shop-resources', setup(b) {
@@ -56,6 +57,7 @@ const result = await build({
 });
 const inputs = Object.keys(result.metafile.inputs), worker = await readFile(resolve(out, 'worker/worker.js'), 'utf8');
 if (worker.includes('node:sqlite') || inputs.some(path => /node_modules\/.*(?:sharp|@vercel\/functions)/.test(path.replaceAll('\\', '/')))) throw new Error('Native or Vercel runtime dependency remains.');
+if (!providerFixture && inputs.some(path => path.replaceAll('\\', '/').includes('tests/fixtures/'))) throw new Error('Provider fixtures must never enter the deployable shop.');
 await cp(resolve(dirname(fileURLToPath(import.meta.resolve('@resvg/resvg-wasm'))), 'index_bg.wasm'), resolve(out, 'worker/resvg.wasm'));
 await mkdir(resolve(out, 'public/_motifs'), { recursive: true });
 for (const asset of assets) await cp(resolve(root, `public/assets/design-foregrounds-v3/${asset.id}.png`), resolve(out, `public/_motifs/${asset.id}.png`));
@@ -80,3 +82,7 @@ await checkAssets(resolve(out, 'public'));
 if (fileCount > 20000) throw new Error('Too many static files for Workers Free.');
 await writeFile(resolve(out, 'build-info.json'), JSON.stringify({ mode: 'protected-shop-migration', fileCount, largestBytes, fontHash, inputs }, null, 2));
 console.log(`Protected Cloudflare shop build: ${fileCount} static files; native SQLite/Sharp and Vercel runtime excluded. No provider credentials embedded.`);
+return out;
+}
+
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) await buildCloudflareShop();
