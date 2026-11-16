@@ -2,6 +2,12 @@
 
 Stand: 16. November 2026. Branch: `codex/cloudflare-shop`.
 
+**Aktueller Stand, 20:48 Uhr MEZ: Der Verkauf ist auf ausdrücklichen
+Nutzerwunsch freigeschaltet.** Checkout und Podbase-Übergabe sind aktiv.
+Nachweis und Betriebsdetails: [VERKAUFSSTART-2026-11-16.md](VERKAUFSSTART-2026-11-16.md).
+Die folgenden Abschnitte protokollieren den zeitlichen Verlauf; frühere
+Aussagen über geschlossene Verkaufsschalter beschreiben den damaligen Stand.
+
 Der Nutzer hat im Cloudflare-Dashboard den aktiven Tarif **Free / $0** gezeigt.
 Es wurde kein Tarifwechsel vorgenommen. Der vorherige reine Drucktest ist
 weiterhin auf `archenlicht-cloudflare-test.jonas-herliz2910.workers.dev` erreichbar.
@@ -647,5 +653,8 @@ Prüfschema entfernt, Produktionsschema unverändert. Datei und Prüfbericht lie
 unter `.tools/migration-backups/2026-11-16/` im ursprünglichen Projektordner.
 Der Schlüssel bleibt in `.tools/migration-backup-key.txt`.
 Eine externe Kopie und regelmäßige automatische Sicherungen sind weiterhin
-nicht nachgewiesen. Der Nutzer wurde nach vorhandenem Cloudspeicher oder einem
-externen Datenträger gefragt. Diese Antwort steht noch aus.
+nicht nachgewiesen. Der Nutzer möchte vorerst keinen zusätzlichen Speicherort
+einrichten (Antwort: „Wir brauchen erstmal noch keinen Speicherort.“).
+Externe Sicherung daher ausdrücklich zurückgestellt; das geprüfte lokale
+Backup bleibt erhalten. Kein Speicherdienst gebucht und kein Verkaufs- oder
+Produktionsschalter durch diese Entscheidung verändert.

@@ -92,3 +92,7 @@ sind separat abzuschließen, bevor die Verkaufsschalter aktiviert werden.
 
 Stripe-Vorgaben zum Testen:
 https://docs.stripe.com/testing
+
+Fortsetzung: Der Nutzer hat anschließend den Verkaufsstart ausdrücklich
+beauftragt. Umschaltung und aktuelle Prüfung sind getrennt in
+[VERKAUFSSTART-2026-11-16.md](VERKAUFSSTART-2026-11-16.md) dokumentiert.
