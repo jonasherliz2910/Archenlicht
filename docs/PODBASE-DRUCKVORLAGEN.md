@@ -1,7 +1,32 @@
-# Druckvorlagen: Abgleich vom 11. November 2026
+# Druckvorlagen: Abgleich vom 16. November 2026
 
-64 Standardmodelle und 38 magnetische Modelle besitzen jetzt eine technisch
+67 Standardmodelle und 41 magnetische Modelle besitzen jetzt eine technisch
 prüfbare Druckvorlage. Dies ist keine Freigabe von Verkauf oder Produktion.
+
+## Ergänzt: iPhone 18 Pro, iPhone 18 Pro Max und Google Pixel 10a
+
+Die offizielle PSD enthält bereits ausdrücklich benannte Modellkonturen:
+`iPhone 17 Pro / 18 Pro`, `iPhone 17 Pro Max / 18 Pro Max` und `Google Pixel 10 A`.
+Der bisherige Import verlangte zusätzlich eine Zeile für jede Variantenkennung
+in der älteren CSV. Diese sechs Zeilen fehlen weiterhin.
+
+Podbases jeweilige Produktseiten für Tough, MagSafe Tough und Magnetic Tough
+nennen jedoch das Format 2000 × 3400 Pixel und 300 dpi. Zusammen mit den
+modellgenauen Konturen und den exakten Variantenkennungen aus dem aktuellen
+API-Katalog ergibt dies für diese drei Modelle eine nachvollziehbare Zuordnung.
+Die allgemeine API-Anleitung bestätigt für Tough das vollflächige Dateiformat.
+
+`server/podbase-print-requirements-supplement.json` dokumentiert die sechs
+einzeln geprüften Zuordnungen, Quell-URLs und Prüfsummen. Der Import akzeptiert
+sie nur bei passender Modell-, Produkt-, Varianten- und PSD-Kennung. Es werden
+keine Konturen oder SKUs von ähnlichen Geräten übernommen.
+
+- Alle bisherigen 102 Vorlagen und ihre Prüfsummen bleiben unverändert.
+- Je 108 Beschnittprüfungen mit nativer und Cloudflare-WASM-Drucktechnik bestanden.
+- Je 972 Geometrievergleiche über alle neun Farben bestanden.
+- Standard und Magnet/MagSafe behalten dieselbe Gestaltung, verwenden aber
+  ihre eigenen Anbieterkennungen und Druckmetadaten.
+- Die verbleibenden sieben Modelle werden nicht mit geschätzten Konturen freigegeben.
 
 ## Behoben: iPhone 17
 
@@ -26,12 +51,10 @@ Prüfsummen bleiben unverändert.
 | Modelle | Fehlender Nachweis in den aktuell veröffentlichten Dateien |
 | --- | --- |
 | iPhone 17e | Modellgenaue Sicherheits- und Kamerakontur; die Dateianforderungen sind vorhanden. |
-| iPhone 18 Pro, iPhone 18 Pro Max | Dateianforderungen für die konkreten Standard-/MagSafe-Varianten. Die PSD nennt bereits gemeinsam genutzte Konturen mit 17 Pro bzw. 17 Pro Max. |
-| Google Pixel 10a | Dateianforderungen für die konkreten Standard-/Magnet-Varianten. Die PSD-Kontur ist vorhanden. |
 | Samsung Galaxy S26 FE, Galaxy A27, Galaxy Z Flip8 | Modellgenaue Konturen und Dateianforderungen; beim Flip zusätzlich die genaue Trennung der Klapphälften. |
 | Google Pixel 11, Pixel 11 Pro, Pixel 11 Pro XL | Modellgenaue Konturen und Dateianforderungen. |
 
-Diese zehn Standardmodelle und neun magnetischen Varianten werden weiterhin
+Diese sieben Standardmodelle und sechs magnetischen Varianten werden weiterhin
 nicht zur Bestellung freigeschaltet. Ein Katalogeintrag mit Bestand belegt
 noch keine vollständige Druckspezifikation. Der API-Katalog liefert pro
 Variante nur ID, Name und Bestand, keine Druckmaße oder Kamerakonturen.
@@ -39,7 +62,7 @@ Variante nur ID, Name und Bestand, keine Druckmaße oder Kamerakonturen.
 Die genaue Zuordnung mit Produkt- und Variantenkennungen steht in
 [podbase-print-template-gaps.json](podbase-print-template-gaps.json).
 
-## Prüfung der Änderung
+## Frühere Prüfung der iPhone-17-Korrektur (11. November)
 
 - 25 relevante JavaScript-Tests bestanden, ein externer Neon-Test mangels
   Testdatenbank übersprungen; zusätzlich drei Python-Tests für den Import.
@@ -54,12 +77,15 @@ Die genaue Zuordnung mit Produkt- und Variantenkennungen steht in
 
 ## Quellen und Wiederholbarkeit
 
-Am 11. November erneut heruntergeladen und mit dem bisherigen Bestand
+Am 16. November erneut heruntergeladen und mit dem bisherigen Bestand
 verglichen: Beide Anbieterdateien sind unverändert.
 
 - [Podbase-Anleitung für API-Druckdateien](https://help.podbase.com/hc/en-us/articles/26709497957532-How-to-prepare-print-files-for-Podbase-API).
 - [Offizielle PSD mit Modellkonturen](https://drive.google.com/file/d/1SvuCd1eDkq2VKgky2NRi6NpEF9CZTUB2/view).
 - [Offizielle Tabelle der Dateianforderungen](https://docs.google.com/spreadsheets/d/1shTH2o9K3sN0RyWYUzk8tLADDNgB-qixPxnwQGvOiqM/edit?gid=969391465).
+- [Tough Phone Case: Produkt-Druckanforderungen](https://www.podbase.com/custom/tech-accessories/tough-phone-case).
+- [MagSafe Tough: Produkt-Druckanforderungen](https://www.podbase.com/custom/tech-accessories/magsafe-tough-phone-case).
+- [Magnetic Tough: Produkt-Druckanforderungen](https://www.podbase.com/custom/tech-accessories/magnetic-tough-phone-case).
 
 Quell-Hashes stehen in `server/podbase-print-templates.json`. Die Originaldateien
 werden lokal unter `.tools/podbase-print-references/` abgelegt. Mit `psd-tools`,

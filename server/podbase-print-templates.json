@@ -4,7 +4,8 @@
     "guideUrl": "https://drive.google.com/file/d/1SvuCd1eDkq2VKgky2NRi6NpEF9CZTUB2/view",
     "guideSha256": "f205b1965bf66d82d74f5134c28f4d26aadcc5a9fec7502abf74e44e7991b207",
     "requirementsUrl": "https://docs.google.com/spreadsheets/d/1shTH2o9K3sN0RyWYUzk8tLADDNgB-qixPxnwQGvOiqM/edit?gid=969391465",
-    "requirementsSha256": "85a8d1911073fc1b014fc637121dbba8680f540638c1b92217025d2b3e4a8b4f"
+    "requirementsSha256": "85a8d1911073fc1b014fc637121dbba8680f540638c1b92217025d2b3e4a8b4f",
+    "supplementSha256": "e326d63c6898de58425786e9490cb80ca649072f40bf0601a7c15212e77bba88"
   },
   "templates": [
     {
@@ -1871,6 +1872,59 @@
       "hash": "25301c5edcd233f20ff8f2a461d179e1bae24089baf246f826e679a6a5f66858"
     },
     {
+      "modelId": "google-pixel-10a",
+      "variantId": "PBV-4PS-2J3-224N",
+      "catalogName": "Google Pixel 10A",
+      "nameMatchRequiresReview": false,
+      "productId": "PBP-FL-5D2-224T",
+      "sku": null,
+      "width": 2000,
+      "height": 3400,
+      "density": 300,
+      "printType": "full-file-area",
+      "guideGroup": "Google Pixel 10 A",
+      "safeArea": {
+        "path": "M 543.09690 313.27221 C 543.09690 313.27221 1455.68991 313.27221 1455.68991 313.27221 C 1566.90514 313.27221 1657.06289 403.43013 1657.06289 514.64540 C 1657.06289 514.64540 1657.06289 2884.92234 1657.06289 2884.92234 C 1657.06289 2996.13740 1566.90514 3086.29532 1455.68991 3086.29532 C 1455.68991 3086.29532 543.09690 3086.29532 543.09690 3086.29532 C 431.88167 3086.29532 341.72392 2996.13740 341.72392 2884.92234 C 341.72392 2884.92234 341.72392 514.64540 341.72392 514.64540 C 341.72392 403.43013 431.88167 313.27221 543.09690 313.27221 Z",
+        "bounds": {
+          "x": 341.7239189147949,
+          "y": 313.27221393585205,
+          "width": 1315.3389692306519,
+          "height": 2773.0231046676636
+        }
+      },
+      "cameraExclusions": [
+        {
+          "path": "M 643.03839 516.12012 C 643.03839 516.12012 841.32469 516.12012 841.32469 516.12012 C 939.50856 516.12012 1019.10233 595.71400 1019.10233 693.89769 C 1019.10233 792.08158 939.50856 871.67546 841.32469 871.67546 C 841.32469 871.67546 643.03839 871.67546 643.03839 871.67546 C 544.85452 871.67546 465.26074 792.08158 465.26074 693.89769 C 465.26074 595.71400 544.85452 516.12012 643.03839 516.12012 Z",
+          "bounds": {
+            "x": 465.26074409484863,
+            "y": 516.1201238632202,
+            "width": 553.8415908813477,
+            "height": 355.55533170700073
+          }
+        },
+        {
+          "path": "M 1171.62466 635.16399 C 1202.79872 635.16399 1228.07014 660.43557 1228.07014 691.60950 C 1228.07014 722.78343 1202.79872 748.05502 1171.62466 748.05502 C 1140.45072 748.05502 1115.17930 722.78343 1115.17930 691.60950 C 1115.17930 660.43557 1140.45072 635.16399 1171.62466 635.16399 Z",
+          "bounds": {
+            "x": 1115.1793003082275,
+            "y": 635.1639866828918,
+            "width": 112.89083957672119,
+            "height": 112.89103031158447
+          }
+        }
+      ],
+      "clearance": 45,
+      "requirementsEvidence": {
+        "kind": "reviewed-product-guideline-and-named-psd-guide",
+        "reviewedAt": "2026-11-16",
+        "url": "https://www.podbase.com/custom/tech-accessories/tough-phone-case",
+        "pageSha256": "a02496ac6e787cf5e6f5c907e2336e76d51c40864c365dc1febe0cc0691dcec4",
+        "methodUrl": "https://help.podbase.com/hc/en-us/articles/26709497957532-How-to-prepare-print-files-for-Podbase-API",
+        "guideGroup": "Google Pixel 10 A",
+        "guideSha256": "f205b1965bf66d82d74f5134c28f4d26aadcc5a9fec7502abf74e44e7991b207"
+      },
+      "hash": "297dad352a36ffa7489e023c0537a6167ccc122f690c6b7eba35ee8b794420b3"
+    },
+    {
       "modelId": "iphone-16e",
       "variantId": "PBV-47I-2I2-224V",
       "catalogName": "iPhone 16e",
@@ -2057,6 +2111,94 @@
       ],
       "clearance": 45,
       "hash": "57c6b7f1d8bdd2ef7d3dffaad1a31d6861548f48360525c822f01f4e3eb57ee9"
+    },
+    {
+      "modelId": "iphone-18-pro",
+      "variantId": "PBV-4QL-2KM-223I",
+      "catalogName": "iPhone 18 Pro",
+      "nameMatchRequiresReview": false,
+      "productId": "PBP-FL-5D2-224T",
+      "sku": null,
+      "width": 2000,
+      "height": 3400,
+      "density": 300,
+      "printType": "full-file-area",
+      "guideGroup": "iPhone 17 Pro / 18 Pro",
+      "safeArea": {
+        "path": "M 523.28539 200.39233 C 523.28539 200.39233 1477.07522 200.39233 1477.07522 200.39233 C 1610.82065 200.39233 1719.24281 308.81460 1719.24281 442.56012 C 1719.24281 442.56012 1719.24281 2958.54678 1719.24281 2958.54678 C 1719.24281 3092.29211 1610.82065 3200.71437 1477.07522 3200.71437 C 1477.07522 3200.71437 523.28539 3200.71437 523.28539 3200.71437 C 389.53984 3200.71437 281.11768 3092.29211 281.11768 2958.54678 C 281.11768 2958.54678 281.11768 442.56012 281.11768 442.56012 C 281.11768 308.81460 389.53984 200.39233 523.28539 200.39233 Z",
+        "bounds": {
+          "x": 281.11767768859863,
+          "y": 200.39232969284058,
+          "width": 1438.1251335144043,
+          "height": 3000.3220438957214
+        }
+      },
+      "cameraExclusions": [
+        {
+          "path": "M 553.76804 291.84217 C 553.76804 291.84217 1444.53847 291.84217 1444.53847 291.84217 C 1543.67852 291.84217 1624.04740 372.21121 1624.04740 471.35103 C 1624.04740 471.35103 1624.04740 884.57612 1624.04740 884.57612 C 1624.04740 983.71614 1543.67852 1064.08517 1444.53847 1064.08517 C 1444.53847 1064.08517 553.76804 1064.08517 553.76804 1064.08517 C 454.62799 1064.08517 374.25911 983.71614 374.25911 884.57612 C 374.25911 884.57612 374.25911 471.35103 374.25911 471.35103 C 374.25911 372.21121 454.62799 291.84217 553.76804 291.84217 Z",
+          "bounds": {
+            "x": 374.2591142654419,
+            "y": 291.8421745300293,
+            "width": 1249.7882843017578,
+            "height": 772.2429990768433
+          }
+        }
+      ],
+      "clearance": 45,
+      "requirementsEvidence": {
+        "kind": "reviewed-product-guideline-and-named-psd-guide",
+        "reviewedAt": "2026-11-16",
+        "url": "https://www.podbase.com/custom/tech-accessories/tough-phone-case",
+        "pageSha256": "a02496ac6e787cf5e6f5c907e2336e76d51c40864c365dc1febe0cc0691dcec4",
+        "methodUrl": "https://help.podbase.com/hc/en-us/articles/26709497957532-How-to-prepare-print-files-for-Podbase-API",
+        "guideGroup": "iPhone 17 Pro / 18 Pro",
+        "guideSha256": "f205b1965bf66d82d74f5134c28f4d26aadcc5a9fec7502abf74e44e7991b207"
+      },
+      "hash": "d6abc8643a77910941d87773d7a1570fc406a6e733864de9bf1b5454c6ee6477"
+    },
+    {
+      "modelId": "iphone-18-pro-max",
+      "variantId": "PBV-4QL-2C3-224I",
+      "catalogName": "iPhone 18 Pro Max",
+      "nameMatchRequiresReview": false,
+      "productId": "PBP-FL-5D2-224T",
+      "sku": null,
+      "width": 2000,
+      "height": 3400,
+      "density": 300,
+      "printType": "full-file-area",
+      "guideGroup": "iPhone 17 Pro Max / 18 Pro Max",
+      "safeArea": {
+        "path": "M 521.93999 214.24162 C 521.93999 214.24162 1478.46007 214.24162 1478.46007 214.24162 C 1606.00853 214.24162 1709.40697 317.64026 1709.40697 445.18857 C 1709.40697 445.18857 1709.40697 2954.69024 1709.40697 2954.69024 C 1709.40697 3082.23855 1606.00853 3185.63699 1478.46007 3185.63699 C 1478.46007 3185.63699 521.93999 3185.63699 521.93999 3185.63699 C 394.39154 3185.63699 290.99309 3082.23855 290.99309 2954.69024 C 290.99309 2954.69024 290.99309 445.18857 290.99309 445.18857 C 290.99309 317.64026 394.39154 214.24162 521.93999 214.24162 Z",
+        "bounds": {
+          "x": 290.9930944442749,
+          "y": 214.241623878479,
+          "width": 1418.4138774871826,
+          "height": 2971.3953614234924
+        }
+      },
+      "cameraExclusions": [
+        {
+          "path": "M 550.40669 290.43635 C 550.40669 290.43635 1443.43472 290.43635 1443.43472 290.43635 C 1543.77282 290.43635 1625.11289 371.77651 1625.11289 472.11463 C 1625.11289 472.11463 1625.11289 818.57052 1625.11289 818.57052 C 1625.11289 918.90864 1543.77282 1000.24880 1443.43472 1000.24880 C 1443.43472 1000.24880 550.40669 1000.24880 550.40669 1000.24880 C 450.06859 1000.24880 368.72852 918.90864 368.72852 818.57052 C 368.72852 818.57052 368.72852 472.11463 368.72852 472.11463 C 368.72852 371.77651 450.06859 290.43635 550.40669 290.43635 Z",
+          "bounds": {
+            "x": 368.72851848602295,
+            "y": 290.4363512992859,
+            "width": 1256.3843727111816,
+            "height": 709.8124504089355
+          }
+        }
+      ],
+      "clearance": 45,
+      "requirementsEvidence": {
+        "kind": "reviewed-product-guideline-and-named-psd-guide",
+        "reviewedAt": "2026-11-16",
+        "url": "https://www.podbase.com/custom/tech-accessories/tough-phone-case",
+        "pageSha256": "a02496ac6e787cf5e6f5c907e2336e76d51c40864c365dc1febe0cc0691dcec4",
+        "methodUrl": "https://help.podbase.com/hc/en-us/articles/26709497957532-How-to-prepare-print-files-for-Podbase-API",
+        "guideGroup": "iPhone 17 Pro Max / 18 Pro Max",
+        "guideSha256": "f205b1965bf66d82d74f5134c28f4d26aadcc5a9fec7502abf74e44e7991b207"
+      },
+      "hash": "af901f9f3a066fe789e0b9f9387177021fdbeb774dd3c854ad722e5d0823cb43"
     },
     {
       "modelId": "samsung-galaxy-s25-plus",
@@ -2589,20 +2731,8 @@
   ],
   "missing": [
     {
-      "modelId": "google-pixel-10a",
-      "reason": "requirements-missing"
-    },
-    {
       "modelId": "iphone-17e",
       "reason": "guide-missing-or-ambiguous"
-    },
-    {
-      "modelId": "iphone-18-pro",
-      "reason": "requirements-missing"
-    },
-    {
-      "modelId": "iphone-18-pro-max",
-      "reason": "requirements-missing"
     },
     {
       "modelId": "samsung-galaxy-s26-fe",
@@ -3526,6 +3656,96 @@
       "hash": "8e6a78de525a3bc73b07c7e9faf8bac68bc4c31a3276fd0a98525ad4c39f4eb7"
     },
     {
+      "modelId": "iphone-18-pro",
+      "variantId": "PBV-4QL-2RI-227W",
+      "catalogName": "iPhone 18 Pro",
+      "nameMatchRequiresReview": false,
+      "productId": "PBP-37-2FY-223Z",
+      "sku": null,
+      "width": 2000,
+      "height": 3400,
+      "density": 300,
+      "printType": "full-file-area",
+      "guideGroup": "iPhone 17 Pro / 18 Pro",
+      "safeArea": {
+        "path": "M 523.28539 200.39233 C 523.28539 200.39233 1477.07522 200.39233 1477.07522 200.39233 C 1610.82065 200.39233 1719.24281 308.81460 1719.24281 442.56012 C 1719.24281 442.56012 1719.24281 2958.54678 1719.24281 2958.54678 C 1719.24281 3092.29211 1610.82065 3200.71437 1477.07522 3200.71437 C 1477.07522 3200.71437 523.28539 3200.71437 523.28539 3200.71437 C 389.53984 3200.71437 281.11768 3092.29211 281.11768 2958.54678 C 281.11768 2958.54678 281.11768 442.56012 281.11768 442.56012 C 281.11768 308.81460 389.53984 200.39233 523.28539 200.39233 Z",
+        "bounds": {
+          "x": 281.11767768859863,
+          "y": 200.39232969284058,
+          "width": 1438.1251335144043,
+          "height": 3000.3220438957214
+        }
+      },
+      "cameraExclusions": [
+        {
+          "path": "M 553.76804 291.84217 C 553.76804 291.84217 1444.53847 291.84217 1444.53847 291.84217 C 1543.67852 291.84217 1624.04740 372.21121 1624.04740 471.35103 C 1624.04740 471.35103 1624.04740 884.57612 1624.04740 884.57612 C 1624.04740 983.71614 1543.67852 1064.08517 1444.53847 1064.08517 C 1444.53847 1064.08517 553.76804 1064.08517 553.76804 1064.08517 C 454.62799 1064.08517 374.25911 983.71614 374.25911 884.57612 C 374.25911 884.57612 374.25911 471.35103 374.25911 471.35103 C 374.25911 372.21121 454.62799 291.84217 553.76804 291.84217 Z",
+          "bounds": {
+            "x": 374.2591142654419,
+            "y": 291.8421745300293,
+            "width": 1249.7882843017578,
+            "height": 772.2429990768433
+          }
+        }
+      ],
+      "clearance": 45,
+      "magsafe": true,
+      "requirementsEvidence": {
+        "kind": "reviewed-product-guideline-and-named-psd-guide",
+        "reviewedAt": "2026-11-16",
+        "url": "https://www.podbase.com/custom/tech-accessories/magsafe-tough-phone-case",
+        "pageSha256": "448b4c62a126c816f02d680fd23b0c6f159dfc29edd640aa413937d64a37f374",
+        "methodUrl": "https://help.podbase.com/hc/en-us/articles/26709497957532-How-to-prepare-print-files-for-Podbase-API",
+        "guideGroup": "iPhone 17 Pro / 18 Pro",
+        "guideSha256": "f205b1965bf66d82d74f5134c28f4d26aadcc5a9fec7502abf74e44e7991b207"
+      },
+      "hash": "c5606fb2b1bd2e550ffa66936219b6e98b82dad2960a80410377cc543a896aab"
+    },
+    {
+      "modelId": "iphone-18-pro-max",
+      "variantId": "PBV-4QL-2C2-22AB",
+      "catalogName": "iPhone 18 Pro Max",
+      "nameMatchRequiresReview": false,
+      "productId": "PBP-37-2FY-223Z",
+      "sku": null,
+      "width": 2000,
+      "height": 3400,
+      "density": 300,
+      "printType": "full-file-area",
+      "guideGroup": "iPhone 17 Pro Max / 18 Pro Max",
+      "safeArea": {
+        "path": "M 521.93999 214.24162 C 521.93999 214.24162 1478.46007 214.24162 1478.46007 214.24162 C 1606.00853 214.24162 1709.40697 317.64026 1709.40697 445.18857 C 1709.40697 445.18857 1709.40697 2954.69024 1709.40697 2954.69024 C 1709.40697 3082.23855 1606.00853 3185.63699 1478.46007 3185.63699 C 1478.46007 3185.63699 521.93999 3185.63699 521.93999 3185.63699 C 394.39154 3185.63699 290.99309 3082.23855 290.99309 2954.69024 C 290.99309 2954.69024 290.99309 445.18857 290.99309 445.18857 C 290.99309 317.64026 394.39154 214.24162 521.93999 214.24162 Z",
+        "bounds": {
+          "x": 290.9930944442749,
+          "y": 214.241623878479,
+          "width": 1418.4138774871826,
+          "height": 2971.3953614234924
+        }
+      },
+      "cameraExclusions": [
+        {
+          "path": "M 550.40669 290.43635 C 550.40669 290.43635 1443.43472 290.43635 1443.43472 290.43635 C 1543.77282 290.43635 1625.11289 371.77651 1625.11289 472.11463 C 1625.11289 472.11463 1625.11289 818.57052 1625.11289 818.57052 C 1625.11289 918.90864 1543.77282 1000.24880 1443.43472 1000.24880 C 1443.43472 1000.24880 550.40669 1000.24880 550.40669 1000.24880 C 450.06859 1000.24880 368.72852 918.90864 368.72852 818.57052 C 368.72852 818.57052 368.72852 472.11463 368.72852 472.11463 C 368.72852 371.77651 450.06859 290.43635 550.40669 290.43635 Z",
+          "bounds": {
+            "x": 368.72851848602295,
+            "y": 290.4363512992859,
+            "width": 1256.3843727111816,
+            "height": 709.8124504089355
+          }
+        }
+      ],
+      "clearance": 45,
+      "magsafe": true,
+      "requirementsEvidence": {
+        "kind": "reviewed-product-guideline-and-named-psd-guide",
+        "reviewedAt": "2026-11-16",
+        "url": "https://www.podbase.com/custom/tech-accessories/magsafe-tough-phone-case",
+        "pageSha256": "448b4c62a126c816f02d680fd23b0c6f159dfc29edd640aa413937d64a37f374",
+        "methodUrl": "https://help.podbase.com/hc/en-us/articles/26709497957532-How-to-prepare-print-files-for-Podbase-API",
+        "guideGroup": "iPhone 17 Pro Max / 18 Pro Max",
+        "guideSha256": "f205b1965bf66d82d74f5134c28f4d26aadcc5a9fec7502abf74e44e7991b207"
+      },
+      "hash": "001dc046c83080728b503173d1f1dab1be347895c94d36f20175dec688b82cf4"
+    },
+    {
       "modelId": "samsung-galaxy-s22",
       "variantId": "PBV-4HU-277-22DT",
       "catalogName": "Samsung Galaxy S22 5G",
@@ -3987,6 +4207,60 @@
       "hash": "f95e47998ef4d0af9e491a960bea30df82b4e53952a9e38b377d1e8a61d63873"
     },
     {
+      "modelId": "google-pixel-10a",
+      "variantId": "PBV-4PS-2XB-225I",
+      "catalogName": "Google Pixel 10A",
+      "nameMatchRequiresReview": false,
+      "productId": "PBP-4HU-2II-223I",
+      "sku": null,
+      "width": 2000,
+      "height": 3400,
+      "density": 300,
+      "printType": "full-file-area",
+      "guideGroup": "Google Pixel 10 A",
+      "safeArea": {
+        "path": "M 543.09690 313.27221 C 543.09690 313.27221 1455.68991 313.27221 1455.68991 313.27221 C 1566.90514 313.27221 1657.06289 403.43013 1657.06289 514.64540 C 1657.06289 514.64540 1657.06289 2884.92234 1657.06289 2884.92234 C 1657.06289 2996.13740 1566.90514 3086.29532 1455.68991 3086.29532 C 1455.68991 3086.29532 543.09690 3086.29532 543.09690 3086.29532 C 431.88167 3086.29532 341.72392 2996.13740 341.72392 2884.92234 C 341.72392 2884.92234 341.72392 514.64540 341.72392 514.64540 C 341.72392 403.43013 431.88167 313.27221 543.09690 313.27221 Z",
+        "bounds": {
+          "x": 341.7239189147949,
+          "y": 313.27221393585205,
+          "width": 1315.3389692306519,
+          "height": 2773.0231046676636
+        }
+      },
+      "cameraExclusions": [
+        {
+          "path": "M 643.03839 516.12012 C 643.03839 516.12012 841.32469 516.12012 841.32469 516.12012 C 939.50856 516.12012 1019.10233 595.71400 1019.10233 693.89769 C 1019.10233 792.08158 939.50856 871.67546 841.32469 871.67546 C 841.32469 871.67546 643.03839 871.67546 643.03839 871.67546 C 544.85452 871.67546 465.26074 792.08158 465.26074 693.89769 C 465.26074 595.71400 544.85452 516.12012 643.03839 516.12012 Z",
+          "bounds": {
+            "x": 465.26074409484863,
+            "y": 516.1201238632202,
+            "width": 553.8415908813477,
+            "height": 355.55533170700073
+          }
+        },
+        {
+          "path": "M 1171.62466 635.16399 C 1202.79872 635.16399 1228.07014 660.43557 1228.07014 691.60950 C 1228.07014 722.78343 1202.79872 748.05502 1171.62466 748.05502 C 1140.45072 748.05502 1115.17930 722.78343 1115.17930 691.60950 C 1115.17930 660.43557 1140.45072 635.16399 1171.62466 635.16399 Z",
+          "bounds": {
+            "x": 1115.1793003082275,
+            "y": 635.1639866828918,
+            "width": 112.89083957672119,
+            "height": 112.89103031158447
+          }
+        }
+      ],
+      "clearance": 45,
+      "magsafe": true,
+      "requirementsEvidence": {
+        "kind": "reviewed-product-guideline-and-named-psd-guide",
+        "reviewedAt": "2026-11-16",
+        "url": "https://www.podbase.com/custom/tech-accessories/magnetic-tough-phone-case",
+        "pageSha256": "d6a2d4751c6d7fd09d4389c1732f55196acd9cb11f4569f9ab8122a1621b2c7c",
+        "methodUrl": "https://help.podbase.com/hc/en-us/articles/26709497957532-How-to-prepare-print-files-for-Podbase-API",
+        "guideGroup": "Google Pixel 10 A",
+        "guideSha256": "f205b1965bf66d82d74f5134c28f4d26aadcc5a9fec7502abf74e44e7991b207"
+      },
+      "hash": "7dd8275649d60c60ba0bb1d503f52c2ebd6ee0d821675d930d8bf551af96ae37"
+    },
+    {
       "modelId": "samsung-galaxy-s25-plus",
       "variantId": "PBV-4HU-23P-224Z",
       "catalogName": "Samsung Galaxy S25 Plus",
@@ -4179,18 +4453,6 @@
   "magsafeMissing": [
     {
       "modelId": "iphone-17e",
-      "reason": "guide-or-requirements-missing"
-    },
-    {
-      "modelId": "iphone-18-pro",
-      "reason": "guide-or-requirements-missing"
-    },
-    {
-      "modelId": "iphone-18-pro-max",
-      "reason": "guide-or-requirements-missing"
-    },
-    {
-      "modelId": "google-pixel-10a",
       "reason": "guide-or-requirements-missing"
     },
     {

@@ -13,8 +13,8 @@ import { podbasePayload } from '../server/podbase.js';
 const input = { kind: 'custom', modelId: 'iphone-14-pro', designId: 'nach-dem-sturm', backgroundId: 'light-blue', customText: 'Du bist geliebt.', dedication: 'Für Anna' };
 
 test('Offizielle Vorlagen enthalten Variantenbezug, Originalkurven und prüfbare Quelldateien', () => {
-  assert.equal(PODBASE_PRINT_TEMPLATES.templates.length, 64);
-  assert.equal(PODBASE_PRINT_TEMPLATES.missing.length, 10);
+  assert.equal(PODBASE_PRINT_TEMPLATES.templates.length, 67);
+  assert.equal(PODBASE_PRINT_TEMPLATES.missing.length, 7);
   assert.match(PODBASE_PRINT_TEMPLATES.source.guideSha256, /^[a-f0-9]{64}$/);
   for (const t of PODBASE_PRINT_TEMPLATES.templates) {
     assert.ok(findModel(t.modelId)); assert.equal(t.width, 2000); assert.equal(t.height, 3400);
@@ -22,6 +22,53 @@ test('Offizielle Vorlagen enthalten Variantenbezug, Originalkurven und prüfbare
     assert.ok(t.safeArea.bounds.width > 0 && t.safeArea.bounds.height > 0);
   }
   assert.equal(officialTemplate('samsung-galaxy-z-flip8'), undefined);
+});
+
+test('Ergänzte Modelle behalten ihre explizite PSD-Zuordnung und eigene Anbieterkennungen', () => {
+  const groups = {
+    'iphone-18-pro': 'iPhone 17 Pro / 18 Pro',
+    'iphone-18-pro-max': 'iPhone 17 Pro Max / 18 Pro Max',
+    'google-pixel-10a': 'Google Pixel 10 A'
+  };
+  for (const [modelId, group] of Object.entries(groups)) {
+    const normal = officialTemplate(modelId), magnetic = officialTemplate(modelId, true);
+    assert.ok(normal && magnetic);
+    assert.notEqual(normal.variantId, magnetic.variantId);
+    for (const template of [normal, magnetic]) {
+      assert.equal(template.guideGroup, group);
+      assert.equal(template.requirementsEvidence.guideGroup, group);
+      assert.equal(template.requirementsEvidence.guideSha256, PODBASE_PRINT_TEMPLATES.source.guideSha256);
+      assert.match(template.requirementsEvidence.url, /^https:\/\/www\.podbase\.com\/custom\//);
+      assert.equal(template.clearance, 45);
+      assert.equal(template.sku, null, 'No guessed SKU from a different model');
+    }
+    assert.deepEqual(normal.safeArea, magnetic.safeArea);
+    assert.deepEqual(normal.cameraExclusions, magnetic.cameraExclusions);
+  }
+  assert.equal(officialTemplate('iphone-17e'), undefined);
+  assert.equal(officialTemplate('samsung-galaxy-z-flip8'), undefined);
+});
+
+test('Neu ergänzte Vorlagen ergeben getrennte Standard- und Magnet-Druckaufträge ohne Anbieteraufruf', async () => {
+  for (const modelId of ['iphone-18-pro', 'iphone-18-pro-max', 'google-pixel-10a']) {
+    const prints = [];
+    for (const magsafe of [false, true]) {
+      const printed = await productionPrint(renderLayout({ ...input, modelId, magsafe }), findModel(modelId));
+      const template = officialTemplate(modelId, magsafe);
+      const item = { configuration: printed.configuration, hash: printed.hash, title: 'Drucktest', quantity: 1,
+        productId: template.productId, variantId: template.variantId };
+      const order = { id: 'local-fixture', mode: 'live', paid_at: 1, recipient: JSON.stringify({
+        name: 'Drucktest', email: 'print@example.test', phone: '+4915112345678', street: 'Testweg 12',
+        postalCode: '10115', city: 'Berlin', country: 'DE'
+      }), items: JSON.stringify([item]) };
+      const payload = podbasePayload(order, 'https://www.archenlicht.de', { requireOfficialPrint: true });
+      assert.equal(payload.items[0].variantId, template.variantId);
+      assert.equal(payload.items[0].productId, template.productId);
+      assert.equal(payload.items[0].printFile, `https://www.archenlicht.de/prints/${printed.hash}.png`);
+      prints.push(printed);
+    }
+    assert.equal(prints[0].svg, prints[1].svg, 'Switching to magnetic preserves the exact printable artwork');
+  }
 });
 
 test('Alle belegten Modelle: Motive und Wunschtexte bleiben innerhalb der Original-Druckkurven', async t => {
@@ -67,9 +114,9 @@ test('Kaufweg speichert exakt die geprüfte Druckdatei; fehlende Vorlagen sperre
     assert.match(preview.svgUrl, /\.preview\.svg$/); assert.equal(preview.officialPrintTemplate, true);
     assert.equal((await sharp(await shop.printFile(preview.hash, 'png')).metadata()).width, 2000);
     const cart = await shop.saveCart(session, input); assert.equal(cart[0].hash, preview.hash);
-    await assert.rejects(shop.saveCart(session, { ...input, modelId: 'iphone-18-pro' }), /Druckvorlage/);
+    await assert.rejects(shop.saveCart(session, { ...input, modelId: 'iphone-17e' }), /Druckvorlage/);
     const state = await shop.publicState(session);
-    assert.ok(state.variants.filter(v => v.model_id === 'iphone-18-pro').every(v => !v.available));
+    assert.ok(state.variants.filter(v => v.model_id === 'iphone-17e').every(v => !v.available));
     const checkout = await shop.checkout(session, { method: 'card', recipient: { name: 'Drucktest', email: 'print@example.test', phone: '+4915112345678', street: 'Testweg 12', postalCode: '10115', city: 'Berlin', country: 'DE' } });
     const order = await shop.s.get('SELECT * FROM orders WHERE id=?', checkout.orderId);
     const item = JSON.parse(order.items)[0]; assert.equal(item.hash, preview.hash);
@@ -83,7 +130,7 @@ test('Alte Warenkörbe bleiben trotz inzwischen fehlender Druckvorlage erreichba
   const shop = await Shop.create({ ...defaultConfig(), printMode: 'preview', podbaseMode: 'local', shopMode: 'test', paymentMode: 'local', mailMode: 'local', storageMode: 'sqlite', dataDir: resolve('test-results', randomUUID()), adminPassword: 'Print-Template-Test-2026!', autoShip: false });
   try {
     const { session } = await shop.createSession();
-    const cart = await shop.saveCart(session, { ...input, modelId: 'iphone-18-pro' });
+    const cart = await shop.saveCart(session, { ...input, modelId: 'iphone-17e' });
     shop.config.printMode = 'podbase';
     const state = await shop.publicState(session);
     assert.equal(state.cart.length, 1); assert.equal(state.cart[0].available, false);

@@ -10,11 +10,14 @@ import re
 from pathlib import Path
 from psd_tools import PSDImage
 from podbase_raster_guide import extract_raster_guide
+from podbase_requirements import supplemental_requirements
 
 root = Path(__file__).resolve().parent.parent
 source = root / '.tools/podbase-print-references/podbase-phone-layouts.psd'
 requirements = root / '.tools/podbase-print-references/requirements.csv'
 mapping = json.loads((root / 'server/podbase-model-map.json').read_text('utf-8'))
+supplement = json.loads((root / 'server/podbase-print-requirements-supplement.json').read_text('utf-8'))
+guide_hash = hashlib.sha256(source.read_bytes()).hexdigest()
 psd = PSDImage.open(source)
 width, height = psd.size
 assert (width, height) == (2000, 3400)
@@ -56,6 +59,8 @@ for model in mapping['models']:
     row = next((r for r in rows if r.get('Variant ID') == model['variantId'] and r['Product'] == 'Tough Phone Case'), None)
     candidates = {key(model['catalogName']), key(model['modelId'].replace('-', ' ')), key(aliases.get(model['modelId'], ''))}
     found = [g for g in groups if key(g.name) in candidates]
+    if not row and len(found) == 1:
+        row = supplemental_requirements(supplement, model, mapping['productId'], found[0].name, guide_hash)
     if not row or len(found) != 1:
         missing.append({'modelId': model['modelId'], 'reason': 'requirements-missing' if not row else 'guide-missing-or-ambiguous'})
         continue
@@ -82,6 +87,8 @@ for model in mapping['models']:
     record = {**model, 'productId': mapping['productId'], 'sku': row['SKU'], 'width': width, 'height': height,
               'density': 300, 'printType': 'full-file-area', 'guideGroup': group.name,
               'safeArea': safe_shape, 'cameraExclusions': camera_shapes, 'clearance': 45}
+    if row.get('requirementsEvidence'):
+        record['requirementsEvidence'] = row['requirementsEvidence']
     record['hash'] = hashlib.sha256(json.dumps(record, sort_keys=True).encode()).hexdigest()
     templates.append(record)
 
@@ -91,21 +98,27 @@ for product in magnetic_mapping['products']:
     for model in product['models']:
         template = next((t for t in templates if t['modelId'] == model['modelId']), None)
         row = next((r for r in rows if r.get('Variant ID') == model['variantId'] and r['Product'] == product['productName']), None)
+        if not row and template:
+            row = supplemental_requirements(supplement, model, product['productId'], template['guideGroup'], guide_hash)
         if not template or not row or row['Design file type'] != 'Full file area' or row['Print file dimensions (width x height)'] != '2000 x 3400':
             magnetic_missing.append({'modelId': model['modelId'], 'reason': 'guide-or-requirements-missing'})
             continue
         # Podbase publishes the same phone-layout guide for Tough and magnetic Tough.
-        # Still require an explicit print-requirements row for this exact variant.
+        # Exact variant requirements may come from the CSV or the reviewed supplement.
         record = {**template, **model, 'productId': product['productId'], 'sku': row['SKU'], 'magsafe': True}
+        record.pop('requirementsEvidence', None)
+        if row.get('requirementsEvidence'):
+            record['requirementsEvidence'] = row['requirementsEvidence']
         del record['hash']
         record['hash'] = hashlib.sha256(json.dumps(record, sort_keys=True).encode()).hexdigest()
         magnetic_templates.append(record)
 
 output = {'version': 'podbase-tough-guides-v1', 'source': {
     'guideUrl': 'https://drive.google.com/file/d/1SvuCd1eDkq2VKgky2NRi6NpEF9CZTUB2/view',
-    'guideSha256': hashlib.sha256(source.read_bytes()).hexdigest(),
+    'guideSha256': guide_hash,
     'requirementsUrl': 'https://docs.google.com/spreadsheets/d/1shTH2o9K3sN0RyWYUzk8tLADDNgB-qixPxnwQGvOiqM/edit?gid=969391465',
-    'requirementsSha256': hashlib.sha256(requirements.read_bytes()).hexdigest()},
+    'requirementsSha256': hashlib.sha256(requirements.read_bytes()).hexdigest(),
+    'supplementSha256': hashlib.sha256((root / 'server/podbase-print-requirements-supplement.json').read_bytes()).hexdigest()},
     'templates': templates, 'missing': missing, 'magsafeTemplates': magnetic_templates, 'magsafeMissing': magnetic_missing}
 target = root / 'server/podbase-print-templates.json'
 target.write_text(json.dumps(output, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')

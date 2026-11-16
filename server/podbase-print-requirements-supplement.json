@@ -1,0 +1,57 @@
+{
+  "version": "podbase-product-guidelines-2026-11-16",
+  "reviewedAt": "2026-11-16",
+  "guideSha256": "f205b1965bf66d82d74f5134c28f4d26aadcc5a9fec7502abf74e44e7991b207",
+  "printType": "full-file-area",
+  "width": 2000,
+  "height": 3400,
+  "density": 300,
+  "methodUrl": "https://help.podbase.com/hc/en-us/articles/26709497957532-How-to-prepare-print-files-for-Podbase-API",
+  "note": "Reviewed product-level file requirements plus an explicitly named model guide in the official PSD. Only the exact listed variants qualify; no contours are inferred from another model or a mockup.",
+  "products": [
+    {
+      "productId": "PBP-FL-5D2-224T",
+      "productName": "Tough Phone Case",
+      "url": "https://www.podbase.com/custom/tech-accessories/tough-phone-case",
+      "pageSha256": "a02496ac6e787cf5e6f5c907e2336e76d51c40864c365dc1febe0cc0691dcec4"
+    },
+    {
+      "productId": "PBP-37-2FY-223Z",
+      "productName": "MagSafe Tough Phone Case",
+      "url": "https://www.podbase.com/custom/tech-accessories/magsafe-tough-phone-case",
+      "pageSha256": "448b4c62a126c816f02d680fd23b0c6f159dfc29edd640aa413937d64a37f374"
+    },
+    {
+      "productId": "PBP-4HU-2II-223I",
+      "productName": "Magnetic Tough Phone Case",
+      "url": "https://www.podbase.com/custom/tech-accessories/magnetic-tough-phone-case",
+      "pageSha256": "d6a2d4751c6d7fd09d4389c1732f55196acd9cb11f4569f9ab8122a1621b2c7c"
+    }
+  ],
+  "models": [
+    {
+      "modelId": "iphone-18-pro",
+      "guideGroup": "iPhone 17 Pro / 18 Pro",
+      "variants": [
+        { "productId": "PBP-FL-5D2-224T", "variantId": "PBV-4QL-2KM-223I" },
+        { "productId": "PBP-37-2FY-223Z", "variantId": "PBV-4QL-2RI-227W" }
+      ]
+    },
+    {
+      "modelId": "iphone-18-pro-max",
+      "guideGroup": "iPhone 17 Pro Max / 18 Pro Max",
+      "variants": [
+        { "productId": "PBP-FL-5D2-224T", "variantId": "PBV-4QL-2C3-224I" },
+        { "productId": "PBP-37-2FY-223Z", "variantId": "PBV-4QL-2C2-22AB" }
+      ]
+    },
+    {
+      "modelId": "google-pixel-10a",
+      "guideGroup": "Google Pixel 10 A",
+      "variants": [
+        { "productId": "PBP-FL-5D2-224T", "variantId": "PBV-4PS-2J3-224N" },
+        { "productId": "PBP-4HU-2II-223I", "variantId": "PBV-4PS-2XB-225I" }
+      ]
+    }
+  ]
+}

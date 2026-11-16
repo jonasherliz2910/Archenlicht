@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-11-11T16:23:16.713077+00:00",
+  "checkedAt": "2026-11-16T18:53:19.773Z",
   "source": {
     "guideUrl": "https://drive.google.com/file/d/1SvuCd1eDkq2VKgky2NRi6NpEF9CZTUB2/view",
     "guideSha256": "f205b1965bf66d82d74f5134c28f4d26aadcc5a9fec7502abf74e44e7991b207",
@@ -7,29 +7,10 @@
     "requirementsSha256": "85a8d1911073fc1b014fc637121dbba8680f540638c1b92217025d2b3e4a8b4f"
   },
   "availableTemplates": {
-    "standard": 64,
-    "magnetic": 38
+    "standard": 67,
+    "magnetic": 41
   },
   "gaps": [
-    {
-      "modelId": "google-pixel-10a",
-      "name": "Google Pixel 10A",
-      "guideGroup": "Google Pixel 10 A",
-      "variants": [
-        {
-          "kind": "standard",
-          "productId": "PBP-FL-5D2-224T",
-          "variantId": "PBV-4PS-2J3-224N",
-          "requirementsPublished": false
-        },
-        {
-          "kind": "magnetic",
-          "productId": "PBP-4HU-2II-223I",
-          "variantId": "PBV-4PS-2XB-225I",
-          "requirementsPublished": false
-        }
-      ]
-    },
     {
       "modelId": "iphone-17e",
       "name": "iPhone 17e",
@@ -46,44 +27,6 @@
           "productId": "PBP-37-2FY-223Z",
           "variantId": "PBV-4KV-2VG-225G",
           "requirementsPublished": true
-        }
-      ]
-    },
-    {
-      "modelId": "iphone-18-pro",
-      "name": "iPhone 18 Pro",
-      "guideGroup": "iPhone 17 Pro / 18 Pro",
-      "variants": [
-        {
-          "kind": "standard",
-          "productId": "PBP-FL-5D2-224T",
-          "variantId": "PBV-4QL-2KM-223I",
-          "requirementsPublished": false
-        },
-        {
-          "kind": "magnetic",
-          "productId": "PBP-37-2FY-223Z",
-          "variantId": "PBV-4QL-2RI-227W",
-          "requirementsPublished": false
-        }
-      ]
-    },
-    {
-      "modelId": "iphone-18-pro-max",
-      "name": "iPhone 18 Pro Max",
-      "guideGroup": "iPhone 17 Pro Max / 18 Pro Max",
-      "variants": [
-        {
-          "kind": "standard",
-          "productId": "PBP-FL-5D2-224T",
-          "variantId": "PBV-4QL-2C3-224I",
-          "requirementsPublished": false
-        },
-        {
-          "kind": "magnetic",
-          "productId": "PBP-37-2FY-223Z",
-          "variantId": "PBV-4QL-2C2-22AB",
-          "requirementsPublished": false
         }
       ]
     },
@@ -194,6 +137,71 @@
           "requirementsPublished": false
         }
       ]
+    }
+  ],
+  "resolved": [
+    {
+      "modelId": "google-pixel-10a",
+      "name": "Google Pixel 10A",
+      "guideGroup": "Google Pixel 10 A",
+      "variants": [
+        {
+          "kind": "standard",
+          "productId": "PBP-FL-5D2-224T",
+          "variantId": "PBV-4PS-2J3-224N",
+          "requirementsPublished": false
+        },
+        {
+          "kind": "magnetic",
+          "productId": "PBP-4HU-2II-223I",
+          "variantId": "PBV-4PS-2XB-225I",
+          "requirementsPublished": false
+        }
+      ],
+      "resolution": "Explicit model PSD guide plus reviewed product-level print requirements",
+      "requirementsSupplement": "server/podbase-print-requirements-supplement.json"
+    },
+    {
+      "modelId": "iphone-18-pro",
+      "name": "iPhone 18 Pro",
+      "guideGroup": "iPhone 17 Pro / 18 Pro",
+      "variants": [
+        {
+          "kind": "standard",
+          "productId": "PBP-FL-5D2-224T",
+          "variantId": "PBV-4QL-2KM-223I",
+          "requirementsPublished": false
+        },
+        {
+          "kind": "magnetic",
+          "productId": "PBP-37-2FY-223Z",
+          "variantId": "PBV-4QL-2RI-227W",
+          "requirementsPublished": false
+        }
+      ],
+      "resolution": "Explicit model PSD guide plus reviewed product-level print requirements",
+      "requirementsSupplement": "server/podbase-print-requirements-supplement.json"
+    },
+    {
+      "modelId": "iphone-18-pro-max",
+      "name": "iPhone 18 Pro Max",
+      "guideGroup": "iPhone 17 Pro Max / 18 Pro Max",
+      "variants": [
+        {
+          "kind": "standard",
+          "productId": "PBP-FL-5D2-224T",
+          "variantId": "PBV-4QL-2C3-224I",
+          "requirementsPublished": false
+        },
+        {
+          "kind": "magnetic",
+          "productId": "PBP-37-2FY-223Z",
+          "variantId": "PBV-4QL-2C2-22AB",
+          "requirementsPublished": false
+        }
+      ],
+      "resolution": "Explicit model PSD guide plus reviewed product-level print requirements",
+      "requirementsSupplement": "server/podbase-print-requirements-supplement.json"
     }
   ]
 }

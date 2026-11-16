@@ -14,18 +14,21 @@ import { magneticVariant } from '../server/case-variants.js';
 const catalogPath = process.argv[2] || 'test-results/product-release/catalog.json';
 const output = process.argv[3] || 'test-results/product-release/print-audit.json';
 const catalog = JSON.parse(await readFile(catalogPath, 'utf8'));
+const modelFilter = process.argv.find(arg => arg.startsWith('--models='))?.slice(9).split(',');
+if (modelFilter) for (const id of modelFilter) assert.ok(MODELS.some(model => model.id === id), `Unknown model: ${id}`);
 assert.ok(Date.now() - Date.parse(catalog.checkedAt) < 86400000, 'Refresh the read-only catalog snapshot first');
 const sha256 = data => createHash('sha256').update(data).digest('hex');
 const wasm = process.execArgv.some(arg => arg.includes('product-release-loader.mjs'));
 let report = { startedAt: new Date().toISOString(), renderer: wasm ? 'resvg-wasm-2.6.2-srgb300-v1' : 'sharp-native',
   templateFileHash: sha256(await readFile('server/podbase-print-templates.json')),
   catalogCheckedAt: catalog.checkedAt, source: PODBASE_PRINT_TEMPLATES.source,
-  cases: [], failed: [], colorGeometryChecks: 0, models: [] };
+  scope: modelFilter || 'all-models', cases: [], failed: [], colorGeometryChecks: 0, models: [] };
 if (process.argv.includes('--resume')) {
   const previous = JSON.parse(await readFile(output, 'utf8'));
   assert.equal(previous.templateFileHash, report.templateFileHash);
   assert.equal(previous.renderer, report.renderer);
   assert.equal(previous.catalogCheckedAt, report.catalogCheckedAt);
+  assert.deepEqual(previous.scope || 'all-models', report.scope);
   assert.ok(!previous.finishedAt);
   report = previous;
 }
@@ -42,6 +45,7 @@ const scenarios = [
 // geometry covers those colors; this is not a physical color reproduction test.
 const geometry = svg => svg.replace(/<rect data-background="[^"]*"[^>]*\/>/, '').replace(/<g fill="#[a-fA-F0-9]+">/g, '<g fill="INK">');
 for (const model of MODELS) {
+  if (modelFilter && !modelFilter.includes(model.id)) continue;
   if (report.models.some(row => row.modelId === model.id)) continue;
   const remote = catalog.snapshot.models.find(row => row.modelId === model.id);
   const types = [];
@@ -59,7 +63,7 @@ for (const model of MODELS) {
       const input = { ...scenario, designId: design.id, modelId: model.id, magsafe, backgroundId: 'white' };
       try {
         const layout = renderLayout(input), expectedGeometry = sha256(geometry(layout.svg));
-        for (const color of model.id === MODELS[0].id ? CASE_COLORS : []) {
+        for (const color of (modelFilter || model.id === MODELS[0].id) ? CASE_COLORS : []) {
           const colored = renderLayout({ ...input, backgroundId: color.id });
           assert.equal(sha256(geometry(colored.svg)), expectedGeometry, `${model.id}/${design.id}/${color.id}: geometry changed`);
           assert.equal(colored.printText, layout.printText);
