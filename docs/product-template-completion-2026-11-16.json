@@ -1,0 +1,120 @@
+{
+  "checkedAt": "2026-11-16T19:05:42.583Z",
+  "codeCommit": "3f0efb7553d3dc797573f5d30902c5d28c23e6d9",
+  "workerVersion": "dd5e6711-c586-4d88-955a-2ea8a3922c94",
+  "deploymentMethod": "local-tested-build-via-wrangler",
+  "templateFileHash": "075143f0c065207bd43c335156d98ce3287758e582ee0b846254bc6a86f4ba5c",
+  "source": {
+    "guideUrl": "https://drive.google.com/file/d/1SvuCd1eDkq2VKgky2NRi6NpEF9CZTUB2/view",
+    "guideSha256": "f205b1965bf66d82d74f5134c28f4d26aadcc5a9fec7502abf74e44e7991b207",
+    "requirementsUrl": "https://docs.google.com/spreadsheets/d/1shTH2o9K3sN0RyWYUzk8tLADDNgB-qixPxnwQGvOiqM/edit?gid=969391465",
+    "requirementsSha256": "85a8d1911073fc1b014fc637121dbba8680f540638c1b92217025d2b3e4a8b4f",
+    "supplementSha256": "e326d63c6898de58425786e9490cb80ca649072f40bf0601a7c15212e77bba88"
+  },
+  "newModels": [
+    {
+      "modelId": "google-pixel-10a",
+      "name": "Google Pixel 10a",
+      "brand": "Google",
+      "types": [
+        {
+          "magsafe": false,
+          "productId": "PBP-FL-5D2-224T",
+          "variantId": "PBV-4PS-2J3-224N",
+          "templateHash": "297dad352a36ffa7489e023c0537a6167ccc122f690c6b7eba35ee8b794420b3",
+          "passed": true
+        },
+        {
+          "magsafe": true,
+          "productId": "PBP-4HU-2II-223I",
+          "variantId": "PBV-4PS-2XB-225I",
+          "templateHash": "7dd8275649d60c60ba0bb1d503f52c2ebd6ee0d821675d930d8bf551af96ae37",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "modelId": "iphone-18-pro",
+      "name": "iPhone 18 Pro",
+      "brand": "Apple",
+      "types": [
+        {
+          "magsafe": false,
+          "productId": "PBP-FL-5D2-224T",
+          "variantId": "PBV-4QL-2KM-223I",
+          "templateHash": "d6abc8643a77910941d87773d7a1570fc406a6e733864de9bf1b5454c6ee6477",
+          "passed": true
+        },
+        {
+          "magsafe": true,
+          "productId": "PBP-37-2FY-223Z",
+          "variantId": "PBV-4QL-2RI-227W",
+          "templateHash": "c5606fb2b1bd2e550ffa66936219b6e98b82dad2960a80410377cc543a896aab",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "modelId": "iphone-18-pro-max",
+      "name": "iPhone 18 Pro Max",
+      "brand": "Apple",
+      "types": [
+        {
+          "magsafe": false,
+          "productId": "PBP-FL-5D2-224T",
+          "variantId": "PBV-4QL-2C3-224I",
+          "templateHash": "af901f9f3a066fe789e0b9f9387177021fdbeb774dd3c854ad722e5d0823cb43",
+          "passed": true
+        },
+        {
+          "magsafe": true,
+          "productId": "PBP-37-2FY-223Z",
+          "variantId": "PBV-4QL-2C2-22AB",
+          "templateHash": "001dc046c83080728b503173d1f1dab1be347895c94d36f20175dec688b82cf4",
+          "passed": true
+        }
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "renderer": "sharp-native",
+      "cases": 108,
+      "colorGeometryChecks": 972,
+      "passed": true,
+      "finishedAt": "2026-11-16T18:53:55.014Z"
+    },
+    {
+      "renderer": "resvg-wasm-2.6.2-srgb300-v1",
+      "cases": 108,
+      "colorGeometryChecks": 972,
+      "passed": true,
+      "finishedAt": "2026-11-16T18:58:02.737Z"
+    }
+  ],
+  "availability": {
+    "standardModels": 67,
+    "magneticModels": 41,
+    "approvedStandardCombinations": 402,
+    "approvedMagneticCombinations": 246,
+    "remainingBlockedModels": [
+      "iphone-17e",
+      "samsung-galaxy-s26-fe",
+      "samsung-galaxy-a27",
+      "samsung-galaxy-z-flip8",
+      "google-pixel-11",
+      "google-pixel-11-pro",
+      "google-pixel-11-pro-xl"
+    ]
+  },
+  "health": {
+    "ok": true,
+    "mode": "live",
+    "checkoutEnabled": false,
+    "simulatedPayments": false,
+    "simulatedFulfillment": false,
+    "podbaseMode": "production",
+    "podbaseOrderSubmissionEnabled": false
+  },
+  "physicalSampleApprovalExpanded": false
+}

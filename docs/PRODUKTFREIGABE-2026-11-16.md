@@ -4,6 +4,14 @@ Stand: 16. November 2026. Auftrag: Nach dem Cloudflare-Umzug die belegten
 Handymodelle und ihre Druckfreigaben für den Verkaufsstart vorbereiten und
 übernehmen. Die Freigabe des öffentlichen Checkouts ist ein eigener Schritt.
 
+Aktualisierung um 20:04 MEZ: Zusätzlich sind iPhone 18 Pro, iPhone 18 Pro Max
+und Google Pixel 10a technisch freigegeben, jeweils Standard und magnetisch.
+Aktueller Gesamtstand: 67 Standardmodelle, 41 magnetische Modelle,
+402 Standard-/246 Magnetkombinationen; sieben Modelle mit 42 Kombinationen
+bleiben gesperrt. Die folgenden Abschnitte protokollieren die erste Freigabe
+um 19:39 MEZ. Der Ergänzungsnachweis steht in
+`product-template-completion-2026-11-16.json` und `PODBASE-DRUCKVORLAGEN.md`.
+
 ## Umfang der technischen Freigabe
 
 | Marke | Standardmodelle | Davon mit MagSafe-/Magnetvorlage |

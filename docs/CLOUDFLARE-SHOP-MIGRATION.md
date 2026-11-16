@@ -579,3 +579,44 @@ Korrektur älterer Prüfpläne: Stripe-Integrationstests mit Sandbox und Testkar
 durchführen, nicht mit echten Zahlungsmitteln im Livebetrieb. Quelle:
 https://docs.stripe.com/testing. Eine kostenpflichtige Testzahlung wird nicht
 als Voraussetzung für den Verkaufsstart verlangt.
+
+### Drei fehlende Modellvorlagen ergänzt (16. November 2026, 20:04 MEZ)
+
+Der Import berücksichtigt jetzt zusätzlich ausdrücklich modellbezogene
+Konturen aus der offiziellen PSD zusammen mit den Druckanforderungen der
+jeweiligen Podbase-Produktseite. Damit sind iPhone 18 Pro, iPhone 18 Pro Max
+und Google Pixel 10a mit Standard- und Magnet/MagSafe-Variante belegt.
+Alle 102 bisherigen Vorlagensätze behalten ihren Inhalt und Hash.
+
+Prüfung: 24 gezielte JavaScript-Tests, ein zusätzlicher Test für die exakten
+Podbase-Auftragsdaten der sechs neuen Varianten, zwei Python-Zuordnungstests;
+keine Fehler. Für die drei ergänzten Modelle je 108 Beschnittprüfungen und
+972 Farbgeometrievergleiche mit nativer und Cloudflare-WASM-Technik bestanden.
+Syntaxprüfung und Produktionsbuild erfolgreich. Keine Anbieterbestellung
+ausgelöst und keine pauschale physische Musterfreigabe behauptet.
+
+Commit 3f0efb7 liegt auf codex/cloudflare-shop. Für diesen Push erschien bis
+zur Übernahme kein Cloudflare-GitHub-Check. Deshalb wurde der identische lokal
+geprüfte Build mit `wrangler versions upload` und `versions deploy` veröffentlicht.
+Aktive Version: dd5e6711-c586-4d88-955a-2ea8a3922c94, 100 Prozent.
+Die GitHub-Build-Verbindung war zuvor nachweislich funktionsfähig; der aktuell
+ausgebliebene Auslöser ist bei der nächsten Änderung erneut zu kontrollieren.
+
+18 zusätzliche Datenbankzeilen atomar auf available=1, print_approved=1,
+approval_mode=live gesetzt; vorher gesichert. Die übrigen 426 Zeilen blieben
+unverändert. Öffentliche API und Datenbank bestätigen 402 Standard- und
+246 Magnetkombinationen, 42 gesperrte Kombinationen. Alle 14 Laufzeit-Secrets
+erhalten. Checkout und Podbase-Übermittlung weiterhin false; unverändert
+acht Testbestellungen und zehn zugestellte Maildatensätze.
+
+Separater Browsercheck auf www.archenlicht.de: alle drei Modelle auswählbar,
+offizielle Druckvorschau und Magnetoption verfügbar, keine JavaScript-Fehler.
+390 und 1440 Pixel ohne horizontalen Überlauf. Nachweise liegen ignoriert
+unter test-results/template-completion/; kompakter Versions- und Prüfbeleg:
+docs/product-template-completion-2026-11-16.json.
+
+Noch offen: Modellkonturen für iPhone 17e, Galaxy S26 FE, Galaxy A27,
+Galaxy Z Flip8 und Pixel 11/11 Pro/11 Pro XL. Der Nutzer öffnet den Podbase-
+Editor, um diese modellgenauen Vorlagen zugänglich zu machen. Browseranbindung
+zum bereits angemeldeten Editor ist derzeit nicht erreichbar. Diese sieben
+Modelle bleiben bis zum Beleg ihrer sicheren Druckflächen gesperrt.
