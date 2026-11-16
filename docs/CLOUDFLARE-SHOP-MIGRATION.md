@@ -485,3 +485,32 @@ Domain-Umschaltung abgeschlossen; Verkäufe weiterhin gesperrt. Nächster gemein
 Schritt ist die Anmeldung mit dem bisherigen Konto auf www.archenlicht.de.
 GitHub-Build-Anbindung für archenlicht-shop, verbleibende Betriebs-/Kontingentprüfung
 und gesonderte Verkaufsfreigabe sind weiterhin offen. Vercel-Projekt erhalten.
+
+### Bestehende Anmeldung bestätigt; GitHub-Verknüpfung als Nächstes
+
+Jonas bestätigt nach der Domain-Umschaltung ausdrücklich, dass die Anmeldung
+mit dem bisherigen Konto auf dem öffentlichen Shop funktioniert ("ja geht").
+Damit ist die Bestätigung im Nutzerbrowser erfolgt.
+
+Der Produktions-Worker hat den unveränderlichen Tag
+5d3dc88e8a394e898a2f025cde895aec. Die lesende Abfrage der Builds-Trigger über
+/accounts/{account}/builds/workers/{tag}/triggers liefert mit dem bestehenden
+OAuth-Zugang HTTP 403 (Authentication error). Gleiches gilt beim alten Testworker;
+daraus folgt kein Fehler des laufenden Shops. Nachweise liegen ignoriert unter
+test-results/cloudflare-production/archenlicht-shop-build-triggers.json und
+archenlicht-cloudflare-test-build-triggers.json.
+
+Nächster Nutzerschritt: archenlicht-shop > Settings > Builds öffnen und die
+Git-Verknüpfung prüfen/einrichten. Konkrete Einstellungen für den bereits
+veröffentlichten Stand: Repository jonasherliz2910/Archenlicht, Produktionsbranch
+codex/cloudflare-shop, Wurzel /, Build pnpm run build:cloudflare-production,
+Deploy pnpm run deploy:cloudflare-production. Preview-Builds vorerst aus;
+keine Produktionsschlüssel als Build-Variablen kopieren. Sie bleiben verschlüsselt
+in der Worker-Laufzeit. Nach Verbindung einen GitHub-Build und die resultierende
+Deployment-Version sowie beide Domains und Sperrschalter prüfen. main enthält
+noch den bisherigen Vercel-Stand; kein unbeabsichtigter Branchwechsel.
+
+Die alte LIVE-CHECKLISTE.md vom 8. November beschreibt nicht den heutigen Stand.
+Für die weitere Verkaufsfreigabe die jüngeren Prüfberichte und tatsächlich aktive
+Konfiguration heranziehen; bereits erledigte Betreiber-, Anbieter- und Domain-
+Schritte nicht erneut als fehlend ausgeben. Verkäufe bleiben weiterhin gesperrt.
