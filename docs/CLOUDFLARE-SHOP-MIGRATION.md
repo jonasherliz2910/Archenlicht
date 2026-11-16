@@ -514,3 +514,16 @@ Die alte LIVE-CHECKLISTE.md vom 8. November beschreibt nicht den heutigen Stand.
 Für die weitere Verkaufsfreigabe die jüngeren Prüfberichte und tatsächlich aktive
 Konfiguration heranziehen; bereits erledigte Betreiber-, Anbieter- und Domain-
 Schritte nicht erneut als fehlend ausgeben. Verkäufe bleiben weiterhin gesperrt.
+
+### Automatischen Produktionsbuild prüfen
+
+Der Dashboard-Screenshot bestätigt die Produktionsbefehle
+pnpm run build:cloudflare-production und pnpm run deploy:cloudflare-production,
+die Wurzel / sowie den neu ausgewählten Build-Token archenlicht-shop-build.
+Build-Variablen sind leer; die vorhandenen Laufzeit-Secrets werden nicht dorthin
+kopiert. Der Produktionsbranch ist im letzten Screenshot nicht sichtbar.
+
+Dieser Commit auf codex/cloudflare-shop dient zugleich zur Prüfung des neuen
+GitHub-Auslösers. Erfolg erst nach abgeschlossenem Cloudflare-Build und Prüfung
+der resultierenden Veröffentlichung bestätigen. Verkaufs- und Podbase-Freigabe
+bleiben davon unabhängig gesperrt.
