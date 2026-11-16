@@ -1,0 +1,535 @@
+{
+  "status": "applied",
+  "preparedAt": "2026-11-16T18:38:41.880Z",
+  "catalogCheckedAt": "2026-11-16T18:23:32.003Z",
+  "source": {
+    "guideUrl": "https://drive.google.com/file/d/1SvuCd1eDkq2VKgky2NRi6NpEF9CZTUB2/view",
+    "guideSha256": "f205b1965bf66d82d74f5134c28f4d26aadcc5a9fec7502abf74e44e7991b207",
+    "requirementsUrl": "https://docs.google.com/spreadsheets/d/1shTH2o9K3sN0RyWYUzk8tLADDNgB-qixPxnwQGvOiqM/edit?gid=969391465",
+    "requirementsSha256": "85a8d1911073fc1b014fc637121dbba8680f540638c1b92217025d2b3e4a8b4f"
+  },
+  "designs": [
+    "unter-seinen-fluegeln",
+    "nach-dem-sturm",
+    "absetzen",
+    "ganz-nah",
+    "im-schatten",
+    "getragen"
+  ],
+  "models": [
+    {
+      "id": "iphone-12",
+      "name": "iPhone 12",
+      "brand": "Apple",
+      "standard": true,
+      "magnetic": true
+    },
+    {
+      "id": "iphone-12-pro",
+      "name": "iPhone 12 Pro",
+      "brand": "Apple",
+      "standard": true,
+      "magnetic": true
+    },
+    {
+      "id": "iphone-12-pro-max",
+      "name": "iPhone 12 Pro Max",
+      "brand": "Apple",
+      "standard": true,
+      "magnetic": true
+    },
+    {
+      "id": "iphone-13",
+      "name": "iPhone 13",
+      "brand": "Apple",
+      "standard": true,
+      "magnetic": true
+    },
+    {
+      "id": "iphone-13-mini",
+      "name": "iPhone 13 mini",
+      "brand": "Apple",
+      "standard": true,
+      "magnetic": true
+    },
+    {
+      "id": "iphone-13-pro",
+      "name": "iPhone 13 Pro",
+      "brand": "Apple",
+      "standard": true,
+      "magnetic": true
+    },
+    {
+      "id": "iphone-13-pro-max",
+      "name": "iPhone 13 Pro Max",
+      "brand": "Apple",
+      "standard": true,
+      "magnetic": true
+    },
+    {
+      "id": "iphone-14",
+      "name": "iPhone 14",
+      "brand": "Apple",
+      "standard": true,
+      "magnetic": true
+    },
+    {
+      "id": "iphone-14-plus",
+      "name": "iPhone 14 Plus",
+      "brand": "Apple",
+      "standard": true,
+      "magnetic": true
+    },
+    {
+      "id": "iphone-14-pro",
+      "name": "iPhone 14 Pro",
+      "brand": "Apple",
+      "standard": true,
+      "magnetic": true
+    },
+    {
+      "id": "iphone-14-pro-max",
+      "name": "iPhone 14 Pro Max",
+      "brand": "Apple",
+      "standard": true,
+      "magnetic": true
+    },
+    {
+      "id": "iphone-15",
+      "name": "iPhone 15",
+      "brand": "Apple",
+      "standard": true,
+      "magnetic": true
+    },
+    {
+      "id": "iphone-15-plus",
+      "name": "iPhone 15 Plus",
+      "brand": "Apple",
+      "standard": true,
+      "magnetic": true
+    },
+    {
+      "id": "iphone-15-pro",
+      "name": "iPhone 15 Pro",
+      "brand": "Apple",
+      "standard": true,
+      "magnetic": true
+    },
+    {
+      "id": "iphone-15-pro-max",
+      "name": "iPhone 15 Pro Max",
+      "brand": "Apple",
+      "standard": true,
+      "magnetic": true
+    },
+    {
+      "id": "iphone-16",
+      "name": "iPhone 16",
+      "brand": "Apple",
+      "standard": true,
+      "magnetic": true
+    },
+    {
+      "id": "iphone-16-plus",
+      "name": "iPhone 16 Plus",
+      "brand": "Apple",
+      "standard": true,
+      "magnetic": true
+    },
+    {
+      "id": "iphone-16-pro",
+      "name": "iPhone 16 Pro",
+      "brand": "Apple",
+      "standard": true,
+      "magnetic": true
+    },
+    {
+      "id": "iphone-16-pro-max",
+      "name": "iPhone 16 Pro Max",
+      "brand": "Apple",
+      "standard": true,
+      "magnetic": true
+    },
+    {
+      "id": "samsung-galaxy-s21",
+      "name": "Samsung Galaxy S21",
+      "brand": "Samsung",
+      "standard": true,
+      "magnetic": false
+    },
+    {
+      "id": "samsung-galaxy-s21-ultra",
+      "name": "Samsung Galaxy S21 Ultra",
+      "brand": "Samsung",
+      "standard": true,
+      "magnetic": false
+    },
+    {
+      "id": "samsung-galaxy-s22",
+      "name": "Samsung Galaxy S22",
+      "brand": "Samsung",
+      "standard": true,
+      "magnetic": true
+    },
+    {
+      "id": "samsung-galaxy-s22-ultra",
+      "name": "Samsung Galaxy S22 Ultra",
+      "brand": "Samsung",
+      "standard": true,
+      "magnetic": true
+    },
+    {
+      "id": "samsung-galaxy-s23",
+      "name": "Samsung Galaxy S23",
+      "brand": "Samsung",
+      "standard": true,
+      "magnetic": false
+    },
+    {
+      "id": "samsung-galaxy-s23-ultra",
+      "name": "Samsung Galaxy S23 Ultra",
+      "brand": "Samsung",
+      "standard": true,
+      "magnetic": true
+    },
+    {
+      "id": "samsung-galaxy-s24",
+      "name": "Samsung Galaxy S24",
+      "brand": "Samsung",
+      "standard": true,
+      "magnetic": true
+    },
+    {
+      "id": "samsung-galaxy-s24-ultra",
+      "name": "Samsung Galaxy S24 Ultra",
+      "brand": "Samsung",
+      "standard": true,
+      "magnetic": true
+    },
+    {
+      "id": "samsung-galaxy-s25",
+      "name": "Samsung Galaxy S25",
+      "brand": "Samsung",
+      "standard": true,
+      "magnetic": true
+    },
+    {
+      "id": "samsung-galaxy-s25-ultra",
+      "name": "Samsung Galaxy S25 Ultra",
+      "brand": "Samsung",
+      "standard": true,
+      "magnetic": true
+    },
+    {
+      "id": "samsung-galaxy-a54",
+      "name": "Samsung Galaxy A54",
+      "brand": "Samsung",
+      "standard": true,
+      "magnetic": false
+    },
+    {
+      "id": "samsung-galaxy-a55",
+      "name": "Samsung Galaxy A55",
+      "brand": "Samsung",
+      "standard": true,
+      "magnetic": false
+    },
+    {
+      "id": "google-pixel-6",
+      "name": "Google Pixel 6",
+      "brand": "Google",
+      "standard": true,
+      "magnetic": false
+    },
+    {
+      "id": "google-pixel-6-pro",
+      "name": "Google Pixel 6 Pro",
+      "brand": "Google",
+      "standard": true,
+      "magnetic": false
+    },
+    {
+      "id": "google-pixel-6a",
+      "name": "Google Pixel 6a",
+      "brand": "Google",
+      "standard": true,
+      "magnetic": false
+    },
+    {
+      "id": "google-pixel-7",
+      "name": "Google Pixel 7",
+      "brand": "Google",
+      "standard": true,
+      "magnetic": false
+    },
+    {
+      "id": "google-pixel-7-pro",
+      "name": "Google Pixel 7 Pro",
+      "brand": "Google",
+      "standard": true,
+      "magnetic": false
+    },
+    {
+      "id": "google-pixel-7a",
+      "name": "Google Pixel 7a",
+      "brand": "Google",
+      "standard": true,
+      "magnetic": false
+    },
+    {
+      "id": "google-pixel-8",
+      "name": "Google Pixel 8",
+      "brand": "Google",
+      "standard": true,
+      "magnetic": false
+    },
+    {
+      "id": "google-pixel-8-pro",
+      "name": "Google Pixel 8 Pro",
+      "brand": "Google",
+      "standard": true,
+      "magnetic": false
+    },
+    {
+      "id": "google-pixel-8a",
+      "name": "Google Pixel 8a",
+      "brand": "Google",
+      "standard": true,
+      "magnetic": false
+    },
+    {
+      "id": "google-pixel-9",
+      "name": "Google Pixel 9",
+      "brand": "Google",
+      "standard": true,
+      "magnetic": false
+    },
+    {
+      "id": "google-pixel-9-pro",
+      "name": "Google Pixel 9 Pro",
+      "brand": "Google",
+      "standard": true,
+      "magnetic": false
+    },
+    {
+      "id": "google-pixel-9-pro-xl",
+      "name": "Google Pixel 9 Pro XL",
+      "brand": "Google",
+      "standard": true,
+      "magnetic": false
+    },
+    {
+      "id": "google-pixel-9a",
+      "name": "Google Pixel 9a",
+      "brand": "Google",
+      "standard": true,
+      "magnetic": false
+    },
+    {
+      "id": "google-pixel-10",
+      "name": "Google Pixel 10",
+      "brand": "Google",
+      "standard": true,
+      "magnetic": true
+    },
+    {
+      "id": "google-pixel-10-pro",
+      "name": "Google Pixel 10 Pro",
+      "brand": "Google",
+      "standard": true,
+      "magnetic": true
+    },
+    {
+      "id": "google-pixel-10-pro-xl",
+      "name": "Google Pixel 10 Pro XL",
+      "brand": "Google",
+      "standard": true,
+      "magnetic": true
+    },
+    {
+      "id": "iphone-16e",
+      "name": "iPhone 16e",
+      "brand": "Apple",
+      "standard": true,
+      "magnetic": true
+    },
+    {
+      "id": "iphone-17",
+      "name": "iPhone 17",
+      "brand": "Apple",
+      "standard": true,
+      "magnetic": true
+    },
+    {
+      "id": "iphone-air",
+      "name": "iPhone Air",
+      "brand": "Apple",
+      "standard": true,
+      "magnetic": true
+    },
+    {
+      "id": "iphone-17-pro",
+      "name": "iPhone 17 Pro",
+      "brand": "Apple",
+      "standard": true,
+      "magnetic": true
+    },
+    {
+      "id": "iphone-17-pro-max",
+      "name": "iPhone 17 Pro Max",
+      "brand": "Apple",
+      "standard": true,
+      "magnetic": true
+    },
+    {
+      "id": "samsung-galaxy-s25-plus",
+      "name": "Samsung Galaxy S25 Plus",
+      "brand": "Samsung",
+      "standard": true,
+      "magnetic": true
+    },
+    {
+      "id": "samsung-galaxy-s25-edge",
+      "name": "Samsung Galaxy S25 Edge",
+      "brand": "Samsung",
+      "standard": true,
+      "magnetic": false
+    },
+    {
+      "id": "samsung-galaxy-s25-fe",
+      "name": "Samsung Galaxy S25 FE",
+      "brand": "Samsung",
+      "standard": true,
+      "magnetic": false
+    },
+    {
+      "id": "samsung-galaxy-s26",
+      "name": "Samsung Galaxy S26",
+      "brand": "Samsung",
+      "standard": true,
+      "magnetic": true
+    },
+    {
+      "id": "samsung-galaxy-s26-plus",
+      "name": "Samsung Galaxy S26 Plus",
+      "brand": "Samsung",
+      "standard": true,
+      "magnetic": true
+    },
+    {
+      "id": "samsung-galaxy-s26-ultra",
+      "name": "Samsung Galaxy S26 Ultra",
+      "brand": "Samsung",
+      "standard": true,
+      "magnetic": true
+    },
+    {
+      "id": "samsung-galaxy-a56",
+      "name": "Samsung Galaxy A56",
+      "brand": "Samsung",
+      "standard": true,
+      "magnetic": false
+    },
+    {
+      "id": "samsung-galaxy-a36",
+      "name": "Samsung Galaxy A36",
+      "brand": "Samsung",
+      "standard": true,
+      "magnetic": false
+    },
+    {
+      "id": "samsung-galaxy-a26",
+      "name": "Samsung Galaxy A26",
+      "brand": "Samsung",
+      "standard": true,
+      "magnetic": false
+    },
+    {
+      "id": "samsung-galaxy-a17",
+      "name": "Samsung Galaxy A17",
+      "brand": "Samsung",
+      "standard": true,
+      "magnetic": false
+    },
+    {
+      "id": "samsung-galaxy-a57",
+      "name": "Samsung Galaxy A57",
+      "brand": "Samsung",
+      "standard": true,
+      "magnetic": false
+    },
+    {
+      "id": "samsung-galaxy-a37",
+      "name": "Samsung Galaxy A37",
+      "brand": "Samsung",
+      "standard": true,
+      "magnetic": false
+    }
+  ],
+  "excluded": [
+    {
+      "id": "google-pixel-10a",
+      "name": "Google Pixel 10a",
+      "reason": "incomplete-official-print-template"
+    },
+    {
+      "id": "iphone-17e",
+      "name": "iPhone 17e",
+      "reason": "incomplete-official-print-template"
+    },
+    {
+      "id": "iphone-18-pro",
+      "name": "iPhone 18 Pro",
+      "reason": "incomplete-official-print-template"
+    },
+    {
+      "id": "iphone-18-pro-max",
+      "name": "iPhone 18 Pro Max",
+      "reason": "incomplete-official-print-template"
+    },
+    {
+      "id": "samsung-galaxy-s26-fe",
+      "name": "Samsung Galaxy S26 FE",
+      "reason": "incomplete-official-print-template"
+    },
+    {
+      "id": "samsung-galaxy-a27",
+      "name": "Samsung Galaxy A27",
+      "reason": "incomplete-official-print-template"
+    },
+    {
+      "id": "samsung-galaxy-z-flip8",
+      "name": "Samsung Galaxy Z Flip8",
+      "reason": "incomplete-official-print-template"
+    },
+    {
+      "id": "google-pixel-11",
+      "name": "Google Pixel 11",
+      "reason": "incomplete-official-print-template"
+    },
+    {
+      "id": "google-pixel-11-pro",
+      "name": "Google Pixel 11 Pro",
+      "reason": "incomplete-official-print-template"
+    },
+    {
+      "id": "google-pixel-11-pro-xl",
+      "name": "Google Pixel 11 Pro XL",
+      "reason": "incomplete-official-print-template"
+    }
+  ],
+  "checkoutEnabled": false,
+  "podbaseSubmissionEnabled": false,
+  "appliedAt": "2026-11-16T18:39:01.840Z",
+  "verifiedAt": "2026-11-16T18:39:09.105Z",
+  "templateFileHash": "7e3e4373419ee556f90a5fed5c84450027473bbe6ad099d959443c05325751cc",
+  "validation": {
+    "nativeContourChecks": 1836,
+    "wasmSpotChecks": 72,
+    "colorGeometryChecks": 648,
+    "failures": 0,
+    "standardCombinations": 384,
+    "magneticCombinations": 228,
+    "blockedCombinations": 60
+  }
+}

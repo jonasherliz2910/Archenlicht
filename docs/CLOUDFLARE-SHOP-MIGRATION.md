@@ -549,3 +549,33 @@ Der Hostingwechsel einschließlich GitHub-Veröffentlichung ist damit abgeschlos
 Die getrennte Verkaufsfreigabe und die noch offenen Punkte aus den aktuellen
 Betriebs- und Bestellablauf-Prüfberichten bleiben als nächste Arbeit bestehen.
 Keine kostenpflichtige Produktion, Zahlung oder neue E-Mail durch diese Prüfung.
+
+### Produktfreigaben übernommen (16. November 2026, 19:39 MEZ)
+
+Nach ausdrücklichem Auftrag zum nächsten Schritt wurden 64 belegte Standard-
+und 38 magnetische Modelle für alle sechs Motive technisch freigegeben.
+Die 384 entsprechenden Modell-/Motivzeilen stehen jetzt auf live. Die zehn
+Modelle mit unvollständiger offizieller Vorlage bleiben mit 60 deaktivierten
+Zeilen gesperrt. Quellen neu heruntergeladen und unverändert; Katalogkennungen
+und Bestand aktuell lesend geprüft.
+
+Die vorher nur auf Testfreigaben beschränkte Auswahl bei geschlossenem Checkout
+akzeptiert jetzt auch bereits freigegebene Varianten im getrennten Vorschaukontext.
+Kauf und Übergabe behalten die strikte Test-/Live-Trennung. Änderung 0a92650 über
+GitHub/Cloudflare erfolgreich veröffentlicht; Worker-Version
+0e6a32ce-bf8b-493c-9912-acd530571c7c. Checkout und Podbase-Übermittlung bleiben aus.
+
+17 gezielte Tests bestanden, ein optionaler Neon-Test übersprungen. Zusätzlich
+1.836 native Beschnittprüfungen ohne Fehler, 72 abgeschlossene WASM-Stichproben
+und 648 Farbgeometrievergleiche. Keine vollständige physische Musterfreigabe
+aller Varianten behauptet. Öffentliche Auswahl und echte Datenbank danach
+verglichen: 384 Standard-/228 Magnetkombinationen, 60 gesperrt; keine neue
+Bestellung oder E-Mail. Details, Grenzen und Modellliste:
+[PRODUKTFREIGABE-2026-11-16.md](PRODUKTFREIGABE-2026-11-16.md).
+
+Damit ist der Produktfreigabeschritt erledigt. Noch offene Anbieter-Abnahme,
+Betreiberfragen und Betriebsabsicherung sind getrennt vom Einschalten des Verkaufs.
+Korrektur älterer Prüfpläne: Stripe-Integrationstests mit Sandbox und Testkarten
+durchführen, nicht mit echten Zahlungsmitteln im Livebetrieb. Quelle:
+https://docs.stripe.com/testing. Eine kostenpflichtige Testzahlung wird nicht
+als Voraussetzung für den Verkaufsstart verlangt.
