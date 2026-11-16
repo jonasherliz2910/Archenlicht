@@ -20,6 +20,7 @@ import { priceBundleItems, summarizePricing } from '../public/bundle-pricing.js'
 import { fixedBundleConfigurations } from '../public/fixed-bundles.js';
 import { monthlyProductInterest } from './product-interest.js';
 import { PREVIEW_MODEL } from '../public/preview-model.js';
+import { approvalModeMatches } from '../public/variant-availability.js';
 
 export class Shop {
   static async create(config) {
@@ -58,7 +59,7 @@ export class Shop {
   get brand() { return this.config.openingOfferEnabled === false ? REGULAR_BRAND : BRAND; }
   // Browsing stays available during launch preparation. Purchasing and paid
   // fulfillment always require approval for the actual order's environment.
-  get variantMode() { return this.checkoutEnabled ? this.config.shopMode : 'test'; }
+  get variantMode() { return !this.checkoutEnabled && this.config.shopMode === 'live' ? 'preview' : this.config.shopMode; }
   async createSession() {
     const secret = token(), id = digest(secret), visit = randomUUID(), now = Date.now(), csrf = token();
     await this.s.run('INSERT INTO sessions VALUES(?,?,?,?,?,?)', id, csrf, null, visit, now + this.config.sessionHours * 3600000, now);
@@ -103,7 +104,7 @@ export class Shop {
       this.podbaseCatalog?.snapshot(), this.s.all('SELECT * FROM variants'), this.user(session), this.accountDetails(session), this.cart(session)
     ]);
     const variants = rows.map(v => {
-      const ready = Boolean(v.available && v.print_approved && v.approval_mode === this.variantMode);
+      const ready = Boolean(v.available && v.print_approved && approvalModeMatches(v.approval_mode, this.variantMode));
       const inStock = magsafe => this.podbaseCatalog ? catalogVariant(snapshot, { modelId: v.model_id, magsafe })?.inStock : !magsafe || Boolean(magneticVariant(v.model_id));
       const printable = magsafe => this.config.printMode !== 'podbase' || Boolean(officialTemplate(v.model_id, magsafe));
       return { ...v, available: ready && inStock(false) && printable(false) ? 1 : 0, magsafe_available: ready && inStock(true) && printable(true) ? 1 : 0 };
@@ -121,7 +122,7 @@ export class Shop {
     if (c.magsafe && !magneticVariant(c.modelId)) throw new ShopError('Für dieses Handymodell ist keine MagSafe-kompatible Hülle verfügbar. Entferne den Haken oder wähle ein anderes Modell.', 409);
     if (this.config.printMode === 'podbase' && !officialTemplate(c.modelId, c.magsafe)) throw new ShopError('Für diese Hülle fehlt noch eine vollständige Druckvorlage. Bitte wähle ein anderes Modell oder eine andere Hüllenart.', 409);
     const variant = (await this.s.get('SELECT * FROM variants WHERE model_id=? AND design_id=?', c.modelId, c.designId));
-    if (!variant?.available || !variant.print_approved || variant.approval_mode !== mode) throw new ShopError('Dieses Motiv ist für dein Handymodell gerade nicht verfügbar. Bitte wähle ein anderes Modell oder Motiv.', 409);
+    if (!variant?.available || !variant.print_approved || !approvalModeMatches(variant.approval_mode, mode)) throw new ShopError('Dieses Motiv ist für dein Handymodell gerade nicht verfügbar. Bitte wähle ein anderes Modell oder Motiv.', 409);
     if (this.podbaseCatalog) {
       const snapshot = await this.podbaseCatalog.snapshot({ strict: true });
       if (!catalogVariant(snapshot, c)?.inStock) throw new ShopError('Die gewählte Hüllenart ist für dein Modell beim Druckpartner gerade nicht verfügbar. Bitte wähle eine andere Hülle.', 409);
@@ -200,7 +201,7 @@ export class Shop {
         printable = false; p = await this.preview(c, { printMode: 'preview' });
       }
       const remote = catalogVariant(snapshot, c), provider = this.podbaseCatalog ? remote : localVariant(model, c);
-      return { id: row.id, configuration: c, ...p, title: c.kind === 'custom' ? `Dein Wunschvers · ${d.title}` : d.title, model: model.name, quantity: row.quantity, unitPrice: casePrice(this.brand, c), plannedUnitPrice: plannedCasePrice(this.brand, c), reduced: Boolean(this.brand.openingOffer), openingOffer: Boolean(this.brand.openingOffer), productId: provider?.productId || null, variantId: provider?.variantId || null, available: Boolean(printable && (!c.magsafe || magneticVariant(c.modelId)) && variant?.available && variant.print_approved && variant.approval_mode === this.variantMode && (!this.podbaseCatalog || remote?.inStock)) };
+      return { id: row.id, configuration: c, ...p, title: c.kind === 'custom' ? `Dein Wunschvers · ${d.title}` : d.title, model: model.name, quantity: row.quantity, unitPrice: casePrice(this.brand, c), plannedUnitPrice: plannedCasePrice(this.brand, c), reduced: Boolean(this.brand.openingOffer), openingOffer: Boolean(this.brand.openingOffer), productId: provider?.productId || null, variantId: provider?.variantId || null, available: Boolean(printable && (!c.magsafe || magneticVariant(c.modelId)) && variant?.available && variant.print_approved && approvalModeMatches(variant.approval_mode, this.variantMode) && (!this.podbaseCatalog || remote?.inStock)) };
     })));
   }
   async saveCart(session, input, existingId) {

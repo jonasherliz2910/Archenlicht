@@ -101,11 +101,16 @@ test('Live-Bootstrap liefert den Vorschau-Freigabemodus; Modellwahl und Warenkor
   const f = await fixture(t, { checkoutEnabled: false, podbaseSubmissionEnabled: false });
   const choice = { ...design, modelId: 'iphone-15', magsafe: false };
   const state = await f.shop.publicState(f.session);
-  assert.equal(state.mode, 'live'); assert.equal(state.variantMode, 'test'); assert.equal(state.checkoutEnabled, false);
+  assert.equal(state.mode, 'live'); assert.equal(state.variantMode, 'preview'); assert.equal(state.checkoutEnabled, false);
   assert.equal(modelAvailable(state.variants, choice.modelId, choice.designId, modelAvailabilityMode(state)), true);
+  assert.equal(modelAvailable(state.variants, design.modelId, design.designId, modelAvailabilityMode(state)), true);
   assert.equal(modelAvailable(state.variants, 'iphone-18-pro', choice.designId, modelAvailabilityMode(state)), false);
   const [item] = await f.shop.saveCart(f.session, choice);
   assert.equal(item.configuration.modelId, choice.modelId); assert.equal(item.available, true);
+  const mixedCart = await f.shop.saveCart(f.session, design);
+  assert.equal(mixedCart.length, 2); assert.ok(mixedCart.every(item => item.available));
+  await assert.rejects(f.shop.assertAvailable(choice, { mode: 'live' }), e => e.status === 409);
+  await assert.rejects(f.shop.assertAvailable(design, { mode: 'test' }), e => e.status === 409);
   await assert.rejects(f.shop.checkout(f.session, { recipient, method: 'stripe' }), e => e.status === 503);
   assert.equal((await f.shop.s.get('SELECT COUNT(*) AS n FROM orders')).n, 0);
   assert.equal((await f.shop.s.get('SELECT COUNT(*) AS n FROM provider_orders')).n, 0);

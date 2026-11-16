@@ -33,10 +33,14 @@ test('Modellkarten lassen nur vorhandene, verfügbare und für das Motiv freigeg
 
 test('Geschlossener Live-Shop erlaubt Vorschauvarianten, geöffneter Live-Shop verlangt Produktionsfreigabe', () => {
   const variant = { model_id: 'iphone-14-pro', design_id: 'getragen', available: 1, print_approved: 1, approval_mode: 'test' };
-  const closed = { mode: 'live', checkoutEnabled: false, variantMode: 'test' };
+  const closed = { mode: 'live', checkoutEnabled: false, variantMode: 'preview' };
   assert.equal(modelAvailable([variant], variant.model_id, variant.design_id, modelAvailabilityMode(closed)), true);
+  assert.equal(modelAvailable([{ ...variant, approval_mode: 'live' }], variant.model_id, variant.design_id, modelAvailabilityMode(closed)), true);
+  assert.equal(modelAvailable([{ ...variant, approval_mode: 'live' }], variant.model_id, variant.design_id, 'test'), false);
+  assert.equal(modelAvailable([{ ...variant, approval_mode: 'unknown' }], variant.model_id, variant.design_id, modelAvailabilityMode(closed)), false);
   // Compatibility with an older bootstrap response during deployment.
-  assert.equal(modelAvailabilityMode({ mode: 'live', checkoutEnabled: false }), 'test');
+  assert.equal(modelAvailabilityMode({ mode: 'live', checkoutEnabled: false }), 'preview');
+  assert.equal(modelAvailabilityMode({ mode: 'test', checkoutEnabled: false }), 'test');
   const open = { mode: 'live', checkoutEnabled: true, variantMode: 'live' };
   assert.equal(modelAvailable([variant], variant.model_id, variant.design_id, modelAvailabilityMode(open)), false);
   assert.equal(modelAvailable([{ ...variant, approval_mode: 'live' }], variant.model_id, variant.design_id, modelAvailabilityMode(open)), true);

@@ -1,3 +1,5 @@
+import { approvalModeMatches } from './variant-availability.js';
+
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const brands = [{ id: 'Apple', name: 'Apple', family: 'iPhone' }, { id: 'Samsung', name: 'Samsung', family: 'Galaxy' }, { id: 'Google', name: 'Google', family: 'Pixel' }];
 const normalize = value => String(value).normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replaceAll('+', ' plus ').replace(/[^a-z0-9]+/g, ' ').trim();
@@ -27,12 +29,12 @@ export function filterModels(models, { brand, query = '' } = {}) {
 }
 export function modelAvailable(variants, modelId, designId, mode = 'test') {
   const variant = variants.find(v => v.model_id === modelId && v.design_id === designId);
-  return Boolean((variant?.available || variant?.magsafe_available) && variant.print_approved && variant.approval_mode === mode);
+  return Boolean((variant?.available || variant?.magsafe_available) && variant.print_approved && approvalModeMatches(variant.approval_mode, mode));
 }
 // A live shop can still be closed for purchases while preview configuration is
 // enabled. Match the server's variant approval context, not the payment mode.
 export function modelAvailabilityMode(state) {
-  return state.variantMode ?? (state.checkoutEnabled === false ? 'test' : state.mode);
+  return state.variantMode ?? (state.checkoutEnabled === false && state.mode === 'live' ? 'preview' : state.mode);
 }
 export function modelTriggerContent(model) {
   return `${device(model?.brand)}<span class="model-trigger-copy"><small>DEIN HANDYMODELL</small><strong>${esc(model?.name || 'Modell auswählen')}</strong></span><span class="model-trigger-change">Ändern <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></span>`;
