@@ -527,3 +527,25 @@ Dieser Commit auf codex/cloudflare-shop dient zugleich zur Prüfung des neuen
 GitHub-Auslösers. Erfolg erst nach abgeschlossenem Cloudflare-Build und Prüfung
 der resultierenden Veröffentlichung bestätigen. Verkaufs- und Podbase-Freigabe
 bleiben davon unabhängig gesperrt.
+
+### GitHub-Build erfolgreich verifiziert (16. November 2026, 19:17 MEZ)
+
+Der Push von 7cce471 auf codex/cloudflare-shop hat den Check
+"Workers Builds: archenlicht-shop" ausgelöst und erfolgreich abgeschlossen.
+Build-ID: 4bd1af2c-4adc-4f6b-9a7e-99640f34ec51. Die im GitHub-Check gemeldete
+Version 97287bd2-3ad1-494f-a479-503fecb7f0e7 stimmt mit der zu 100 Prozent aktiven
+Cloudflare-Veröffentlichung überein (Deployment adb7768d-8a07-4041-9284-acc94d31cf6b).
+Damit ist die automatische Veröffentlichung aus dem Migrationsbranch praktisch
+nachgewiesen; kein Wechsel zu main erforderlich.
+
+Danach geprüft: www-Startseite und Bootstrap HTTP 200, Hauptdomain leitet mit 308
+einschließlich Pfad und Query auf www um, beide Health-Endpunkte HTTP 200.
+Alle 14 vorhandenen Secret-Bindings und beide Custom Domains sind erhalten.
+Checkout und Podbase-Übermittlung melden weiterhin false. Nachweise:
+test-results/cloudflare-production/github-build-verification.json und
+after-github-build.json (ignoriert, ohne Schlüsselwerte).
+
+Der Hostingwechsel einschließlich GitHub-Veröffentlichung ist damit abgeschlossen.
+Die getrennte Verkaufsfreigabe und die noch offenen Punkte aus den aktuellen
+Betriebs- und Bestellablauf-Prüfberichten bleiben als nächste Arbeit bestehen.
+Keine kostenpflichtige Produktion, Zahlung oder neue E-Mail durch diese Prüfung.
