@@ -450,3 +450,38 @@ noch mit A 216.198.79.1 auf Vercel. Nächster Schritt: Nutzer entfernt gezielt
 diesen A-Eintrag; dann beide Hosts gemeinsam an den Worker binden und die
 Wrangler-Konfiguration um die Hauptdomain ergänzen. Bestehende www-Anbindung
 beibehalten. Verkauf weiterhin gesperrt; noch kein abgeschlossener Verkaufsstart.
+
+### Beide Domainadressen umgeschaltet – 16. November 2026, 19:02 Uhr
+
+Der Nutzer hat auch den A-Eintrag 216.198.79.1 der Hauptdomain entfernt.
+Die anschließende API-Anbindung beider Hosts war erfolgreich. archenlicht.de
+und www.archenlicht.de zeigen jetzt auf archenlicht-shop; beide enabled=true,
+previews_enabled=false. Die Wrangler-Konfiguration hält beide Custom Domains fest.
+Die Hauptdomain hat Domain-ID a1f505e6576c8652a62980f3594d79783e2fde3e und
+Zertifikat 4d165f87-4b6d-4404-baa6-22d1d123cec7. Kein kostenpflichtiger Tarifwechsel.
+
+HTTPS mit aktuellen öffentlichen DNS-Adressen und unveränderter Zertifikatsprüfung
+kontrolliert: Die Hauptdomain leitet Seiten mit 308 auf www weiter, einschließlich
+Pfad und Query. /api/health bleibt auf beiden Hosts direkt erreichbar und meldet
+Checkout sowie Podbase-Übermittlung=false. Start- und Produktseite auf www liefern
+200. Eingebundene Startskripte, Stylesheet, Favicon und Schrift liefern ihre
+richtigen Content-Types; die Datenschutzdatei enthält Cloudflare. Antworten kommen
+von Cloudflare. Lokale oder externe DNS-Caches können vorübergehend alte Ziele halten.
+
+Mail-DNS erneut geprüft: Hostinger MX 5/10, SPF, drei DKIM-CNAMEs, DMARC,
+Resend-DKIM und die send-/rsend-CNAMEs sind erhalten. Dies war eine DNS-Prüfung,
+kein erneuter E-Mail-Versand. Ein erster Testabbruch beruhte nur auf einem
+zusätzlichen type-Feld im DNS-Toolergebnis; der Vergleich der MX-Fachfelder
+exchange/priority und der vollständige erneute Durchlauf bestanden.
+
+Über den eingeschränkten Cloudflare-Datenbankzugang wurden alle Werte der beiden
+bestehenden Konten mit der Sicherung unmittelbar vor dem Wechsel verglichen:
+unverändert, einschließlich Passwort-Hashes und Rollen. Keine Konten neu erstellt
+oder zurückgesetzt. Die Anmeldung im Browser des Nutzers ist noch zu bestätigen.
+
+Nachweise: test-results/cloudflare-production/all-domains-attachment.json,
+domain-cutover-check.json und accounts-after-cutover.json. Neuer Stand:
+Domain-Umschaltung abgeschlossen; Verkäufe weiterhin gesperrt. Nächster gemeinsamer
+Schritt ist die Anmeldung mit dem bisherigen Konto auf www.archenlicht.de.
+GitHub-Build-Anbindung für archenlicht-shop, verbleibende Betriebs-/Kontingentprüfung
+und gesonderte Verkaufsfreigabe sind weiterhin offen. Vercel-Projekt erhalten.
