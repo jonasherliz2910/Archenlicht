@@ -621,7 +621,7 @@ Editor, um diese modellgenauen Vorlagen zugänglich zu machen. Browseranbindung
 zum bereits angemeldeten Editor ist derzeit nicht erreichbar. Diese sieben
 Modelle bleiben bis zum Beleg ihrer sicheren Druckflächen gesperrt.
 
-## Gemeinsame Zahlungsabnahme am 16. November 2026 begonnen
+## Stripe-Testzahlung und Bestellmail am 16. November 2026 geprüft
 
 Die sieben verbliebenen Modellkonturen sind auf Nutzerwunsch zurückgestellt.
 Der Nutzer hat bestätigt, den bisherigen Podbase-Verbindungstest absichtlich
@@ -630,6 +630,10 @@ storniert zu haben; dessen Status REJECTED ist erklärt.
 Eine eigene Stripe-Sandbox-Abnahme wurde auf dem Worker
 `archenlicht-checkout-test` vorbereitet. Separates Neon-Schema und eingeschränkte
 Datenbankrolle, echte Stripe-Testzahlung, Testmail nur an info@archenlicht.de,
-Podbase weiterhin simuliert. Die Zahlung durch den Nutzer steht aus.
+Podbase weiterhin simuliert. Die Zahlung wurde inzwischen vom Nutzer ausgeführt:
+Stripe `paid/complete`, tatsächliches Zahlungs-Webhook verarbeitet, eine
+Bestellmail mit einem Versandversuch und tatsächlichem Resend-Zustellnachweis,
+genau ein simulierter Druckauftrag ohne Fehler. Ergebnis `passed=true`.
+Die Sichtprüfung der Mail durch den Nutzer steht noch aus.
 Details und Fortsetzung: `docs/ZAHLUNGSABNAHME-2026-11-16.md`.
 Die Produktionsschalter und der öffentliche Live-Worker wurden nicht geändert.
