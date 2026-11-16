@@ -399,3 +399,29 @@ kontrollieren. Verkäufe bleiben gesperrt. GitHub-Build-Verknüpfung für diesen
 und Dauerbetrieb innerhalb der kostenlosen Kontingente bleiben noch zu prüfen.
 
 Abschließender Statusnachweis: test-results/cloudflare-dns/activation-complete.json.
+
+### Domain-Anbindung: DNS-Konflikt – 16. November 2026, ca. 18:54 Uhr
+
+Nach dem Domain-Dialog blieb die Worker-Domainliste leer; per API bestätigt.
+Die CLI-Anmeldung wurde mit wrangler whoami erfolgreich erneuert. Vor dem
+Umschalten wurde nochmals verschlüsselt gesichert und vollständig wiederhergestellt:
+shop-2026-11-16T17-50-38-268Z.albackup, 32 Tabellen, 1.471 Zeilen,
+23.121.881 Byte, Restore bestanden und Testschema entfernt.
+
+Der Vorschauaufruf /workers/scripts/archenlicht-shop/domains/changeset meldete
+beide gewünschten Hosts als hinzugefügt und keine Konflikte. Der tatsächliche
+PUT auf /domains/records mit override_existing_dns_record=true wurde jedoch
+mit HTTP 409 / Fehler 100117 abgelehnt: www.archenlicht.de besitzt noch extern
+verwaltete DNS-Einträge, die zuerst entfernt werden müssen. Dies ist ein
+Cloudflare-DNS-Konflikt, keine automatische Genehmigungsablehnung.
+
+Keine Domain wurde angelegt. Erneut geprüft: www zeigt auf
+ba346264650cdc86.vercel-dns-017.com, die Hauptdomain auf 216.198.79.1,
+Hostinger-MX unverändert, Website HTTP 200 über Vercel, beide Verkaufsschalter aus.
+wrangler-production.jsonc bleibt deshalb vorerst bei routes: [].
+Nachweise: test-results/cloudflare-production/domain-changeset.json und
+domain-attachment.json. Der aktuelle CLI-Zugang kann Worker-Domains verwalten,
+aber keine DNS-Einträge bearbeiten. Nächster Nutzerschritt: DNS-Tabelle öffnen,
+alte Website-Einträge gezielt prüfen und zur direkten Worker-Anbindung ersetzen.
+Mail-Einträge erhalten. Erst nach erfolgreicher Anbindung beide Custom Domains
+in der Wrangler-Konfiguration festhalten.
