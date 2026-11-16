@@ -1,5 +1,13 @@
 # Verkaufsstart Archenlicht – geprüfter Stand
 
+> Historische Checkliste vom 8. November 2026. Die damaligen Angaben zu Vercel,
+> Testschlüsseln, simulierter Podbase-Anbindung und fehlenden Betreibertexten
+> sind überholt. Aktuelle technische Nachweise stehen in
+> [CLOUDFLARE-SHOP-MIGRATION.md](CLOUDFLARE-SHOP-MIGRATION.md),
+> [PRODUKTFREIGABE-2026-11-16.md](PRODUKTFREIGABE-2026-11-16.md) und
+> [ZAHLUNGSABNAHME-2026-11-16.md](ZAHLUNGSABNAHME-2026-11-16.md).
+> Bereits erledigte Einrichtungsschritte nicht aus dieser alten Liste wiederholen.
+
 Geprüft am **8. November 2026**, Ausgangsstand `a1c2156` mit anschließend vorbereiteter Resend-Anbindung, veröffentlichter Shop
 `https://www.archenlicht.de`, Vercel-Projekt `jonas-4eb6/archenlicht`.
 

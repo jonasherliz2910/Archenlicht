@@ -1,8 +1,8 @@
 # Zahlungsabnahme nach dem Cloudflare-Umzug
 
 Stand: 16. November 2026. Die vom Nutzer ausgeführte Stripe-Testzahlung und
-der technische Mailweg sind erfolgreich geprüft. Die Sichtprüfung der E-Mail
-durch den Nutzer steht noch aus. Keine allgemeine Verkaufsfreigabe.
+der technische Mailweg sind erfolgreich geprüft. Der Nutzer bestätigt Eingang
+und richtige Produktangaben der E-Mail. Keine allgemeine Verkaufsfreigabe.
 
 Der Nutzer bestätigt, dass er den früheren Podbase-Verbindungstest bewusst
 storniert hat. Dessen Status `REJECTED` ist damit erklärt und kein neuer
@@ -67,19 +67,23 @@ noch einen Mail- oder Druckauftrag nachträglich erzeugt.
   gesperrt, acht historische Testbestellungen und zehn Mailzustände `delivered`.
 
 Prüfskript-Ergebnis `passed=true` in
-`test-results/cloudflare-acceptance/verification.json`. Ein Zustellnachweis
-belegt noch nicht die Ablage im Hauptpostfach; der Nutzer wird um Prüfung
-von Eingang und Darstellung der Mail gebeten.
+`test-results/cloudflare-acceptance/verification.json`. Zusätzlich bestätigt der
+Nutzer auf die Frage nach Eingang und richtigen Produktangaben ausdrücklich:
+„Ja, angekommen und alles richtig“.
 
-## Fortsetzen
+## Test abgeschlossen und temporärer Zugang geschlossen
 
 Die lokalen, ignorierten Nachweise und Hilfsskripte liegen unter
 `test-results/cloudflare-acceptance/`. Zugangsdaten nicht ausgeben.
 
-1. Nutzer bestätigt Eingang und Darstellung der Testbestellmail.
-2. Nach Abschluss Sandbox-Webhook deaktivieren und temporären Test-Worker
-   entfernen. Testdaten nur nach Sicherung der relevanten Prüfergebnisse
-   gezielt bereinigen. Produktionsdaten und Live-Webhooks bleiben bestehen.
+Der Testdatenbestand wurde verschlüsselt unter `test-database.albackup`
+gesichert und durch Entschlüsseln der tatsächlich gespeicherten Datei geprüft.
+Der eigene Stripe-Sandbox-Webhook ist deaktiviert; der temporäre Worker
+`archenlicht-checkout-test` wurde gelöscht. Damit sind seine Testseiten und
+Test-Bestelllinks nicht mehr erreichbar. Das isolierte Datenbankschema bleibt
+vorläufig als Nachweis erhalten. Keine Produktionsdaten oder Live-Webhooks
+geändert. Details in `test-results/cloudflare-acceptance/closure.json`.
+Das Prüfschema nicht mit einem neuen Kauf wiederverwenden.
 
 Diese Prüfung belegt den neuen Stripe-Testzahlungs- und Mailweg.
 Sie ist keine neue echte Podbase-Bestellung und keine physische

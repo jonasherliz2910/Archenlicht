@@ -634,6 +634,18 @@ Podbase weiterhin simuliert. Die Zahlung wurde inzwischen vom Nutzer ausgeführt
 Stripe `paid/complete`, tatsächliches Zahlungs-Webhook verarbeitet, eine
 Bestellmail mit einem Versandversuch und tatsächlichem Resend-Zustellnachweis,
 genau ein simulierter Druckauftrag ohne Fehler. Ergebnis `passed=true`.
-Die Sichtprüfung der Mail durch den Nutzer steht noch aus.
+Der Nutzer bestätigt zusätzlich Eingang und richtige Angaben der Mail.
+Der eigene Sandbox-Webhook wurde anschließend deaktiviert, der temporäre
+Test-Worker entfernt und sein Datenbestand verschlüsselt gesichert.
 Details und Fortsetzung: `docs/ZAHLUNGSABNAHME-2026-11-16.md`.
 Die Produktionsschalter und der öffentliche Live-Worker wurden nicht geändert.
+
+Im Anschluss frische verschlüsselte Sicherung der Produktionsdatenbank erstellt:
+`shop-2026-11-16T19-40-06-818Z.albackup`, 23.143.704 Bytes. Wiederherstellung
+aller 32 Tabellen und 1501 Datensätze in einem neuen temporären Schema bestanden;
+Prüfschema entfernt, Produktionsschema unverändert. Datei und Prüfbericht liegen
+unter `.tools/migration-backups/2026-11-16/` im ursprünglichen Projektordner.
+Der Schlüssel bleibt in `.tools/migration-backup-key.txt`.
+Eine externe Kopie und regelmäßige automatische Sicherungen sind weiterhin
+nicht nachgewiesen. Der Nutzer wurde nach vorhandenem Cloudspeicher oder einem
+externen Datenträger gefragt. Diese Antwort steht noch aus.
