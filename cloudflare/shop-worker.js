@@ -16,12 +16,13 @@ export class MigrationShop extends DurableObject {
   }
   fetch(request) { return this.serial(() => this.handle(request)); }
   alarm() { return this.serial(() => this.scheduler.run()); }
+  configuration(origin) { return migrationConfig(this.env, origin); }
   async getApplication(origin) {
     if (!this.application) {
       this.application = (async () => {
         const { createApp } = await import('../server/index.js');
         const { prepareDesign } = await import('../server/design-assets.js');
-        const config = migrationConfig(this.env, origin);
+        const config = this.configuration(origin);
         return createApp({ ...config, prepareDesign: id => prepareDesign(id, this.env.ASSETS), serializePreview: work => {
           const task = this.printQueue.then(work);
           this.printQueue = task.catch(() => {});
@@ -41,8 +42,8 @@ export class MigrationShop extends DurableObject {
       const { handler } = await this.getApplication(origin);
       return await nodeHandlerResponse(handler, request, request.headers.get('x-forwarded-for') || 'unknown');
     } catch {
-      console.error('Protected Cloudflare migration could not start; no credentials or request data logged.');
-      return Response.json({ error: 'Der geschützte Umzugstest ist noch nicht vollständig eingerichtet.' }, { status: 503, headers: { 'Cache-Control': 'no-store' } });
+      console.error('Cloudflare shop could not start; no credentials or request data logged.');
+      return Response.json({ error: 'Der Shop ist gerade nicht erreichbar. Bitte versuche es später erneut.' }, { status: 503, headers: { 'Cache-Control': 'no-store' } });
     }
   }
 }

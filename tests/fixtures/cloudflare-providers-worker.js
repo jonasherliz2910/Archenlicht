@@ -95,6 +95,15 @@ export class ProviderFixture extends MigrationShop {
       const result = await shop.checkout(session, { method: 'stripe', recipient: { name: 'Fixture Kunde', email: 'fixture@example.test', phone: '01721234567', street: 'Testweg 1', postalCode: '10115', city: 'Berlin', country: 'DE' } });
       return Response.json({ orderId: result.orderId });
     }
+    if (path === '/__fixture/reopen-existing') {
+      const before = await shop.s.all('SELECT * FROM users ORDER BY id');
+      let missingAdminRejected = false;
+      try { await createApp({ ...shop.config, existingStoreOnly: true, adminPassword: undefined, adminEmail: 'missing@example.test' }); }
+      catch { missingAdminRejected = true; }
+      const reopened = await createApp({ ...shop.config, existingStoreOnly: true, adminPassword: undefined });
+      const after = await reopened.shop.s.all('SELECT * FROM users ORDER BY id');
+      return Response.json({ missingAdminRejected, accountsUnchanged: JSON.stringify(before) === JSON.stringify(after), accounts: after.length });
+    }
     if (path === '/__fixture/state') {
       const orders = await shop.s.all('SELECT id,amount,status,paid_at,items FROM orders');
       const jobs = await shop.s.all('SELECT state,attempts,provider_id FROM fulfillment');

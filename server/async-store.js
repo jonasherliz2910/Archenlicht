@@ -50,9 +50,9 @@ function localStore(config) {
 }
 
 async function postgresStore(config) {
-  if (!config.databaseUrl || !config.adminPassword) throw new Error('Für den gehosteten Testshop fehlen Datenbank oder Admin-Konfiguration.');
+  if (!config.databaseUrl || (!config.existingStoreOnly && !config.adminPassword)) throw new Error('Für den gehosteten Shop fehlen Datenbank oder Admin-Konfiguration.');
   const http = neon(config.databaseUrl, { fullResults: true }), identity = {}, schema = config.databaseSchema || 'public';
-  const schemaKey = config.databaseUrl + ':' + schema;
+  const schemaKey = config.databaseUrl + ':' + schema + ':' + Boolean(config.existingStoreOnly);
   const query = async (sql, params) => {
     const client = transactions.getStore();
     return client?.identity === identity ? client.connection.query(postgresQuery(sql, schema), params) : http.query(postgresQuery(sql, schema), params, { fetchOptions: { signal: AbortSignal.timeout(15000) } });
@@ -75,6 +75,13 @@ async function postgresStore(config) {
   if (!prepared.has(schemaKey)) {
     const initialization = store.tx(async () => {
       if (!/^[a-z_][a-z0-9_]{0,60}$/.test(schema)) throw new Error('Ungültiges Datenbankschema.');
+      if (config.existingStoreOnly) {
+        const tables = await store.all("SELECT table_name FROM information_schema.tables WHERE table_schema=? AND table_type='BASE TABLE'", schema);
+        if ([...tableNames].some(name => !tables.some(t => t.table_name === name))) throw new Error('Die bestehende Shopdatenbank ist unvollständig.');
+        const admin = await store.get("SELECT id FROM users WHERE email=? AND role='admin'", config.adminEmail);
+        if (!admin) throw new Error('Das bestehende Administratorkonto fehlt.');
+        return; // Migration must never seed accounts, passwords or product approvals.
+      }
       await store.run(`CREATE SCHEMA IF NOT EXISTS "${schema}"`);
       // These statements have no user parameters. One database round trip
       // avoids a separate network wait for every table on a cold function.

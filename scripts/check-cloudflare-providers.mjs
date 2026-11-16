@@ -50,6 +50,9 @@ async function resendHook({ type = 'email.delivered', id = 'msg_fixture', age = 
 }
 try {
   const prepared = await call('/__fixture/prepare', { method: 'POST' }); assert.equal(prepared.status, 200, JSON.stringify(prepared.data));
+  const reopened = await call('/__fixture/reopen-existing');
+  assert.equal(reopened.status, 200); assert.equal(reopened.data.missingAdminRejected, true); assert.equal(reopened.data.accountsUnchanged, true);
+  report.checks.push('Existing database requires the original administrator and preserves accounts/password hashes without bootstrap credentials');
   let s = await state(); const amount = s.orders[0].amount;
   assert.equal(s.provider.sessions[0].amount_total, amount); assert.equal(s.provider.sessions[0].automatic_tax.enabled, false);
   for (const options of [{ secret: 'wrong' }, { age: 601 }, { tamper: true }]) assert.equal((await stripeHook(options)).status, 401);

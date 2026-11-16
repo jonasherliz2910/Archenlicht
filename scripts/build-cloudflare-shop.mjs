@@ -7,8 +7,9 @@ import { DESIGN_PACKAGE, designAsset } from '../server/design-assets.js';
 import { PODBASE_PRINT_TEMPLATES } from '../server/print-templates.js';
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
-export async function buildCloudflareShop({ providerFixture = false } = {}) {
-const out = resolve(root, providerFixture ? 'test-results/cloudflare-providers/build' : 'dist-cloudflare-shop');
+export async function buildCloudflareShop({ providerFixture = false, production = false } = {}) {
+if (providerFixture && production) throw new Error('Production cannot contain provider fixtures.');
+const out = resolve(root, providerFixture ? 'test-results/cloudflare-providers/build' : production ? 'dist-cloudflare-production' : 'dist-cloudflare-shop');
 await mkdir(resolve(out, 'worker'), { recursive: true });
 await cp(resolve(root, 'dist'), resolve(out, 'public'), { recursive: true });
 const font = await readFile(resolve(root, 'public/fonts/Caveat.ttf'));
@@ -42,7 +43,7 @@ for (const [name, json] of [['case-variants', 'podbase-magsafe-map'], ['podbase-
   generated.set(path, source.replace("import { readFileSync } from 'node:fs';", '').replace(expression, literal));
 }
 const result = await build({
-  entryPoints: [resolve(root, providerFixture ? 'tests/fixtures/cloudflare-providers-worker.js' : 'cloudflare/shop-worker.js')], outfile: resolve(out, 'worker/worker.js'),
+  entryPoints: [resolve(root, providerFixture ? 'tests/fixtures/cloudflare-providers-worker.js' : production ? 'cloudflare/production-worker.js' : 'cloudflare/shop-worker.js')], outfile: resolve(out, 'worker/worker.js'),
   bundle: true, format: 'esm', platform: 'browser', target: 'es2022', minify: true, metafile: true,
   external: ['node:*', 'cloudflare:*'],
   plugins: [{ name: 'cloudflare-shop-resources', setup(b) {
@@ -61,10 +62,9 @@ if (!providerFixture && inputs.some(path => path.replaceAll('\\', '/').includes(
 await cp(resolve(dirname(fileURLToPath(import.meta.resolve('@resvg/resvg-wasm'))), 'index_bg.wasm'), resolve(out, 'worker/resvg.wasm'));
 await mkdir(resolve(out, 'public/_motifs'), { recursive: true });
 for (const asset of assets) await cp(resolve(root, `public/assets/design-foregrounds-v3/${asset.id}.png`), resolve(out, `public/_motifs/${asset.id}.png`));
-await writeFile(resolve(out, 'public/robots.txt'), 'User-agent: *\nDisallow: /\n');
+await writeFile(resolve(out, 'public/robots.txt'), production ? 'User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /prints/\nDisallow: /konto\nDisallow: /admin\nDisallow: /bestellung/\n' : 'User-agent: *\nDisallow: /\n');
 await writeFile(resolve(out, 'public/_headers'), `/*
-  X-Robots-Tag: noindex, nofollow
-  X-Content-Type-Options: nosniff
+${production ? '' : '  X-Robots-Tag: noindex, nofollow\n'}  X-Content-Type-Options: nosniff
   Referrer-Policy: no-referrer
   X-Frame-Options: DENY
   Permissions-Policy: camera=(), microphone=(), geolocation=()
@@ -80,9 +80,9 @@ async function checkAssets(dir) {
 }
 await checkAssets(resolve(out, 'public'));
 if (fileCount > 20000) throw new Error('Too many static files for Workers Free.');
-await writeFile(resolve(out, 'build-info.json'), JSON.stringify({ mode: 'protected-shop-migration', fileCount, largestBytes, fontHash, inputs }, null, 2));
-console.log(`Protected Cloudflare shop build: ${fileCount} static files; native SQLite/Sharp and Vercel runtime excluded. No provider credentials embedded.`);
+await writeFile(resolve(out, 'build-info.json'), JSON.stringify({ mode: production ? 'production-no-routes' : 'protected-shop-migration', fileCount, largestBytes, fontHash, inputs }, null, 2));
+console.log(`Cloudflare ${production ? 'production (no routes)' : 'protected preview'} build: ${fileCount} static files; native SQLite/Sharp and Vercel runtime excluded. No provider credentials embedded.`);
 return out;
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) await buildCloudflareShop();
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) await buildCloudflareShop({ production: process.argv.includes('--production') });

@@ -1,0 +1,24 @@
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "archenlicht-shop",
+  "main": "../dist-cloudflare-production/worker/worker.js",
+  "compatibility_date": "2026-11-15",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": false,
+  "preview_urls": false,
+  "routes": [],
+  "no_bundle": true,
+  "find_additional_modules": true,
+  "assets": {
+    "directory": "../dist-cloudflare-production/public",
+    "binding": "ASSETS",
+    "run_worker_first": true,
+    "html_handling": "none",
+    "not_found_handling": "single-page-application"
+  },
+  "durable_objects": {
+    "bindings": [{ "name": "SHOP", "class_name": "ProductionShop" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["ProductionShop"] }],
+  "observability": { "enabled": true, "head_sampling_rate": 0.1, "logs": { "enabled": true, "invocation_logs": false } }
+}
