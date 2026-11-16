@@ -7,9 +7,9 @@ import { DESIGN_PACKAGE, designAsset } from '../server/design-assets.js';
 import { PODBASE_PRINT_TEMPLATES } from '../server/print-templates.js';
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
-export async function buildCloudflareShop({ providerFixture = false, production = false } = {}) {
-if (providerFixture && production) throw new Error('Production cannot contain provider fixtures.');
-const out = resolve(root, providerFixture ? 'test-results/cloudflare-providers/build' : production ? 'dist-cloudflare-production' : 'dist-cloudflare-shop');
+export async function buildCloudflareShop({ providerFixture = false, production = false, sandbox = false } = {}) {
+if (Number(providerFixture) + Number(production) + Number(sandbox) > 1) throw new Error('Build environments must remain separate.');
+const out = resolve(root, providerFixture ? 'test-results/cloudflare-providers/build' : sandbox ? 'test-results/cloudflare-acceptance/build' : production ? 'dist-cloudflare-production' : 'dist-cloudflare-shop');
 await mkdir(resolve(out, 'worker'), { recursive: true });
 await cp(resolve(root, 'dist'), resolve(out, 'public'), { recursive: true });
 const font = await readFile(resolve(root, 'public/fonts/Caveat.ttf'));
@@ -43,7 +43,7 @@ for (const [name, json] of [['case-variants', 'podbase-magsafe-map'], ['podbase-
   generated.set(path, source.replace("import { readFileSync } from 'node:fs';", '').replace(expression, literal));
 }
 const result = await build({
-  entryPoints: [resolve(root, providerFixture ? 'tests/fixtures/cloudflare-providers-worker.js' : production ? 'cloudflare/production-worker.js' : 'cloudflare/shop-worker.js')], outfile: resolve(out, 'worker/worker.js'),
+  entryPoints: [resolve(root, providerFixture ? 'tests/fixtures/cloudflare-providers-worker.js' : sandbox ? 'cloudflare/sandbox-worker.js' : production ? 'cloudflare/production-worker.js' : 'cloudflare/shop-worker.js')], outfile: resolve(out, 'worker/worker.js'),
   bundle: true, format: 'esm', platform: 'browser', target: 'es2022', minify: true, metafile: true,
   external: ['node:*', 'cloudflare:*'],
   plugins: [{ name: 'cloudflare-shop-resources', setup(b) {
@@ -80,9 +80,9 @@ async function checkAssets(dir) {
 }
 await checkAssets(resolve(out, 'public'));
 if (fileCount > 20000) throw new Error('Too many static files for Workers Free.');
-await writeFile(resolve(out, 'build-info.json'), JSON.stringify({ mode: production ? 'production-no-routes' : 'protected-shop-migration', fileCount, largestBytes, fontHash, inputs }, null, 2));
-console.log(`Cloudflare ${production ? 'production (no routes)' : 'protected preview'} build: ${fileCount} static files; native SQLite/Sharp and Vercel runtime excluded. No provider credentials embedded.`);
+await writeFile(resolve(out, 'build-info.json'), JSON.stringify({ mode: sandbox ? 'protected-stripe-sandbox' : production ? 'production-no-routes' : 'protected-shop-migration', fileCount, largestBytes, fontHash, inputs }, null, 2));
+console.log(`Cloudflare ${sandbox ? 'protected Stripe sandbox' : production ? 'production (no routes)' : 'protected preview'} build: ${fileCount} static files; native SQLite/Sharp and Vercel runtime excluded. No provider credentials embedded.`);
 return out;
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) await buildCloudflareShop({ production: process.argv.includes('--production') });
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) await buildCloudflareShop({ production: process.argv.includes('--production'), sandbox: process.argv.includes('--sandbox') });

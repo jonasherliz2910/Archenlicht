@@ -18,7 +18,8 @@ export class Mailer {
     if(config.shopMode !== (config.mailMode === 'resend' ? 'live' : 'test') || !/^re_[A-Za-z0-9_-]+$/.test(config.resendKey||'')||!/^whsec_[A-Za-z0-9+/=_-]+$/.test(config.resendWebhook||'')) throw new Error('Bestellmails benötigen passende Umgebung und sichere Resend-Zugangsdaten.');
     if(!Number.isFinite(Date.parse(config.mailEnabledSince))) throw new Error('Bestellmails benötigen eine gültige Startzeit.');
     if(config.mailMode==='resend-test' && (!config.mailTestRecipients?.length||config.mailTestRecipients.some(x=>!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(x)))) throw new Error('Resend-Test benötigt ausdrücklich festgelegte Testempfänger.');
-    if(!/^https:\/\/(www\.)?archenlicht\.de$/.test(config.mailPublicUrl||'')) throw new Error('Bitte die öffentliche Archenlicht-Adresse für Mail-Statuslinks konfigurieren.');
+    const acceptanceLink = config.mailMode === 'resend-test' && config.shopMode === 'test' && config.isolatedPreview === true && config.mailPublicUrl === 'https://archenlicht-checkout-test.jonas-herliz2910.workers.dev';
+    if(!acceptanceLink && !/^https:\/\/(www\.)?archenlicht\.de$/.test(config.mailPublicUrl||'')) throw new Error('Bitte die öffentliche Archenlicht-Adresse für Mail-Statuslinks konfigurieren.');
   }
   constructor(config,store) {this.config=config;this.s=store;this.enabled=['resend-test','resend'].includes(config.mailMode);}
   async enqueue(mailId,orderId,kind,body,status) {
