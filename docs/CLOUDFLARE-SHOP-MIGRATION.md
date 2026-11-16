@@ -248,54 +248,54 @@ Quellen zu den tatsächlich aufgetretenen Laufzeitproblemen und Berechtigungen:
 - https://help.podbase.com/hc/en-us/articles/26709382744604-Podbase-API-integration-guide
 
 
-## Sicherung und vorbereiteter Produktivbetrieb ? 16. November 2026
+## Sicherung und vorbereiteter Produktivbetrieb – 16. November 2026
 
-Die Domain ist weiterhin bei Vercel. Die ?ffentlichen Nameserver sind
+Stand vor dem Nameserver-Wechsel: Die Website ist weiterhin bei Vercel. Die öffentlichen Nameserver sind
 byte.dns-parking.com/pixel.dns-parking.com; www zeigt auf Vercel. Hostinger
-bleibt f?r die Postf?cher zust?ndig. Keine DNS-Eintr?ge wurden ver?ndert.
-Checkout und Podbase-?bergabe bleiben in beiden Produktionskonfigurationen aus.
+bleibt für die Postfächer zuständig. Keine DNS-Einträge wurden verändert.
+Checkout und Podbase-Übergabe bleiben in beiden Produktionskonfigurationen aus.
 
 ### Daten und Konten
 
-- AES-256-GCM-verschl?sselte, komprimierte logische Sicherung aller 32
-  Gesch?ftstabellen. Nach dem Export vom Datentr?ger entschl?sselt, in einem
-  neuen zuf?lligen Testschema vollst?ndig wiederhergestellt und jede Tabelle
-  einschlie?lich aller Werte, Spalten und Constraints verglichen. Testschema
-  anschlie?end entfernt. Kein bestehendes Schema wurde ersetzt.
+- AES-256-GCM-verschlüsselte, komprimierte logische Sicherung aller 32
+  Geschäftstabellen. Nach dem Export vom Datenträger entschlüsselt, in einem
+  neuen zufälligen Testschema vollständig wiederhergestellt und jede Tabelle
+  einschließlich aller Werte, Spalten und Constraints verglichen. Testschema
+  anschließend entfernt. Kein bestehendes Schema wurde ersetzt.
 - Sechs in bisherigen Testbestellungen verwendete, aber noch nicht als PNG
-  gespeicherte Druckdateien ?ber den alten Vercel-Renderer erzeugt. Alle sind
-  PNG mit 300 DPI, unter ihrem urspr?nglichen Hash gespeichert. Insgesamt
-  enth?lt die Datenbank jetzt 14 gespeicherte PNGs. Die ?brigen 317 Assets
-  geh?ren zu unbestellten Vorschauen; deren alte Hashes werden weiterhin
+  gespeicherte Druckdateien über den alten Vercel-Renderer erzeugt. Alle sind
+  PNG mit 300 DPI, unter ihrem ursprünglichen Hash gespeichert. Insgesamt
+  enthält die Datenbank jetzt 14 gespeicherte PNGs. Die übrigen 317 Assets
+  gehören zu unbestellten Vorschauen; deren alte Hashes werden weiterhin
   nicht durch den neuen Renderer neu gezeichnet.
-- Danach erneut gesichert und erfolgreich wiederhergestellt: 1.469 Datens?tze,
-  23.121.739 Byte verschl?sselte Datei. Zwei bestehende Benutzer einschlie?lich
-  unver?nderter Passwort-Hashes und Rollen best?tigt. Alle acht bisherigen
+- Danach erneut gesichert und erfolgreich wiederhergestellt: 1.469 Datensätze,
+  23.121.739 Byte verschlüsselte Datei. Zwei bestehende Benutzer einschließlich
+  unveränderter Passwort-Hashes und Rollen bestätigt. Alle acht bisherigen
   Bestellungen sind Testbestellungen. Keine offenen Mailzustellungen gefunden.
-- Eigener Datenbankbenutzer archenlicht_cf_app f?r Cloudflare: CONNECT,
+- Eigener Datenbankbenutzer archenlicht_cf_app für Cloudflare: CONNECT,
   Schema-USAGE und SELECT/INSERT/UPDATE/DELETE auf den bestehenden 32 Tabellen.
   Kein SUPERUSER, CREATEDB, CREATEROLE, Schema-CREATE oder TRUNCATE.
-  Der Produktionsstart wurde mit diesem Zugang lesend gepr?ft.
-- existingStoreOnly pr?ft die vorhandenen Tabellen und das bestehende Admin-
-  Konto. Es erstellt keine Tabellen, Produktfreigaben, Benutzer oder Passw?rter.
-  F?r neue Datenbankschemata/-migrationen ist weiterhin ein separater
-  administrativer Wartungsschritt n?tig. Der bisherige Vercel-Zugang bleibt.
+  Der Produktionsstart wurde mit diesem Zugang lesend geprüft.
+- existingStoreOnly prüft die vorhandenen Tabellen und das bestehende Admin-
+  Konto. Es erstellt keine Tabellen, Produktfreigaben, Benutzer oder Passwörter.
+  Für neue Datenbankschemata/-migrationen ist weiterhin ein separater
+  administrativer Wartungsschritt nötig. Der bisherige Vercel-Zugang bleibt.
 
 Originalarbeitsordner (alles ignoriert):
 .tools/migration-backups/2026-11-16/shop-2026-11-16T16-41-18-888Z.albackup
-und zugeh?riger JSON-Pr?fbericht. Schl?ssel getrennt in
+und zugehöriger JSON-Prüfbericht. Schlüssel getrennt in
 .tools/migration-backup-key.txt. Weitere Nachweise: historical-prints.json,
 account-preservation.json, cloudflare-database-role.json im Sicherungsordner.
-Sicherung und Schl?ssel liegen lokal auf demselben PC, nicht extern gesichert.
-Die Sicherung enth?lt Shopdaten und Tabellenschema, keine Datenbankrollen
-oder Zugangsdaten; sie ersetzt keinen vollst?ndigen Cluster-/Rollen-Export.
+Sicherung und Schlüssel liegen lokal auf demselben PC, nicht extern gesichert.
+Die Sicherung enthält Shopdaten und Tabellenschema, keine Datenbankrollen
+oder Zugangsdaten; sie ersetzt keinen vollständigen Cluster-/Rollen-Export.
 
-Wiederholung: node scripts/shop-backup.mjs <urspr?ngliche .env.local>
-<ignorierter Sicherungsordner> <ignorierte Schl?sseldatei>.
-Das Werkzeug bricht bei nicht unterst?tzten Schemaobjekten ab und testet nur
+Wiederholung: node scripts/shop-backup.mjs <ursprüngliche .env.local>
+<ignorierter Sicherungsordner> <ignorierte Schlüsseldatei>.
+Das Werkzeug bricht bei nicht unterstützten Schemaobjekten ab und testet nur
 in einem neu angelegten cf_restore_<Zufall>-Schema. Vor einem echten Restore
-zuerst ein neues Zielschema anlegen, Daten pr?fen und Zugriffsrechte gesondert
-setzen; nie die Produktivtabellen mit einem ungepr?ften Import ?berschreiben.
+zuerst ein neues Zielschema anlegen, Daten prüfen und Zugriffsrechte gesondert
+setzen; nie die Produktivtabellen mit einem ungeprüften Import überschreiben.
 
 ### Cloudflare-Konfiguration
 
@@ -304,52 +304,98 @@ production-worker.js und wrangler-production.jsonc im Ordner cloudflare.
 Die bestehende Vorschau-Konfiguration bleibt isoliert und simuliert.
 Produktions-Build: pnpm run build:cloudflare-production.
 Deployment: pnpm run deploy:cloudflare-production.
-Das aktuelle Deployment ist ausdr?cklich ohne Domain/Route und ohne ?ffentliche
-workers.dev- oder Versions-Vorschau-Adresse vorbereitet. Es empf?ngt keinen
-Besucherverkehr. Keine echten Anbieteraktionen wurden ausgel?st.
+Das aktuelle Deployment ist ausdrücklich ohne Domain/Route und ohne öffentliche
+workers.dev- oder Versions-Vorschau-Adresse vorbereitet. Es empfängt keinen
+Besucherverkehr. Keine echten Anbieteraktionen wurden ausgelöst.
 
 Worker: archenlicht-shop. Nach dem Secret-Upload aktive Version:
 bdab6575-701d-4bf3-bec2-a5be4d679154.
-14 Konfigurationseintr?ge wurden verschl?sselt als Cloudflare-Secrets gesetzt.
+14 Konfigurationseinträge wurden verschlüsselt als Cloudflare-Secrets gesetzt.
 Quelle im Worktree: cloudflare/.env.production.secrets.json (ignoriert).
-Darin nur der beschr?nkte Datenbankzugang, kein bestehendes Admin-Passwort.
-CRON_SECRET wurde f?r Cloudflare neu erzeugt; die Vercel-Konfiguration ist
-unver?ndert. Secret-Werte und Sicherungsdateien geh?ren nicht nach GitHub.
+Darin nur der beschränkte Datenbankzugang, kein bestehendes Admin-Passwort.
+CRON_SECRET wurde für Cloudflare neu erzeugt; die Vercel-Konfiguration ist
+unverändert. Secret-Werte und Sicherungsdateien gehören nicht nach GitHub.
 
-Der Router erh?lt unver?nderte Webhook-Rohdaten, Signaturen und Bearer-Zug?nge.
+Der Router erhält unveränderte Webhook-Rohdaten, Signaturen und Bearer-Zugänge.
 Stripe-/Resend-Webhooks sind ohne Vorschau-Basic-Auth erreichbar; der Server
-pr?ft ihre Signaturen. /api/jobs bleibt geheimnisgesch?tzt, API-/Druckantworten
-werden nicht geteilt gecacht. Die Herkunfts-IP kommt ausschlie?lich von
+prüft ihre Signaturen. /api/jobs bleibt geheimnisgeschützt, API-/Druckantworten
+werden nicht geteilt gecacht. Die Herkunfts-IP kommt ausschließlich von
 Cloudflare. Produkt- und Bundleseiten nutzen ihre erzeugten HTML-Seitentitel;
 versionierte Frontenddateien werden gecacht. Der Produktionsbuild ist
-indexierbar. Vollst?ndige Request-Aufruflogs sind abgeschaltet.
+indexierbar. Vollständige Request-Aufruflogs sind abgeschaltet.
 
-Pr?fungen: 22 native Tests bestanden; workerd-Anbietertest mit isolierter Neon-
-Datenbank erneut vollst?ndig bestanden, einschlie?lich fehlendem Admin und
-Erhalt bestehender Passwort-Hashes. Miniflare f?hrte zus?tzlich das echte
+Prüfungen: 22 native Tests bestanden; workerd-Anbietertest mit isolierter Neon-
+Datenbank erneut vollständig bestanden, einschließlich fehlendem Admin und
+Erhalt bestehender Passwort-Hashes. Miniflare führte zusätzlich das echte
 Produktionspaket aus: eigene Produkt-/Bundle-Titel, keine Vorschau-Sperre und
-503 bei unvollst?ndiger Konfiguration. Paketbau, Wrangler-Dry-run und Upload
+503 bei unvollständiger Konfiguration. Paketbau, Wrangler-Dry-run und Upload
 bestanden (1.484 KiB gzip, Startzeit laut Cloudflare 27 ms).
 Diese Startzeit ersetzt keinen Last-/CPU-Kontingenttest.
 
 Nachweise im Worktree: test-results/cloudflare-production/bundle-check.json,
 inactive-deployment.json und test-results/cloudflare-providers/report.json.
-Cloudflare best?tigte workers.dev=false und previews_enabled=false. Die
-?ffentliche Vercel-Gesundheitspr?fung meldet weiterhin Checkout/?bergabe=false.
+Cloudflare bestätigte workers.dev=false und previews_enabled=false. Die
+öffentliche Vercel-Gesundheitsprüfung meldet weiterhin Checkout/Übergabe=false.
 
-N?chster gemeinsamer Schritt: Domain-Aufnahme und DNS-Import bei Cloudflare
-pr?fen. Hostinger-MX sowie SPF/DKIM/DMARC f?r Hostinger und Resend vollst?ndig
-bewahren. Noch keine Nameserver oder Webhook-Ziele ?ndern. Vor dem Umschalten
-weiterhin Hostingtexte, GitHub-Build, Last/Free-Kontingente und R?ckfallplan
-abschlie?en. Der R?ckfall auf Vercel bleibt m?glich, weil Datenbank, bestehende
+Nächster gemeinsamer Schritt: Domain-Aufnahme und DNS-Import bei Cloudflare
+prüfen. Hostinger-MX sowie SPF/DKIM/DMARC für Hostinger und Resend vollständig
+bewahren. Noch keine Nameserver oder Webhook-Ziele ändern. Vor dem Umschalten
+weiterhin Hostingtexte, GitHub-Build, Last/Free-Kontingente und Rückfallplan
+abschließen. Der Rückfall auf Vercel bleibt möglich, weil Datenbank, bestehende
 Konten, Originaldrucke und Vercel-Projekt erhalten sind.
 
 Quellen zur Routing-Konfiguration:
 https://developers.cloudflare.com/workers/static-assets/routing/worker-script/
 https://developers.cloudflare.com/workers/configuration/routing/custom-domains/
 
-Auch die gesch?tzte Vorschau wurde auf Version ff535871-de4c-4cb1-8c7c-689921a70b60
-aktualisiert. Der vollst?ndige Gast-/Kontokauf, MagSafe/Wunschtext, Druckdateien,
+Auch die geschützte Vorschau wurde auf Version ff535871-de4c-4cb1-8c7c-689921a70b60
+aktualisiert. Der vollständige Gast-/Kontokauf, MagSafe/Wunschtext, Druckdateien,
 Zugriffsschutz, Admin, Dreier-Bundle und Abbruch bestanden danach erneut auf
 der Cloudflare-Adresse; alle Anbieteraktionen blieben simuliert.
-Die lesende Cloudflare-Domainabfrage lieferte f?r archenlicht.de keine Zone.
+Die lesende Cloudflare-Domainabfrage lieferte zu diesem Zeitpunkt für archenlicht.de keine Zone.
+
+## Nameserver-Wechsel abgeschlossen – 16. November 2026, 18:40 Uhr
+
+Der Nutzer hat die Nameserver bei Hostinger gespeichert und die Prüfung bei
+Cloudflare angestoßen. Cloudflare meldet die Zone seit 17:37:31 UTC als aktiv.
+Sowohl 1.1.1.1 als auch 8.8.8.8 liefern marissa.ns.cloudflare.com und
+quincy.ns.cloudflare.com. Die Domain bleibt bei Hostinger registriert.
+
+Vor dem Wechsel wurden alle 14 DNS-Einträge direkt gegen die autoritativen
+alten und neuen Nameserver abgeglichen. Wichtig: send und rsend sind CNAMEs
+auf send.forge.rmta.net bzw. rsend-euw1.forge.rmta.net, ohne zusätzliche
+TXT- oder MX-Einträge desselben Namens. Die Hostinger-MX-Einträge mit Priorität
+5 und 10, Hostinger-DKIM/SPF, Resend-DKIM und DMARC sind erhalten. Alle A/CNAME
+stehen weiterhin auf DNS only. Kein DS-Eintrag war beim Registrar gesetzt.
+
+Die Website zeigt weiterhin auf Vercel: A @ = 216.198.79.1 und CNAME www =
+ba346264650cdc86.vercel-dns-017.com. HTTPS und /api/health antworteten mit 200;
+Checkout und Podbase-Übermittlung sind aus. Produktions-Worker archenlicht-shop
+hat noch keine Domains. Die Nameserver-Aktivierung allein schaltet kein Hosting um.
+
+Nachweise: test-results/cloudflare-dns/verified-complete-import.json und
+activation-check.json. DNS-API-Schreibrechte sind im CLI-Zugang nicht vorhanden;
+die Eingaben wurden vom Nutzer im Dashboard vorgenommen.
+
+Die Datenschutzseite im Migrationszweig nennt nun Cloudflare mit Verweisen auf
+dessen Datenschutz- und Datenverarbeitungsbedingungen. Die weiterhin auf Vercel
+ausgelieferte Seite wird dadurch noch nicht geändert.
+
+Kleiner gleichzeitiger Vorschautest erneut bestanden: sechs Sitzungen und drei
+unterschiedliche Druckdateien, ohne Vermischung von Gestaltung oder Sitzungen.
+Netzwerkzeiten: Bootstrap gesamt 908 ms, Vorschauen 7.334 ms, PNG-Abruf 457 ms.
+Cloudflare-GraphQL meldete für den Vorschau-Worker am 16. November bis 17:40 UTC
+37 Aufrufe, 0 Fehler, CPU-P50 1.652 und P99 3.937 Mikrosekunden. Diese Messung
+beschreibt den vorgeschalteten Worker, nicht die rechenintensiven Durable Objects.
+Sie ist keine Garantie für zukünftige Last oder ausreichende Tageskontingente.
+Nachweise: test-results/cloudflare-shop-deployed/parallel.json und
+test-results/cloudflare-production/preview-metrics.json.
+
+Produktions-Worker mit den aktualisierten Hostingangaben erfolgreich gebaut und
+ohne öffentliche Route bereitgestellt: Version 0aae5855-4d4d-4625-8a2e-7967fa7fb327.
+Nächster Schritt: Vor der Domain-Anbindung frisch sichern und anschließend www sowie die Hauptdomain
+an archenlicht-shop anbinden. Danach öffentliche Routen, Konten und Signaturprüfung
+kontrollieren. Verkäufe bleiben gesperrt. GitHub-Build-Verknüpfung für diesen Worker
+und Dauerbetrieb innerhalb der kostenlosen Kontingente bleiben noch zu prüfen.
+
+Abschließender Statusnachweis: test-results/cloudflare-dns/activation-complete.json.
