@@ -425,3 +425,28 @@ aber keine DNS-Einträge bearbeiten. Nächster Nutzerschritt: DNS-Tabelle öffne
 alte Website-Einträge gezielt prüfen und zur direkten Worker-Anbindung ersetzen.
 Mail-Einträge erhalten. Erst nach erfolgreicher Anbindung beide Custom Domains
 in der Wrangler-Konfiguration festhalten.
+
+### www erfolgreich verbunden – 16. November 2026
+
+Der Nutzer hat den alten www-CNAME entfernt. Anschließend wurde ausschließlich
+www.archenlicht.de per Worker-Domain-API erfolgreich an archenlicht-shop gebunden.
+override_existing_origin und override_existing_dns_record waren beide false.
+Domain-ID a5d9955426dfe90091f0baaf018d8ff9ea94c685; Zertifikat
+360756e2-1cca-45c4-a7ab-210f2f77b154; enabled=true, previews_enabled=false.
+wrangler-production.jsonc enthält jetzt genau diese Custom Domain.
+
+1.1.1.1 liefert Cloudflare-Adressen für www; kein alter www-CNAME mehr vorhanden.
+Der lokale Windows-DNS-Cache lieferte beim ersten HTTP-Test noch Vercel. Deshalb
+wurden zusätzliche HTTPS-Aufrufe mit dem aktuellen Cloudflare-Ziel, richtigem
+Hostnamen/SNI und normaler Zertifikatsprüfung ausgeführt: Startseite 200,
+Produktseite Nach dem Sturm 200, Gesundheitsprüfung 200, Shopstart 200 mit sechs
+Motiven und 74 Modellen. Beide Verkaufsschalter false. Ungültige Stripe- und
+Resend-Signaturen: jeweils 401. Unautorisierter Jobaufruf: 403. Antworten tragen
+server=cloudflare und cf-ray. Die Hostinger-MX-Einträge sind unverändert.
+
+Nachweise: test-results/cloudflare-production/www-attachment.json,
+www-first-check.json und www-direct-check.json. Die Hauptdomain ohne www zeigt
+noch mit A 216.198.79.1 auf Vercel. Nächster Schritt: Nutzer entfernt gezielt
+diesen A-Eintrag; dann beide Hosts gemeinsam an den Worker binden und die
+Wrangler-Konfiguration um die Hauptdomain ergänzen. Bestehende www-Anbindung
+beibehalten. Verkauf weiterhin gesperrt; noch kein abgeschlossener Verkaufsstart.
