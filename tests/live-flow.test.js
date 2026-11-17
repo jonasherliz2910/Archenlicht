@@ -104,7 +104,7 @@ test('Live-Bootstrap liefert den Vorschau-Freigabemodus; Modellwahl und Warenkor
   assert.equal(state.mode, 'live'); assert.equal(state.variantMode, 'preview'); assert.equal(state.checkoutEnabled, false);
   assert.equal(modelAvailable(state.variants, choice.modelId, choice.designId, modelAvailabilityMode(state)), true);
   assert.equal(modelAvailable(state.variants, design.modelId, design.designId, modelAvailabilityMode(state)), true);
-  assert.equal(modelAvailable(state.variants, 'iphone-18-pro', choice.designId, modelAvailabilityMode(state)), false);
+  assert.equal(modelAvailable(state.variants, 'iphone-17e', choice.designId, modelAvailabilityMode(state)), false);
   const [item] = await f.shop.saveCart(f.session, choice);
   assert.equal(item.configuration.modelId, choice.modelId); assert.equal(item.available, true);
   const mixedCart = await f.shop.saveCart(f.session, design);

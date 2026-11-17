@@ -44,6 +44,26 @@ test('Podbase-Storepräfix wird exakt zugeordnet; fremde Stores und ähnliche En
   assert.throws(() => new PodbaseAPI({ apiKey: 'fixture', storeId: 'wrong-store' }));
 });
 
+test('Eine dokumentierte Create-Antwort mit nur orderId wird per GET abgeglichen, niemals erneut angelegt', async t => {
+  const original = globalThis.fetch; t.after(() => { globalThis.fetch = original; });
+  const calls = [], storeId = 'PUS-AAA-BBB-CCCC';
+  const payload = { externalOrderId: 'paid-order', items: [{ productId: 'PBP-fixture', variantId: 'PBV-fixture', quantity: 1, printFile: 'https://www.archenlicht.de/prints/' + 'a'.repeat(64) + '.png' }] };
+  let failRead = false;
+  globalThis.fetch = async (url, options) => {
+    calls.push(options.method);
+    if (options.method === 'POST') return Response.json({ orderId: 'PBO-fixture' }, { status: 201 });
+    assert.equal(url, 'https://open-api.podbase.com/orders/PBO-fixture');
+    if (failRead) throw new Error('Read interrupted');
+    return Response.json({ orderId: 'PBO-fixture', externalOrderId: storeId + '-paid-order', status: 'UNAPPROVED' });
+  };
+  const api = new PodbaseAPI({ apiKey: 'fixture', storeId, productionApproved: true });
+  assert.equal((await api.create(payload)).status, 'UNAPPROVED');
+  assert.deepEqual(calls, ['POST', 'GET']);
+  calls.length = 0; failRead = true;
+  await assert.rejects(api.create(payload), /Read interrupted/);
+  assert.deepEqual(calls, ['POST', 'GET']);
+});
+
 test('Abgleich prüft alle Seiten und stoppt bei doppelten, unvollständigen oder verschobenen Antworten', async t => {
   const original = globalThis.fetch; t.after(() => { globalThis.fetch = original; });
   const storeId = 'PUS-AAA-BBB-CCCC', api = new PodbaseAPI({ apiKey: 'fixture', storeId });

@@ -3,18 +3,17 @@ import { migrationConfig } from './migration-config.js';
 import { nodeHandlerResponse } from './node-handler.js';
 import { migrationAccess } from './migration-access.js';
 import { JobScheduler, mayQueueWork } from './job-scheduler.js';
+import { ShopRequestQueue } from './shop-request-queue.js';
 
 export class MigrationShop extends DurableObject {
   constructor(ctx, env) {
-    super(ctx, env); this.queue = Promise.resolve(); this.printQueue = Promise.resolve(); this.application = null;
+    super(ctx, env); this.requests = new ShopRequestQueue(); this.printQueue = Promise.resolve(); this.application = null;
     this.scheduler = new JobScheduler(ctx.storage, async origin => (await this.getApplication(origin)).shop);
   }
   serial(work) {
-    const task = this.queue.then(work);
-    this.queue = task.catch(() => {});
-    return task;
+    return this.requests.serial(work);
   }
-  fetch(request) { return this.serial(() => this.handle(request)); }
+  fetch(request) { return this.requests.fetch(request, () => this.handle(request)); }
   alarm() { return this.serial(() => this.scheduler.run()); }
   configuration(origin) { return migrationConfig(this.env, origin); }
   async getApplication(origin) {

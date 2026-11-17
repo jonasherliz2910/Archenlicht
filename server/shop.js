@@ -454,6 +454,7 @@ export class Shop {
         if (!claimed.changes) continue;
         const order = (await this.s.get('SELECT * FROM orders WHERE id=?', job.order_id));
         let mayHaveSubmitted = job.attempts > 0 || ['sending', 'uncertain'].includes(job.state);
+        let phase = job.provider_id ? 'status' : 'lookup';
         try {
           if (job.provider_id) {
             if (this.config.shopMode === 'test' && this.config.autoShip && Date.now() - job.paid_at > 16000) (await this.podbase.advance(order.id));
@@ -465,19 +466,27 @@ export class Shop {
             let remote = await this.podbase.find(order.id, { deadline });
             if (!remote && mayHaveSubmitted) throw new Error('Unklarer Übermittlungsstatus; keine automatische Neusendung.');
             if (!remote) {
+              phase = 'preparation';
               for (const item of JSON.parse(order.items)) (await this.assertAvailable(item.configuration, { mode: order.mode }));
               const payload = podbasePayload(order, this.config.printBaseUrl || this.config.baseUrl, { requireOfficialPrint: this.config.shopMode === 'live' });
+              // Prepare immutable PNGs before sending an order. The provider's
+              // synchronous download must not have to render a new print file.
+              if (this.config.podbaseMode === 'production') {
+                for (const item of JSON.parse(order.items)) await this.printFile(item.hash, 'png');
+              }
               // Fence the single POST: an expired worker must never create an
               // order after another worker has taken over its lease.
               if (Date.now() > deadline - 16000) throw new Error('Zeit für sichere Übergabe abgelaufen.');
               const permitted = await this.s.run("UPDATE fulfillment SET attempts=attempts+1,updated=? WHERE order_id=? AND state='sending' AND attempts=0 AND lease_until=? AND lease_until>?", Date.now(), order.id, lease, Date.now() + 16000);
               if (!permitted.changes) continue;
               mayHaveSubmitted = true;
+              phase = 'submission';
               remote = await this.podbase.create(payload);
             }
             await this.applyProviderStatus(order, remote, lease);
           }
         } catch (e) {
+          console.error('Fulfillment processing interrupted', JSON.stringify({ orderId: order.id, phase, name: e.name, httpStatus: e.httpStatus || null }));
           const rejected = Boolean(e.rejected || e.status === 409), reason = rejected ? e.message : 'Antwort unterbrochen. Der Anbieterstatus wird vor einer erneuten Übergabe abgeglichen.';
           // Before the fenced POST there is no possible remote order from us.
           // Retry that preparation safely; after a possible POST only reconcile.
