@@ -26,8 +26,8 @@ const $$ = (s, p = document) => [...p.querySelectorAll(s)];
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const money = value => new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(value / 100);
 const date = value => new Intl.DateTimeFormat('de-DE', { dateStyle: 'medium' }).format(new Date(value));
-const paths = { arrow: 'M7 17 17 7M7 7h10v10', right: 'M4 12h16m-6-6 6 6-6 6', bag: 'M6 7h12l2 14H4L6 7Zm3 0V5a3 3 0 0 1 6 0v2', user: 'M20 21a8 8 0 0 0-16 0M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0', gift: 'M3 8h18v4H3zM5 12v9h14v-9M12 8v13M12 8H7.5A2.5 2.5 0 1 1 10 5.5L12 8Zm0 0h4.5A2.5 2.5 0 1 0 14 5.5L12 8Z', truck: 'M1 4h14v13H1zM15 9h4l4 5v3h-8M8 18a2 2 0 1 1-4 0 2 2 0 0 1 4 0m13 0a2 2 0 1 1-4 0 2 2 0 0 1 4 0', check: 'm5 12 4 4L19 6', heart: 'M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z', leaf: 'M20 3C9 2 2 8 5 15s13 6 15-12ZM4 21 15 10', close: 'm6 6 12 12M6 18 18 6', menu: 'M4 7h16M4 12h16M4 17h16', shield: 'M12 2 3 6v6c0 5 9 10 9 10s9-5 9-10V6Z M8 12l3 3 5-6', chevron: 'm6 9 6 6 6-6', back: 'M20 12H4m6-6-6 6 6 6', mail: 'M3 5h18v14H3zM3 5l9 8 9-8', edit: 'm16 3 5 5-12 12H4v-5L16 3Z', spark: 'm12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5L12 3Z' };
-const icon = (name, cls = '') => `<svg class="icon ${cls}" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${paths[name] || paths.heart}"/></svg>`;
+import { icon } from './icons.js';
+import { homeHero, headerMarkup } from './storefront-shell.js';
 const logo = () => `<a href="/" class="wordmark" aria-label="${esc(state.brand.name)} Startseite"><img src="/assets/web-v1/archenlicht-logo.webp" alt="${esc(state.brand.name)} – Originalzeichen mit offenem Bootsrumpf" width="176" height="88" decoding="async"></a>`;
 let state, config, currentPreview, previewSequence = 0, previewTimer, previewPending = false, currentStep = 0, registerMode = false, statusTimer, routeSequence = 0;
 let textChoice, advisorResults, situation = '', adviceOpen = false, advisorPending = false;
@@ -79,7 +79,7 @@ function header() {
   const label = $('.test-label');
   if (label) label.textContent = state.checkoutEnabled === false ? 'Verkaufsstart in Vorbereitung' : state.mode === 'live' ? 'Versand innerhalb Deutschlands' : 'Testshop · keine echten Zahlungen';
   $('#header').classList.remove('menu-open');
-  $('#header').innerHTML = `<div class="header-inner">${logo()}<nav aria-label="Hauptnavigation"><a href="/kollektion" class="${location.pathname.includes('/kollektion') ? 'active' : ''}">Die Kollektion</a><a href="/gestalten" class="${location.pathname === '/gestalten' ? 'active' : ''}">Dein Wunschvers ${icon('spark')}</a><a href="/bundle" class="${location.pathname === '/bundle' ? 'active' : ''}">Bundles</a><a href="/ueber-uns">Unsere Geschichte</a></nav><div class="header-actions"><a href="/konto" data-reload aria-label="Mein Konto" title="Mein Konto">${icon('user')}</a><a href="/warenkorb" data-reload class="cart-link" aria-label="Warenkorb, ${state.cart.reduce((s, i) => s + i.quantity, 0)} Artikel">${icon('bag')}<span>${state.cart.reduce((s, i) => s + i.quantity, 0)}</span></a><button class="icon-button mobile-menu" aria-label="Menü öffnen" aria-expanded="false" data-action="menu">${icon('menu')}</button></div></div>`;
+  $('#header').innerHTML = headerMarkup({ path: location.pathname, cartCount: state.cart.reduce((s, i) => s + i.quantity, 0), logo: logo() });
 }
 function footer() {
   $('#footer').innerHTML = `<div class="footer-main"><div>${logo()}<p>Ein Vers für den Weg.<br>Ein Stück Hoffnung für deinen Alltag.</p><small>Mit Bedeutung gestaltet. Für dich und deine Lieben.</small></div><div><h3>Entdecken</h3><a href="/kollektion">Die Kollektion</a><a href="/gestalten">Deine Wunschvers-Hülle</a><a href="/ueber-uns">Unsere Geschichte</a><a href="/faq">Häufige Fragen</a><a href="/newsletter">Newsletter · 5 % sichern</a></div><div><h3>Gut zu wissen</h3><a href="/versand">Versand & Geschenkkarte</a><a href="/vertrag-widerrufen" class="withdrawal-link">Vertrag widerrufen</a><a href="/widerruf">Widerruf & Rückgabe</a><a href="/datenschutz">Datenschutz</a><a href="/impressum">Impressum</a><a href="/agb">AGB</a><button type="button" class="cookie-settings" data-cookie-settings>Cookie-Einstellungen</button></div><div class="footer-note">${icon('leaf')}<h3>Weniger Lärm.<br>Mehr Bedeutung.</h3><p>Deine Hülle wird erst nach deiner<br>Bestellung für dich gefertigt.</p><span class="draft-note">${state.checkoutEnabled === false ? 'Verkaufsstart in Vorbereitung' : 'Mit Sorgfalt für dich gefertigt'}</span></div></div><div class="footer-bottom"><span>© ${new Date().getFullYear()} ${esc(state.brand.name)} · Mit Hoffnung unterwegs.</span><span>Deutschland · EUR €</span><a href="${state.user?.role === 'admin' ? '/admin/kunden' : '/konto'}">${state.user?.role === 'admin' ? 'Administration' : 'Mein Konto'}</a></div>`;
@@ -112,20 +112,6 @@ function bundleCartNotice(pricing) {
 function bundleOrderSummary(order) {
   const pricing = summarizePricing(order.items);
   return pricing.discount ? `<div class="order-summary bundle-order-summary"><div><span>Hüllen einzeln</span><span>${money(pricing.subtotal)}</span></div>${bundleDiscountRow(pricing)}<div class="total"><strong>Gesamtpreis</strong><strong>${money(order.amount)}</strong></div></div>` : '';
-}
-function homeHero() {
-  return `<section class="hero hero-centered section-wrap" aria-labelledby="home-title">
-    <div class="hero-copy">
-      <span class="eyebrow"><span class="little-line" aria-hidden="true"></span> CHRISTLICHE HANDYHÜLLEN MIT DEINEM VERS</span>
-      <h1 id="home-title">Ein Vers für<br>deinen <em>Alltag.</em></h1>
-      <p class="hero-description">Manche Worte tragen uns. Nimm sie mit – auf einer Hülle, die dich erinnert, ermutigt und ein kleines Stück Hoffnung schenkt.</p>
-      <div class="hero-buttons">
-        <a class="button primary" href="/kollektion">Kollektion entdecken ${icon('right')}</a>
-        <a class="text-button" href="/gestalten">Hülle mit Wunschvers gestalten ${icon('arrow')}</a>
-      </div>
-      <div class="hero-benefits"><span>${icon('truck')} Versand in DE inklusive</span><span>${icon('gift')} Mit Geschenkkarte</span></div>
-    </div>
-  </section>`;
 }
 
 function home() {
@@ -376,7 +362,12 @@ async function render({ scroll = true } = {}) {
   photoGallery?.dispose();
   studioGallery?.dispose();
   studioCards?.dispose();
-  $('#inhalt').innerHTML = html;
+  const main = $('#inhalt');
+  if (path === '/' && main.dataset.prerendered === 'home') {
+    // Keep the already painted hero in place while the private shop data arrives.
+    main.insertAdjacentHTML('beforeend', html.slice(homeHero().length));
+  } else main.innerHTML = html;
+  delete main.dataset.prerendered;
   galleryCleanup = mountPreviewGallery($('.preview-gallery'));
   photoGallery = mountLifestylePhotos($('.preview-gallery'));
   studioGallery = mountStudioPhotos($('.preview-gallery'));

@@ -5,13 +5,16 @@ import { createHash } from 'node:crypto';
 import { DESIGNS, MODELS } from '../server/catalog.js';
 import { renderLayout } from '../server/layout.js';
 import { FIXED_BUNDLES } from '../public/fixed-bundles.js';
+import { homeHero, headerMarkup } from '../public/storefront-shell.js';
 
 // The editable source and the full-resolution production assets stay intact.
 // Only this generated directory is used as the CDN's public output.
 const out = resolve('dist');
 await mkdir(out, { recursive: true });
 await cp(resolve('public'), out, { recursive: true });
-const js = await build({ entryPoints: { app: 'public/app.js', cookies: 'public/cookie-consent.js' }, bundle: true, minify: true, format: 'esm', target: ['es2022'], outdir: resolve(out, '_app'), entryNames: '[name]-[hash]', metafile: true });
+const worker = await build({ entryPoints: { 'photo-worker': 'public/photo-worker.js' }, bundle: true, minify: true, format: 'esm', target: ['es2022'], outdir: resolve(out, '_app'), entryNames: '[name]-[hash]', metafile: true });
+const workerPath = '/' + Object.keys(worker.metafile.outputs)[0].replaceAll('\\', '/').split('dist/')[1];
+const js = await build({ entryPoints: { app: 'public/app.js', cookies: 'public/cookie-consent.js' }, bundle: true, minify: true, format: 'esm', target: ['es2022'], outdir: resolve(out, '_app'), entryNames: '[name]-[hash]', metafile: true, define: { __PHOTO_WORKER_URL__: JSON.stringify(workerPath) } });
 const script = name => '/' + Object.keys(js.metafile.outputs).find(file => basename(file).startsWith(name + '-')).replaceAll('\\', '/').split('dist/')[1];
 const startup = (await readFile('public/startup.js', 'utf8')).replace("'./app.js'", JSON.stringify(script('app')));
 const startFile = `/_app/startup-${createHash('sha256').update(startup).digest('hex').slice(0, 16)}.js`;
@@ -24,9 +27,13 @@ await writeFile(resolve(out, '.' + styleFile), css);
 let html = (await readFile('public/index.html', 'utf8'))
   .replace(/    <link rel="stylesheet"[^>]+>\r?\n/g, '')
   .replace('    <script type="module" src="/startup.js">', `    <link rel="stylesheet" href="${styleFile}" />\n    <script type="module" src="${startFile}">`)
-  .replace('src="/cookie-consent.js"', `src="${script('cookies')}"`);
+  .replace('src="/cookie-consent.js"', `src="${script('cookies')}"`)
+  .replace('<header id="header"></header>', `<header id="header">${headerMarkup({ cartCount: '', logo: '<a href="/" class="wordmark" aria-label="Archenlicht Startseite"><img src="/assets/web-v1/archenlicht-logo.webp" alt="Archenlicht – Originalzeichen mit offenem Bootsrumpf" width="176" height="88" decoding="async"></a>' })}</header>`);
 const defaultTitle = 'Archenlicht · Ein Vers für deinen Alltag';
 await writeFile(resolve(out, 'index.html'), html.replace('<!--PAGE_TITLE-->', defaultTitle));
+await mkdir(resolve(out, '_pages'), { recursive: true });
+await writeFile(resolve(out, '_pages/home.html'), html.replace('<!--PAGE_TITLE-->', defaultTitle)
+  .replace(/<main id="inhalt"[^>]*>.*?<\/main>/s, `<main id="inhalt" tabindex="-1" data-prerendered="home">${homeHero()}</main>`));
 for (const path of ['kollektion', 'gestalten', 'bundle', ...DESIGNS.map(d => `kollektion/${d.id}`), ...FIXED_BUNDLES.map(b => `bundle/${b.id}`)]) {
   const design = DESIGNS.find(d => path === `kollektion/${d.id}`), bundle = FIXED_BUNDLES.find(b => path === `bundle/${b.id}`);
   const title = design ? `${design.title} · ${design.reference} | Archenlicht` : bundle ? `${bundle.title} · Dreier-Bundle | Archenlicht` : defaultTitle;

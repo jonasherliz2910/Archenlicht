@@ -24,7 +24,8 @@ export async function productionFetch(request, env) {
   } else {
     if (!['GET', 'HEAD'].includes(request.method)) return new Response('Methode nicht erlaubt.', { status: 405, headers: { Allow: 'GET, HEAD' } });
     const path = url.pathname.replace(/\/$/, '');
-    if (pages.has(path)) url.pathname = '/_pages' + path + '.html';
+    if (!path) url.pathname = '/_pages/home.html';
+    else if (pages.has(path)) url.pathname = '/_pages' + path + '.html';
     response = await env.ASSETS.fetch(new Request(url, request));
   }
   const result = new Response(response.body, response);

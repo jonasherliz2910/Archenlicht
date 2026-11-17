@@ -1,18 +1,20 @@
 import { caseColor } from './case-colors.js';
 import { deviceProfile, printFrame } from './device-preview.js';
 import { LIFESTYLE_MODEL, LIFESTYLE_ASSETS, LIFESTYLE_SCENES, lifestyleScenes, inversePerspective, projectToCase } from './lifestyle-scenes.js';
+import { photoCanvas, photoImage } from './photo-surface.js';
+import { renderPhotoInBackground } from './photo-renderer.js';
 
 const sourceWidth=1122,sourceHeight=1402,renderWidth=840;
 const assets=new Map(), scenes=new Map();
 function loadImage(url) {
   if(!assets.has(url)){
-    const promise=new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>resolve(img);img.onerror=()=>reject(new Error('Das Foto konnte nicht geladen werden.'));img.src=url;});
+    const promise=photoImage(url);
     assets.set(url,promise);promise.catch(()=>assets.delete(url));
     if(assets.size>6)assets.delete(assets.keys().next().value);
   }
   return assets.get(url);
 }
-const canvasOf=(width,height)=>{const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;return canvas;};
+const canvasOf=photoCanvas;
 
 async function prepareScene(id) {
   if(!LIFESTYLE_SCENES[id])throw new Error('Unbekannte Fotoansicht.');
@@ -42,13 +44,16 @@ async function prepareScene(id) {
   return scenes.get(id);
 }
 
-export async function renderLifestylePhoto({sceneId,imageUrl,model,backgroundId,canvas}) {
-  const [scene,print]=await Promise.all([prepareScene(sceneId),loadImage(imageUrl)]);
+export async function renderLifestylePhoto({sceneId,imageUrl,model,backgroundId,canvas,ink:providedInk}) {
+  const [scene,print]=await Promise.all([prepareScene(sceneId),providedInk?null:loadImage(imageUrl)]);
+  let tex=providedInk;
+  if(!tex){
   const profile=deviceProfile(LIFESTYLE_MODEL), frame=printFrame(model,profile), color=caseColor(backgroundId);
   const texture=canvasOf(profile.width,profile.height), tc=texture.getContext('2d',{willReadFrequently:true});
   tc.fillStyle=color.hex;tc.fillRect(0,0,texture.width,texture.height);
   tc.drawImage(print,frame.x,frame.y,frame.width,frame.height);
-  const tex=tc.getImageData(0,0,texture.width,texture.height), result=new Uint8ClampedArray(scene.photo.data);
+  tex=tc.getImageData(0,0,texture.width,texture.height);}
+  const result=new Uint8ClampedArray(scene.photo.data);
   for(let i=0;i<scene.pixels.length;i+=4){
     const offset=scene.pixels[i],tx=scene.pixels[i+1]*(tex.width-1),ty=scene.pixels[i+2]*(tex.height-1),alpha=scene.pixels[i+3];
     const x=Math.floor(tx),y=Math.floor(ty),fx=tx-x,fy=ty-y,x1=Math.min(x+1,tex.width-1),y1=Math.min(y+1,tex.height-1);
@@ -75,7 +80,8 @@ export function mountLifestylePhotos(root) {
     const ticket=revision, snapshot=current;entry.rendered=ticket;
     const view=Number(entry.slide.dataset.lifestyleView), sceneId=lifestyleScenes(snapshot.preview.configuration.designId)[view];
     try{
-      const result=await renderLifestylePhoto({sceneId,imageUrl:snapshot.preview.svgUrl,model:snapshot.model,backgroundId:snapshot.preview.configuration.backgroundId});
+      const input={sceneId,imageUrl:snapshot.preview.svgUrl,model:snapshot.model,backgroundId:snapshot.preview.configuration.backgroundId};
+      const [result]=await renderPhotoInBackground('lifestyle',input,async()=>[await renderLifestylePhoto(input)]);
       if(disposed||ticket!==revision)return;
       entry.canvas.width=result.width;entry.canvas.height=result.height;
       entry.canvas.getContext('2d').drawImage(result,0,0);

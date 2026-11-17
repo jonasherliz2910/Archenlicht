@@ -3,12 +3,14 @@ import {deviceProfile,printFrame} from './device-preview.js';
 import {STUDIO_SCENES,STUDIO_SOURCE,studioSceneId} from './studio-scenes.js';
 import {prepareStudioMap,composeStudioPixels} from './studio-compositor.js';
 import {PREVIEW_MODEL,PREVIEW_CATALOG} from './preview-model.js';
+import {photoCanvas,photoImage,inPhotoWorker} from './photo-surface.js';
+import {renderPhotoInBackground} from './photo-renderer.js';
 
 const photos=new Map(),images=new Map();
-const canvasOf=(w,h)=>{const c=document.createElement('canvas');c.width=w;c.height=h;return c;};
+const canvasOf=photoCanvas;
 function loadImage(url){
  if(!images.has(url)){
-  const promise=new Promise((resolve,reject)=>{const image=new Image();image.onload=()=>resolve(image);image.onerror=()=>reject(new Error('Fotovorlage nicht verfügbar'));image.src=url;});
+  const promise=photoImage(url);
   images.set(url,promise);promise.catch(()=>images.delete(url));if(images.size>12)images.delete(images.keys().next().value);
  }
  return images.get(url);
@@ -26,13 +28,14 @@ async function preparePhoto(id){
  }
  return photos.get(id);
 }
-export async function renderStudioPhotographs({imageUrl,model,backgroundId='white',both=false}){
- const id=studioSceneId(model),[scene,print]=await Promise.all([preparePhoto(id),loadImage(imageUrl)]);
- const profile=deviceProfile(model),frame=printFrame(model,profile),texture=canvasOf(profile.width,profile.height),ctx=texture.getContext('2d',{willReadFrequently:true});
+export async function renderStudioPhotographs({imageUrl,model,backgroundId='white',both=false,ink:providedInk}){
+ const id=studioSceneId(model),[scene,print]=await Promise.all([preparePhoto(id),providedInk?null:loadImage(imageUrl)]);
+ let ink=providedInk;
+ if(!ink){const profile=deviceProfile(model),frame=printFrame(model,profile),texture=canvasOf(profile.width,profile.height),ctx=texture.getContext('2d',{willReadFrequently:true});
  ctx.fillStyle=caseColor(backgroundId).hex;ctx.fillRect(0,0,texture.width,texture.height);ctx.drawImage(print,frame.x,frame.y,frame.width,frame.height);
- const ink=ctx.getImageData(0,0,texture.width,texture.height);
+ ink=ctx.getImageData(0,0,texture.width,texture.height);}
  return (both?[false,true]:[false]).map(caseOnly=>{
-  const out=canvasOf(scene.width,scene.height);out.getContext('2d').putImageData(new ImageData(composeStudioPixels(scene,ink,caseOnly),scene.width,scene.height),0,0);out.dataset.scene=id;return out;
+  const out=canvasOf(scene.width,scene.height);out.getContext('2d').putImageData(new ImageData(composeStudioPixels(scene,ink,caseOnly),scene.width,scene.height),0,0);if(!inPhotoWorker)out.dataset.scene=id;out.studioScene=id;return out;
  });
 }
 
@@ -49,7 +52,8 @@ export function mountStudioCards(root,models){
  async function draw(target){
   try{
    const model=models.find(m=>m.id===target.dataset.studioModel);
-   const [photo]=await renderStudioPhotographs({model,imageUrl:target.dataset.studioArt,backgroundId:target.dataset.studioColor});
+   const input={model,imageUrl:target.dataset.studioArt,backgroundId:target.dataset.studioColor};
+   const [photo]=await renderPhotoInBackground('studio',input,()=>renderStudioPhotographs(input));
    if(disposed||!target.isConnected)return;photo.setAttribute('aria-hidden','true');target.replaceChildren(photo);target.dataset.studioCardReady='true';target.setAttribute('aria-busy','false');
   }catch{if(!disposed&&target.isConnected){target.textContent='Foto gerade nicht verfügbar';target.dataset.studioCardReady='error';target.setAttribute('aria-busy','false');}}
  }

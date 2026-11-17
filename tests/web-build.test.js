@@ -15,6 +15,15 @@ test('Die CDN-Ausgabe enthält gültige Bundles und unveränderte öffentliche M
  const startup=readFileSync(resolve('dist','.'+index.match(/src="(\/_app\/startup-[^"]+)"/)[1]),'utf8');
  assert.match(startup,/api\/bootstrap/);assert.ok(startup.indexOf('fetch(')<startup.indexOf('import('));
  assert.equal(/sessionExpires|"csrf"|archenlicht_session/.test(index),false);
+ const home=readFileSync('dist/_pages/home.html','utf8');
+ assert.match(home,/data-prerendered="home"/);assert.match(home,/<h1 id="home-title">Ein Vers/);
+ assert.match(home,/href="\/kollektion"/);assert.match(index,/aria-label="Mein Konto"/);
+ assert.equal(/sessionExpires|"csrf"|archenlicht_session/.test(home),false);
+ assert.equal(index.includes('data-prerendered="home"'),false,'Account/checkout fallback must not show the home hero');
+ const appFile=startup.match(/import\("([^" ]+)"\)/)[1];
+ const app=readFileSync(resolve('dist','.'+appFile),'utf8');
+ const worker=app.match(/\/_app\/photo-worker-[A-Z0-9]+\.js/)[0];
+ assert.ok(existsSync(resolve('dist','.'+worker)),'Versioned photo worker must ship with the app');
  for(const design of DESIGNS){
   assert.match(readFileSync(`dist/_pages/kollektion/${design.id}.html`,'utf8'),new RegExp(`<title>${design.title}`));
   assert.equal(readFileSync(`dist/assets/design-${design.id}.svg`,'utf8'),renderLayout({kind:'fixed',designId:design.id,modelId:MODELS[0].id}).svg);

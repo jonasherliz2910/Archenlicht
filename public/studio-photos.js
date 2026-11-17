@@ -1,9 +1,10 @@
 import {caseColor} from './case-colors.js';
 import {renderStudioPhotographs} from './studio-photography.js';
+import {renderPhotoInBackground} from './photo-renderer.js';
 const canvasOf=(width,height)=>{const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;return canvas;};
 let queue=Promise.resolve();
 export function renderStudioViews(input){
- const job=queue.then(()=>input.isCurrent?.()===false?null:renderStudioPhotographs({imageUrl:input.preview.svgUrl,model:input.model,backgroundId:input.preview.configuration.backgroundId,both:true}));
+ const job=queue.then(()=>{if(input.isCurrent?.()===false)return null;const photo={imageUrl:input.preview.svgUrl,model:input.model,backgroundId:input.preview.configuration.backgroundId,both:true};return renderPhotoInBackground('studio',photo,()=>renderStudioPhotographs(photo));});
  queue=job.catch(()=>{});return job;
 }
 

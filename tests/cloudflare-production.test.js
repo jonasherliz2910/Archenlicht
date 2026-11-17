@@ -47,6 +47,7 @@ test('Production keeps page-specific HTML, canonical URLs and asset caching', as
   assert.equal(paths[0], '/_pages/kollektion/nach-dem-sturm.html'); assert.equal(page.headers.get('x-robots-tag'), null);
   assert.equal(page.headers.get('cache-control'), 'no-cache'); assert.match(page.headers.get('content-security-policy'), /frame-ancestors 'none'/);
   await productionFetch(new Request(SHOP_ORIGIN + '/bundle/hoffnung/'), bindings); assert.equal(paths[1], '/_pages/bundle/hoffnung.html');
+  await productionFetch(new Request(SHOP_ORIGIN + '/'), bindings); assert.equal(paths[2], '/_pages/home.html');
   const asset = await productionFetch(new Request(SHOP_ORIGIN + '/_app/app-HASH.js'), bindings); assert.match(asset.headers.get('cache-control'), /immutable/);
   const redirect = await productionFetch(new Request('https://archenlicht.de/kollektion?source=sonstige'), bindings);
   assert.equal(redirect.status, 308); assert.equal(redirect.headers.get('location'), SHOP_ORIGIN + '/kollektion?source=sonstige');

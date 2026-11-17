@@ -228,7 +228,8 @@ export async function createApp(config = defaultConfig()) {
         try { if ((await stat(staticPath)).isFile()) return send(res, 200, await readFile(staticPath), mime[extname(path)] || 'application/octet-stream'); } catch {}
         throw new ShopError('Datei nicht gefunden.', 404);
       }
-      let html = await readFile(join(publicDir, 'index.html'), 'utf8');
+      const homePage = join(publicDir, '_pages/home.html');
+      let html = await readFile(path === '/' && existsSync(homePage) ? homePage : join(publicDir, 'index.html'), 'utf8');
       const product = /^\/kollektion\/([a-z-]+)$/.exec(path), design = product && DESIGNS.find(d => d.id === product[1]);
       const bundlePath = /^\/bundle\/([a-z-]+)$/.exec(path), bundle = bundlePath && fixedBundle(bundlePath[1]);
       const valid = ['/', '/admin', '/admin/kunden', '/admin/sicherheit', '/admin/widerrufe', '/newsletter', '/newsletter/bestaetigen', '/newsletter/abmelden', '/kollektion', '/bundle', '/gestalten', '/warenkorb', '/kasse', '/konto', '/auswertung', '/ueber-uns', '/faq', '/impressum', '/datenschutz', '/agb', '/widerruf', '/versand', '/vertrag-widerrufen', '/gewaehrleistung'].includes(path) || design || /^\/(bestellung|testzahlung|zahlungsrueckkehr)\/[a-f0-9-]{36}$/.test(path);

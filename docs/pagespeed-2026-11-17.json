@@ -1,0 +1,126 @@
+{
+  "date": "2026-11-17",
+  "tool": "Lighthouse 13.6.0",
+  "results": [
+    {
+      "stage": "before",
+      "name": "mobile-home",
+      "url": "https://www.archenlicht.de/",
+      "score": 74,
+      "lcp": 2307.525,
+      "tbt": 518.0000000000001,
+      "cls": 0.19891263606755355,
+      "measuredAt": "2026-11-17T14:26:18.496Z"
+    },
+    {
+      "stage": "before",
+      "name": "mobile-product",
+      "url": "https://www.archenlicht.de/kollektion/nach-dem-sturm",
+      "score": 50,
+      "lcp": 4112.359,
+      "tbt": 2816.0000000000005,
+      "cls": 0.09673759823297642,
+      "measuredAt": "2026-11-17T14:26:36.082Z"
+    },
+    {
+      "stage": "before",
+      "name": "desktop-home",
+      "url": "https://www.archenlicht.de/",
+      "score": 99,
+      "lcp": 516.017,
+      "tbt": 17,
+      "cls": 0.07581972280594226,
+      "measuredAt": "2026-11-17T14:26:53.059Z"
+    },
+    {
+      "stage": "before",
+      "name": "desktop-product",
+      "url": "https://www.archenlicht.de/kollektion/nach-dem-sturm",
+      "score": 79,
+      "lcp": 819.5375,
+      "tbt": 411.4999999999999,
+      "cls": 0.0687146694685229,
+      "measuredAt": "2026-11-17T14:27:03.706Z"
+    },
+    {
+      "stage": "after",
+      "name": "mobile-home",
+      "url": "https://www.archenlicht.de/",
+      "score": 95,
+      "lcp": 935.981,
+      "tbt": 231,
+      "cls": 0.06640495575338637,
+      "measuredAt": "2026-11-17T14:36:53.629Z"
+    },
+    {
+      "stage": "after",
+      "name": "mobile-product",
+      "url": "https://www.archenlicht.de/kollektion/nach-dem-sturm",
+      "score": 86,
+      "lcp": 3046.174,
+      "tbt": 288,
+      "cls": 0.0009966638464561693,
+      "measuredAt": "2026-11-17T14:37:03.917Z"
+    },
+    {
+      "stage": "after",
+      "name": "desktop-home",
+      "url": "https://www.archenlicht.de/",
+      "score": 100,
+      "lcp": 298.79449999999997,
+      "tbt": 5,
+      "cls": 0.00003873303563610892,
+      "measuredAt": "2026-11-17T14:37:15.102Z"
+    },
+    {
+      "stage": "after",
+      "name": "desktop-product",
+      "url": "https://www.archenlicht.de/kollektion/nach-dem-sturm",
+      "score": 98,
+      "lcp": 677.8275,
+      "tbt": 0,
+      "cls": 0.00003873303563610892,
+      "measuredAt": "2026-11-17T14:37:25.360Z"
+    },
+    {
+      "stage": "final",
+      "name": "mobile-home",
+      "url": "https://www.archenlicht.de/",
+      "score": 100,
+      "lcp": 943.8145,
+      "tbt": 42.5,
+      "cls": 0.00004136751486460517,
+      "measuredAt": "2026-11-17T14:41:42.679Z"
+    },
+    {
+      "stage": "final",
+      "name": "mobile-product",
+      "url": "https://www.archenlicht.de/kollektion/nach-dem-sturm",
+      "score": 81,
+      "lcp": 3063.971,
+      "tbt": 315,
+      "cls": 0.0009616930397952196,
+      "measuredAt": "2026-11-17T14:41:56.955Z"
+    },
+    {
+      "stage": "final",
+      "name": "desktop-home",
+      "url": "https://www.archenlicht.de/",
+      "score": 100,
+      "lcp": 275.0725,
+      "tbt": 5,
+      "cls": 0.006714867641479147,
+      "measuredAt": "2026-11-17T14:42:10.582Z"
+    },
+    {
+      "stage": "final",
+      "name": "desktop-product",
+      "url": "https://www.archenlicht.de/kollektion/nach-dem-sturm",
+      "score": 99,
+      "lcp": 646.8495,
+      "tbt": 0,
+      "cls": 0.00001961299360826548,
+      "measuredAt": "2026-11-17T14:42:20.690Z"
+    }
+  ]
+}
