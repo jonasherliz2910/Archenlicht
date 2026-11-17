@@ -60,8 +60,20 @@ test('Eine dokumentierte Create-Antwort mit nur orderId wird per GET abgeglichen
   assert.equal((await api.create(payload)).status, 'UNAPPROVED');
   assert.deepEqual(calls, ['POST', 'GET']);
   calls.length = 0; failRead = true;
-  await assert.rejects(api.create(payload), /Read interrupted/);
+  let acknowledged;
+  await assert.rejects(api.create(payload, { onAcknowledged: async id => { acknowledged = id; } }), /Read interrupted/);
+  assert.equal(acknowledged, 'PBO-fixture');
   assert.deepEqual(calls, ['POST', 'GET']);
+});
+
+test('A failed status lookup or temporary access problem does not reject a paid order', async t => {
+  const original = globalThis.fetch; t.after(() => { globalThis.fetch = original; });
+  const api = new PodbaseAPI({ apiKey: 'fixture' });
+  for (const status of [400, 403, 422, 429, 503]) {
+    globalThis.fetch = async () => new Response('', { status });
+    await assert.rejects(api.request('/orders/provider'), e => e.httpStatus === status && e.rejected === false);
+    await assert.rejects(api.request('/orders', 'POST', {}), e => e.httpStatus === status && e.rejected === [400, 422].includes(status));
+  }
 });
 
 test('Abgleich prüft alle Seiten und stoppt bei doppelten, unvollständigen oder verschobenen Antworten', async t => {

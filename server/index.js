@@ -40,8 +40,12 @@ export async function createApp(config = defaultConfig()) {
         return send(res, 200, path.endsWith('/widerrufsformular.txt') ? WITHDRAWAL_FORM : contractInformation(), 'text/plain; charset=utf-8');
       }
       if (path === '/api/health') return send(res, 200, { ok: true, mode: config.shopMode, checkoutEnabled: shop.checkoutEnabled, simulatedPayments: config.paymentMode !== 'live', simulatedFulfillment: config.podbaseMode !== 'production', podbaseMode: config.podbaseMode, podbaseOrderSubmissionEnabled: config.podbaseSubmissionEnabled === true });
-      if (path === '/api/jobs') {
+      if (path === '/api/jobs' || path === '/api/jobs/status') {
         if (!config.workerSecret || req.headers.authorization !== `Bearer ${config.workerSecret}`) throw new ShopError('Zugriff nicht erlaubt.', 403);
+        if (path === '/api/jobs/status') {
+          if (method !== 'GET') throw new ShopError('Methode nicht erlaubt.', 405);
+          return send(res, 200, { scheduler: await config.jobStatus?.() || null });
+        }
         await shop.tick(); return send(res, 200, { ok: true, simulated: config.shopMode === 'test' });
       }
       if (path === '/api/newsletter/one-click' && method === 'POST') {

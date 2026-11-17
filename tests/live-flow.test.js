@@ -196,6 +196,38 @@ test('Ein laufender Hintergrundabgleich verschluckt keine gleichzeitig bestätig
   assert.equal(f.calls.filter(c => c.url === 'https://api.resend.com/emails').length, 2);
 });
 
+test('Die bestätigte Podbase-ID übersteht einen fehlgeschlagenen Statusabruf; Wiederaufnahme benötigt keinen erneuten Import', async t => {
+  const f = await fixture(t), order = await f.order();
+  Object.assign(f.stripe.get(order.payment_id), { status: 'complete', payment_status: 'paid' });
+  const request = f.shop.podbase.request.bind(f.shop.podbase);
+  let failStatus = true;
+  f.shop.podbase.request = async (path, method = 'GET', body) => {
+    if (method === 'POST') { const result = await request(path, method, body); return { orderId: result.orderId }; }
+    if (path.startsWith('/orders/') && failStatus) throw new Error('Temporary status outage after acknowledgement');
+    return request(path, method, body);
+  };
+  assert.equal((await f.hook(order.payment_id)).status, 200);
+  let job = await f.shop.s.get('SELECT * FROM fulfillment WHERE order_id=?', order.id);
+  assert.equal(job.state, 'uncertain'); assert.equal(job.provider_id, 'provider-0'); assert.equal(job.attempts, 1);
+  f.shop.podbase.find = async () => { throw new Error('Recovery must use the acknowledged ID directly'); };
+  failStatus = false;
+  await f.shop.tick();
+  job = await f.shop.s.get('SELECT * FROM fulfillment WHERE order_id=?', order.id);
+  assert.equal(job.state, 'awaiting_approval'); assert.equal(job.error, null);
+  assert.equal(f.calls.filter(c => c.url === 'https://open-api.podbase.com/orders' && c.method === 'POST').length, 1);
+});
+
+test('Die Hintergrunddiagnose ist geschützt und führt keine Bestellungen aus', async t => {
+  const f = await fixture(t, { workerSecret: 'fixture-worker-secret', jobStatus: async () => ({ runs: 12, scheduledAlarm: 12345 }) });
+  const url = `http://127.0.0.1:${f.server.address().port}/api/jobs/status`;
+  assert.equal((await fetch(url)).status, 403);
+  const response = await fetch(url, { headers: { authorization: 'Bearer fixture-worker-secret' } });
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), { scheduler: { runs: 12, scheduledAlarm: 12345 } });
+  assert.equal((await fetch(url, { method: 'POST', headers: { authorization: 'Bearer fixture-worker-secret' } })).status, 405);
+  assert.equal(f.remote.size, 0);
+});
+
 test('Nach einem möglicherweise angenommenen POST bleibt ein erfolgloser Abgleich gesperrt statt doppelt zu bestellen', async t => {
   const f = await fixture(t), order = await f.order();
   Object.assign(f.stripe.get(order.payment_id), { status: 'complete', payment_status: 'paid' });

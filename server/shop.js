@@ -450,10 +450,13 @@ export class Shop {
       for (const job of jobs) {
         if (processed++ >= limit || Date.now() > deadline - 16000) break;
         const lease = Date.now() + 60000;
-        const claimed = (await this.s.run("UPDATE fulfillment SET lease_until=?,state=CASE WHEN state='ready' THEN 'sending' ELSE state END WHERE order_id=? AND lease_until<?", lease, job.order_id, Date.now()));
+        const claimed = (await this.s.run("UPDATE fulfillment SET lease_until=?,state=CASE WHEN provider_id IS NULL AND attempts=0 THEN 'sending' ELSE state END WHERE order_id=? AND lease_until<?", lease, job.order_id, Date.now()));
         if (!claimed.changes) continue;
         const order = (await this.s.get('SELECT * FROM orders WHERE id=?', job.order_id));
-        let mayHaveSubmitted = job.attempts > 0 || ['sending', 'uncertain'].includes(job.state);
+        // The durable attempt counter is committed immediately before POST.
+        // A restart during preparation can leave 'sending' with attempts=0;
+        // that state alone must not permanently block an unsent paid order.
+        let mayHaveSubmitted = job.attempts > 0;
         let phase = job.provider_id ? 'status' : 'lookup';
         try {
           if (job.provider_id) {
@@ -481,7 +484,10 @@ export class Shop {
               if (!permitted.changes) continue;
               mayHaveSubmitted = true;
               phase = 'submission';
-              remote = await this.podbase.create(payload);
+              remote = await this.podbase.create(payload, { onAcknowledged: async providerId => {
+                const saved = await this.s.run('UPDATE fulfillment SET provider_id=?,updated=? WHERE order_id=? AND lease_until=? AND lease_until>? AND attempts=1 AND provider_id IS NULL', providerId, Date.now(), order.id, lease, Date.now());
+                if (!saved.changes) throw new Error('Podbase-Bestätigung konnte nicht unter der aktiven Auftragssperre gespeichert werden. Abgleich erforderlich.');
+              } });
             }
             await this.applyProviderStatus(order, remote, lease);
           }

@@ -27,6 +27,9 @@ export function mayQueueWork(request) {
 
 export class JobScheduler {
   constructor(storage, getShop, now = Date.now) { this.storage = storage; this.getShop = getShop; this.now = now; }
+  async status() {
+    return { ...await this.storage.get('job-status'), scheduledAlarm: await this.storage.getAlarm(), checkedAt: this.now() };
+  }
   async arm(origin) {
     if (await this.storage.get('job-origin') !== origin) await this.storage.put('job-origin', origin);
     const next = this.now() + MIN_DELAY, current = await this.storage.getAlarm();

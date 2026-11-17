@@ -5,8 +5,9 @@ import { resolve } from 'node:path';
 import { ShopRequestQueue } from '../cloudflare/shop-request-queue.js';
 import { createApp, defaultConfig } from '../server/index.js';
 import { nodeHandlerResponse } from '../cloudflare/node-handler.js';
+import { JobScheduler } from '../cloudflare/job-scheduler.js';
 
-test('A provider can fetch the saved PNG before returning its order response, through request and alarm queues', async t => {
+for (const entry of ['request', 'alarm']) test(`A provider can fetch the saved PNG synchronously during a ${entry}`, async t => {
   const app = await createApp({ ...defaultConfig(), storageMode: 'sqlite', dataDir: resolve('test-results', randomUUID()), serverless: true, autoShip: false, adminPassword: 'Fixture-only-password' });
   t.after(() => app.shop.close());
   const queue = new ShopRequestQueue();
@@ -33,9 +34,12 @@ test('A provider can fetch the saved PNG before returning its order response, th
     return originalCreate(payload);
   };
   let timer;
+  const storage = { values: new Map(), next: null, async get(key) { return this.values.get(key); }, async put(key, value) { this.values.set(key, value); }, async getAlarm() { return this.next; }, async setAlarm(next) { this.next = next; }, async deleteAlarm() { this.next = null; } };
+  const scheduler = new JobScheduler(storage, async () => app.shop);
+  await scheduler.arm('https://shop.example');
   try {
     await Promise.race([
-      queue.fetch(new Request('https://shop.example/api/webhooks/stripe', { method: 'POST' }), () => app.shop.tick({ orderId: order.id })),
+      entry === 'alarm' ? queue.serial(() => scheduler.run()) : queue.fetch(new Request('https://shop.example/api/webhooks/stripe', { method: 'POST' }), () => app.shop.tick({ orderId: order.id })),
       new Promise((_, reject) => { timer = setTimeout(() => reject(new Error('Provider print callback deadlocked')), 8000); })
     ]);
   } finally { clearTimeout(timer); }

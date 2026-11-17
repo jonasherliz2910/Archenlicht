@@ -22,7 +22,7 @@ export class MigrationShop extends DurableObject {
         const { createApp } = await import('../server/index.js');
         const { prepareDesign } = await import('../server/design-assets.js');
         const config = this.configuration(origin);
-        return createApp({ ...config, prepareDesign: id => prepareDesign(id, this.env.ASSETS), serializePreview: work => {
+        return createApp({ ...config, jobStatus: () => this.scheduler.status(), prepareDesign: id => prepareDesign(id, this.env.ASSETS), serializePreview: work => {
           const task = this.printQueue.then(work);
           this.printQueue = task.catch(() => {});
           return task;

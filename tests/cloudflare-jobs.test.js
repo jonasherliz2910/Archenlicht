@@ -52,6 +52,46 @@ test('Restart reconciles a lost provider reply before considering another submis
   assert.equal((await f.shop.s.get('SELECT attempts FROM fulfillment')).attempts, 1);
   assert.equal((await f.shop.s.get('SELECT state FROM fulfillment')).state, 'production');
 });
+
+test('A restart before the durable POST fence resumes preparation instead of stranding an unsent order', async t => {
+  for (const state of ['sending', 'uncertain']) {
+    const f = await fixture(t), storage = new Storage();
+    await f.shop.s.run('UPDATE fulfillment SET state=?,attempts=0,lease_until=?,updated=?', state, Date.now() - 1000, Date.now() - 301000);
+    await f.restart();
+    const scheduler = new JobScheduler(storage, async () => f.shop);
+    await scheduler.arm('https://migration.example');
+    await scheduler.run(); await scheduler.run();
+    const job = await f.shop.s.get('SELECT * FROM fulfillment WHERE order_id=?', f.order.id);
+    assert.equal(job.state, 'production'); assert.equal(job.attempts, 1);
+    assert.equal((await f.shop.s.get('SELECT COUNT(*) AS n FROM provider_orders')).n, 1);
+  }
+});
+
+test('A batch larger than one alarm is drained automatically, and status inspection does not trigger work', async t => {
+  const f = await fixture(t), storage = new Storage(), orders = [f.order];
+  for (let i = 0; i < 4; i++) {
+    const { session } = await f.shop.createSession();
+    await f.shop.saveCart(session, { kind: 'fixed', modelId: 'iphone-14-pro', designId: 'nach-dem-sturm' });
+    const checkout = await f.shop.checkout(session, { method: 'card', recipient: { name: 'Batch Fixture', email: 'jobs@example.test', phone: '01721234567', street: 'Testweg 1', postalCode: '10115', city: 'Berlin', country: 'DE' } });
+    const order = await f.shop.s.get('SELECT * FROM orders WHERE id=?', checkout.orderId);
+    await f.shop.acceptPayment({ id: 'batch-' + order.id, orderId: order.id, paymentId: order.payment_id, completed: true, currency: 'EUR', amount: order.amount }, { flush: false });
+    orders.push(order);
+  }
+  const scheduler = new JobScheduler(storage, async () => f.shop);
+  await scheduler.arm('https://migration.example');
+  const scheduled = storage.alarm;
+  assert.equal((await scheduler.status()).scheduledAlarm, scheduled);
+  assert.equal(storage.alarm, scheduled);
+  assert.equal((await f.shop.s.get('SELECT COUNT(*) AS n FROM provider_orders')).n, 0);
+  assert.equal((await scheduler.run()).processed, 3);
+  assert.ok(storage.alarm, 'Remaining work retains its next wake-up');
+  assert.equal((await scheduler.run()).processed, 2);
+  assert.equal(storage.alarm, null);
+  await scheduler.run();
+  const remote = await f.shop.s.all('SELECT external_id,payload FROM provider_orders');
+  assert.equal(remote.length, 5); assert.equal(new Set(remote.map(o => o.external_id)).size, 5);
+  for (const order of orders) assert.equal(JSON.parse(remote.find(r => r.external_id === order.id).payload).items[0].printFile.endsWith(JSON.parse(order.items)[0].hash + '.png'), true);
+});
 test('An active job lease is respected; tracking reconciliation stops after shipment', async t => {
   const f = await fixture(t), storage = new Storage(), lease = Date.now() + 120000;
   await f.shop.s.run('UPDATE fulfillment SET lease_until=?', lease);

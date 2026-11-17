@@ -51,7 +51,7 @@ export class PodbaseAPI {
   }
   async request(path, method = 'GET', body) {
     const res = await fetch(`${this.baseUrl}${path}`, { method, headers: { 'x-api-key': this.apiKey, 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined, redirect: 'manual', signal: AbortSignal.timeout(15000) });
-    if (!res.ok) { const e = new Error(`Podbase-Anfrage fehlgeschlagen (HTTP ${res.status}).`); e.httpStatus = res.status; e.rejected = [400, 403, 422].includes(res.status); throw e; }
+    if (!res.ok) { const e = new Error(`Podbase-Anfrage fehlgeschlagen (HTTP ${res.status}).`); e.httpStatus = res.status; e.rejected = method === 'POST' && [400, 422].includes(res.status); throw e; }
     return res.json();
   }
   catalog() { return this.request('/catalog'); }
@@ -78,11 +78,15 @@ export class PodbaseAPI {
     }
     throw new Error('Podbase-Abgleich unvollständig. Kein neuer Auftrag wird gesendet.');
   }
-  create(payload) {
+  create(payload, { onAcknowledged } = {}) {
     if (!this.approved) throw new Error('Kostenpflichtige Podbase-Produktion ist gesperrt. Produktionsfreigabe fehlt.');
     if (!payload.externalOrderId || !payload.items?.length || payload.items.some(i => !/^PBP-/.test(i.productId) || !/^PBV-/.test(i.variantId) || !Number.isInteger(i.quantity) || i.quantity < 1 || !/^https:\/\/(www\.)?archenlicht\.de\/prints\/[a-f0-9]{64}\.png$/.test(i.printFile))) throw new Error('Podbase-Auftrag enthält keine gültigen Produktionsdaten.');
     return this.request('/orders', 'POST', payload).then(async result => {
       if (!result?.orderId || typeof result.orderId !== 'string') throw new Error('Podbase hat keine Auftrags-ID geliefert. Abgleich erforderlich.');
+      if (result.externalOrderId && this.normalizeOrder(result).externalOrderId !== payload.externalOrderId) throw new Error('Podbase-Auftragsantwort stimmt nicht mit der Bestellung überein.');
+      // Persist the acknowledgement before another network request. If the
+      // status read fails, recovery can use this ID instead of listing all orders.
+      if (onAcknowledged) await onAcknowledged(result.orderId);
       // The documented create response contains only orderId. Read its status
       // before persisting acceptance instead of treating that response as a
       // failed submission. Never send a second POST if this GET is interrupted.

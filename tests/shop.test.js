@@ -191,7 +191,10 @@ test('Unklarer Versand ohne Treffer wird gehalten; entfernte Variante nach Zahlu
   const { shop, client } = await setup(t), c = client(); await c.call('/api/bootstrap'); await putCart(c, fixed); const r = await checkout(c);
   const o = (await shop.s.get('SELECT * FROM orders WHERE id=?', r.orderId));
   (await shop.acceptPayment({ id: 'evt-unknown', orderId: o.id, paymentId: o.payment_id, amount: o.amount, currency: 'EUR', completed: true }));
-  (await shop.s.run("UPDATE fulfillment SET state='sending' WHERE order_id=?", o.id)); await shop.tick();
+  let submissions = 0;
+  shop.podbase.create = async () => { submissions++; throw new Error('Connection lost during POST; acceptance unknown'); };
+  await shop.tick(); await shop.tick();
+  assert.equal(submissions, 1);
   assert.equal((await shop.s.get('SELECT state FROM fulfillment WHERE order_id=?', o.id)).state, 'uncertain'); assert.equal((await shop.s.get('SELECT COUNT(*) AS n FROM provider_orders')).n, 0);
   await putCart(c, custom); const second = await checkout(c); (await shop.s.run('UPDATE variants SET available=0 WHERE model_id=? AND design_id=?', custom.modelId, custom.designId));
   await c.call(`/api/orders/${second.orderId}/confirm`, 'POST', {}); assert.equal((await shop.s.get('SELECT state FROM fulfillment WHERE order_id=?', second.orderId)).state, 'rejected');
