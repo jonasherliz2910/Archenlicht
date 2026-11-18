@@ -3,7 +3,7 @@ import { ShopError } from './layout.js';
 import { caseLabel } from '../public/case-options.js';
 import { BRAND } from './catalog.js';
 import { digest } from './store.js';
-import { summarizePricing } from '../public/bundle-pricing.js';
+import { summarizePricing, discountBreakdown } from '../public/bundle-pricing.js';
 
 export const STRIPE_API_VERSION = '2026-10-28.endive';
 export const TAX_TREATMENT = 'small_business_de';
@@ -86,7 +86,7 @@ export class Payments {
       // retries use the same idempotency key as the immutable order snapshot.
       const coupon = await this.request(client => client.coupons.create({
         amount_off: pricing.discount, currency: 'eur', duration: 'once', max_redemptions: 1,
-        name: `${pricing.source === 'newsletter' ? 'Newsletter' : 'Bundle'}-Rabatt ${pricing.percent} %`, metadata: { order_id: order.id }
+        name: discountBreakdown(pricing).map(part => `${part.source === 'newsletter' ? 'Newsletter' : 'Bundle'}-Rabatt ${part.percent} %`).join(' + '), metadata: { order_id: order.id }
       }, { idempotencyKey: `${pricing.source === 'newsletter' ? 'newsletter' : 'bundle'}-${order.id}` }));
       if (!coupon.id || coupon.livemode !== this.live || coupon.amount_off !== pricing.discount || coupon.currency !== 'eur' || coupon.metadata?.order_id !== order.id) throw new ShopError('Der Rabatt konnte nicht eingerichtet werden.', 502);
       params.discounts = [{ coupon: coupon.id }];

@@ -1,5 +1,5 @@
 import { NEWSLETTER_CONSENT, NEWSLETTER_CONSENT_VERSION, NEWSLETTER_TERMS } from './newsletter-policy.js';
-import { summarizePricing } from './bundle-pricing.js';
+import { summarizePricing, discountBreakdown } from './bundle-pricing.js';
 import { readConsent } from './cookie-policy.js';
 
 const money = value => new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(value / 100);
@@ -49,6 +49,7 @@ export function createNewsletterUI({ post }) {
     const row = document.querySelector('#newsletter-discount-row'), total = document.querySelector('[data-checkout-total]'), submit = form.querySelector('[type=submit]');
     if (!entry || !total) return;
     const originalButton = submit.innerHTML, originalTotal = total.textContent;
+    const paymentLabel = submit.textContent.includes('Zur Testzahlung') ? 'Zur Testzahlung' : 'Weiter zur Zahlung';
     function clear() { ++quoteSequence; code.value = ''; row.replaceChildren(); total.textContent = originalTotal; submit.innerHTML = originalButton; remove.hidden = true; status.textContent = ''; }
     entry.addEventListener('input', clear); email.addEventListener('input', clear); email.addEventListener('change', clear);
     remove.onclick = () => { clear(); entry.value = ''; status.textContent = 'Newsletter-Code entfernt.'; };
@@ -58,8 +59,9 @@ export function createNewsletterUI({ post }) {
         const result = await post('/api/newsletter/quote', { code: entry.value, email: email.value });
         if (sequence !== quoteSequence || !form.isConnected) return;
         const pricing = summarizePricing(result.items); code.value = entry.value.trim();
-        const label = document.createElement('span'), value = document.createElement('strong'); label.textContent = 'Newsletter-Rabatt (5 %)'; value.textContent = `−${money(pricing.discount)}`; row.append(label,value);
-        total.textContent = money(pricing.total); submit.textContent = `Zur Testzahlung · ${money(pricing.total)} →`; remove.hidden = false; status.textContent = 'Dein persönlicher 5-%-Rabatt ist angewendet.';
+        const newsletterDiscount = discountBreakdown(pricing).find(part => part.source === 'newsletter').discount;
+        const label = document.createElement('span'), value = document.createElement('strong'); label.textContent = 'Newsletter-Rabatt (zusätzlich 5 %)'; value.textContent = `−${money(newsletterDiscount)}`; row.append(label,value);
+        total.textContent = money(pricing.total); submit.textContent = `${paymentLabel} · ${money(pricing.total)} →`; remove.hidden = false; status.textContent = 'Dein persönlicher 5-%-Rabatt ist zusätzlich angewendet.';
       } catch (e) { if (sequence === quoteSequence) status.textContent = e.message; }
       finally { if (apply.isConnected) apply.disabled = false; }
     };

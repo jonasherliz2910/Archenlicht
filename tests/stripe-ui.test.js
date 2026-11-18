@@ -1,5 +1,5 @@
 import { caseLabel } from '../public/case-options.js';
-import { BUNDLE, priceBundleItems, summarizePricing } from '../public/bundle-pricing.js';
+import { BUNDLE, priceBundleItems, summarizePricing, discountBreakdown } from '../public/bundle-pricing.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
@@ -13,9 +13,10 @@ import * as legal from '../public/legal-content.js';
 import * as priceDisplay from '../public/price-display.js';
 import { studioCardMarkup } from '../public/studio-photography.js';
 import { PREVIEW_MODEL } from '../public/preview-model.js';
+import { icon } from '../public/icons.js';
 
 test('Stripe-Kasse zeigt dynamische Zahlungswahl, freiwillige Kartenspeicherung und Kleinunternehmerhinweis', () => {
-  const context=vm.createContext({...legal,...priceDisplay,studioCardMarkup,PREVIEW_MODEL,Intl,URL,URLSearchParams,BUNDLE,priceBundleItems,summarizePricing,caseLabel,recipientFields,phoneMockup,caseColor,location:{pathname:'/kasse',search:''},document:{addEventListener(){}},window:{addEventListener(){}}});
+  const context=vm.createContext({...legal,...priceDisplay,icon,studioCardMarkup,PREVIEW_MODEL,Intl,URL,URLSearchParams,BUNDLE,priceBundleItems,summarizePricing,discountBreakdown,caseLabel,recipientFields,phoneMockup,caseColor,location:{pathname:'/kasse',search:''},document:{addEventListener(){}},window:{addEventListener(){}}});
   const source=readFileSync('public/app.js','utf8').replace(/^import .*;\r?\n/gm,'').replace(/\nstart\(\);\s*$/,'');
   vm.runInContext(source,context);
   const state={paymentMode:'sandbox',taxNotice:TAX_NOTICE,user:{email:'fixture@example.test'},account:{address:null},cart:[{id:'fixture',configuration:{kind:'fixed',designId:'getragen',modelId:'iphone-18-pro'},unitPrice:2999,quantity:1,title:'Getragen',model:'iPhone 18 Pro',printText:'Jesaja 40,11',hash:'fixture'}]};
@@ -30,6 +31,11 @@ test('Stripe-Kasse zeigt dynamische Zahlungswahl, freiwillige Kartenspeicherung 
   const live=vm.runInContext('checkoutPage()',context);
   assert.match(live,/name="method" value="stripe"/);assert.match(live,/Weiter zur Zahlung/);
   assert.doesNotMatch(live,/Testcheckout|Testzahlung|Testkarten|type="radio" name="method"/);
+  vm.runInContext('state.cart=priceBundleItems(state.cart.map(item=>({...item,quantity:4,openingOffer:true,reduced:true})))',context);
+  const discounted=vm.runInContext('checkoutPage()',context);
+  assert.match(discounted,/Bundle-Rabatt \(10 %\)/);
+  assert.match(discounted,/Zusätzlich 5 % auf alle Hüllen/);
+  assert.doesNotMatch(discounted,/(?:id="newsletter-code"|id="newsletter-apply")[^>]*disabled/);
   vm.runInContext('state.checkoutEnabled=false',context);
   const closed=vm.runInContext('checkoutPage()',context);
   assert.match(closed,/Verkaufsstart/);assert.doesNotMatch(closed,/checkout-form|type="submit"/);

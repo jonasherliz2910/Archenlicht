@@ -20,7 +20,7 @@ export function newsletterEmail({ subscriber, kind, base, confirmToken, unsubscr
   const confirmNotice = 'Der Bestätigungslink ist 48 Stunden gültig. Wenn du dich nicht angemeldet hast, ignoriere diese Nachricht. Ohne deine Bestätigung wirst du nicht in den Newsletter aufgenommen.';
   const welcomeIntro = 'deine Newsletter-Anmeldung ist bestätigt. Willkommen bei Archenlicht! Schön, dass wir dich mit kleinen Lichtblicken für deinen Alltag begleiten dürfen.';
   const welcomeStory = 'Archenlicht verbindet christliche Motive und Bibelverse mit einem Begleiter, den du jeden Tag bei dir hast. Ob ein fertiges Design oder deine ganz persönliche Hülle mit Wunschtext: Wähle, was dir etwas bedeutet – für dich selbst oder als Geschenk für einen Menschen, der dir am Herzen liegt.';
-  const giftIntro = 'Als Dankeschön für deine Anmeldung erhältst du einmalig 5 % auf nicht reduzierte Hüllen. Hier ist dein persönlicher Willkommenscode:';
+  const giftIntro = 'Als Dankeschön für deine Anmeldung erhältst du einmalig zusätzlich 5 % auf alle Hüllen – auch auf reduzierte Artikel und bereits rabattierte Bundles. Hier ist dein persönlicher Willkommenscode:';
   const instructions = [
     'Wähle deine Hülle und gestalte sie mit deinem gewünschten Motiv, Handymodell und Hintergrund.',
     'Trage den Code an der Kasse unter „Newsletter-Rabatt“ ein und verwende dieselbe E-Mail-Adresse wie bei deiner Newsletter-Anmeldung.',

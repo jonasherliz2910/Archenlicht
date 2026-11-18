@@ -14,7 +14,7 @@ const price = (state, items, planned = false) => summarizePricing(priceBundleIte
 const example = (state, planned = false) => price(state, FIXED_BUNDLES[0].designs.map(designId => ({ kind: 'fixed', designId, magsafe: false })), planned);
 const photo = bundle => `<img src="${bundle.image}" alt="${esc(bundle.title)}: alle drei Motivhüllen nebeneinander auf einem Tisch" width="1448" height="1086" decoding="async">`;
 const note = `<p class="bundle-photo-note">Fotomontage mit Originalmotiven · Bildbeispiel: ${PREVIEW_MODEL.name} in Weiß.</p>`;
-const terms = `<p class="bundle-terms">Jedes Set enthält die drei gezeigten Motive, jeweils eine Hülle. Du wählst Modell, Farbe und MagSafe für jede Hülle einzeln. Jedes vollständige Dreier-Set erhält ${BUNDLE.fixedSetPercent} % Rabatt. Bei einer freien Zusammenstellung gelten ab zwei Hüllen 5 %, ab vier Hüllen 10 %. Die Rabatte werden nicht addiert. Kein zusätzlicher Newsletter-Rabatt. Versand innerhalb Deutschlands inklusive, Lieferung an eine gemeinsame Adresse.</p>`;
+const terms = `<p class="bundle-terms">Jedes Set enthält die drei gezeigten Motive, jeweils eine Hülle. Du wählst Modell, Farbe und MagSafe für jede Hülle einzeln. Jedes vollständige Dreier-Set erhält ${BUNDLE.fixedSetPercent} % Rabatt. Bei einer freien Zusammenstellung gelten ab zwei Hüllen 5 %, ab vier Hüllen 10 %. Die Rabatte werden nicht addiert. Dein Newsletter-Code gibt zusätzlich 5 % auf den bereits rabattierten Warenwert. Versand innerhalb Deutschlands inklusive, Lieferung an eine gemeinsame Adresse.</p>`;
 
 export function bundleCatalog(state) {
   const pricing = example(state), plannedPricing = example(state, true);

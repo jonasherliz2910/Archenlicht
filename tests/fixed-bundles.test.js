@@ -48,7 +48,7 @@ test('Both complete sets get 10 percent, while duplicates, custom cases and inco
     assert.deepEqual(summarizePricing(priced), { quantity: 3, subtotal: 8997, discount: 900, total: 8097, percent: 10, isBundle: true });
     assert.deepEqual(priceBundleItems(priced), priced, 'Discount is not compounded');
     assert.equal(summarizePricing(priceBundleItems([...original].reverse())).percent, 10);
-    assert.throws(() => priceNewsletterItems(priced), /nicht.*kombinierbar/);
+    assert.equal(summarizePricing(priceNewsletterItems(priced)).total, 7692);
     const old = original.map(item => ({ ...item, pricing: { version: 'bundle-5-10-v2', percent: 5, subtotal: 2999, discount: 150, total: 2849 } }));
     assert.equal(summarizePricing(old).total, 8547, 'Existing order snapshots keep their original 5 percent');
     for (const items of [original.slice(0, 2), [original[0], original[0], original[2]], [original[0], original[1], { ...original[2], configuration: { ...original[2].configuration, kind: 'custom' } }]]) {

@@ -25,8 +25,8 @@ test('Opening prices reach every variant; the server marks reductions and ignore
   for (const [kind, magsafe, price] of [['fixed', false, 2999], ['fixed', true, 3499], ['custom', false, 3499], ['custom', true, 3999]]) {
     const [item] = await shop.saveCart(session, { ...fixed, kind, magsafe, ...(kind === 'custom' ? { customText: 'Du bist getragen.' } : {}), unitPrice: 1, reduced: false, openingOffer: false });
     assert.equal(item.unitPrice, price); assert.equal(item.reduced, true); assert.equal(item.openingOffer, true);
-    assert.equal(newsletterEligible([item]), false);
-    assert.throws(() => priceNewsletterItems([item]), /nicht reduzierte/);
+    assert.equal(newsletterEligible([item]), true);
+    assert.equal(summarizePricing(priceNewsletterItems([item])).total, price - Math.round(price * .05));
     assert.equal(item.plannedUnitPrice, price + 500);
     const html = casePriceMarkup(state.brand, item.configuration);
     assert.doesNotMatch(html, /opening-price-label|opening-price-explanation/); assert.match(html, /<s class="opening-price-planned"/); assert.match(html, /aria-label="Geplanter Preis nach der Eröffnungsaktion/); assert.doesNotMatch(html.replace(/<[^>]*>/g, ''), /Eröffnungspreis|Geplanter|früher|statt|Countdown/);

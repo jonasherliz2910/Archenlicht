@@ -15,4 +15,4 @@ export function priceMarkup(amount, { openingOffer = false, plannedPrice, from =
 export const casePriceMarkup = (brand, configuration) => priceMarkup(casePrice(brand, configuration), { ...brand, plannedPrice: plannedCasePrice(brand, configuration) });
 export const linePriceMarkup = item => priceMarkup(item.unitPrice * item.quantity, { ...item, plannedPrice: item.plannedUnitPrice * item.quantity });
 
-export const newsletterEligible = items => items.length > 0 && !items.some(item => item.reduced === true || item.compareAtPrice > item.unitPrice || item.pricing?.discount > 0) && items.reduce((sum, item) => sum + item.quantity, 0) < 2;
+export const newsletterEligible = items => items.length > 0;
